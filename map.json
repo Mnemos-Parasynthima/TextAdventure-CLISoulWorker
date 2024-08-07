@@ -1,0 +1,15 @@
+{
+  "$schema": "./schema-map.json",
+
+  "0": {
+    "isEntry": 1,
+    "hasLoot": 0,
+    "hasEnemies": 0,
+    "info": "Test entry",
+    "exits": [
+      -1, -1, -1, -1
+    ],
+    "enemyTable": [],
+    "lootTable": []
+  }
+}
