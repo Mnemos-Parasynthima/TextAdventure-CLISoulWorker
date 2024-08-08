@@ -23,7 +23,7 @@ Table* initTable() {
 char putRoom(Table* table, Room* room) {
   char id = room->id;
 
-  Room* _room = table->rooms[id];
+  Room* _room = table->rooms[(int)id];
 
   if (_room == NULL) {
     if (id >= table->cap) { // Adding this item will increase the current array/size of the table
@@ -32,14 +32,14 @@ char putRoom(Table* table, Room* room) {
       table->cap += 5;
     }
 
-    table->rooms[id] = room;
+    table->rooms[(int)id] = room;
     table->len++;
   } else {
     // A room with the same id already exists. Default behaviour is to use the new room and delete the overwritten roon.
     // Note that even though the rooms may have the same id, their contents (loot table, enemy table, etc) may be different.
     deleteRoom(room);
 
-    table->rooms[id] = _room;
+    table->rooms[(int)id] = _room;
   }
 
   return id;

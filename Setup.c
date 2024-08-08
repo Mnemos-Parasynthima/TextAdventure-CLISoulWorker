@@ -6,11 +6,15 @@
 #include "cJSON.h"
 
 #define NO_EXIT 0xFEEDFAED
-
+#define MAPS_DIR "./data/maps"
 // TODO: Make own error handling/display
 
+// To do: be able to pass in a map of choice
+// For now, the map is hardcoded
 static char* readJSON() {
-  FILE* file = fopen("./map.json", "r");
+  const char* filename = "./data/maps/bad_map.json";
+
+  FILE* file = fopen(filename, "r");
 
   if (file == NULL) {
     fprintf(stderr, "Could not open map!");
@@ -27,7 +31,7 @@ static char* readJSON() {
     exit(-1);
   }
 
-  size_t read = fread(buff, 1, len, file);
+  fread(buff, 1, len, file);
 
   buff[len] = '\0';
 
@@ -59,53 +63,53 @@ static cJSON* readData() {
 static void validateRoom(cJSON* room) {
   cJSON* isEntry = cJSON_GetObjectItemCaseSensitive(room, "isEntry");
   if (isEntry == NULL) {
-    fprintf(stderr, "Room does not have isEntry data!");
+    fprintf(stderr, "Room does not have isEntry data!\n");
     exit(-1);
   }
-  if (isEntry->valueint != 1 && strcmp(room->valuestring, "0")) {
-    fprintf(stderr, "The isEntry tag and room id do not match!"); // Better error text
+  if (isEntry->valueint != 1 && strcmp(room->string, "0")) {
+    fprintf(stderr, "The isEntry tag and room id do not match!\n"); // Better error text
     exit(-1);
   }
 
   cJSON* hasLoot = cJSON_GetObjectItemCaseSensitive(room, "hasLoot");
   if (hasLoot == NULL) {
-    fprintf(stderr, "Room does not have hasLoot data!");
+    fprintf(stderr, "Room does not have hasLoot data!\n");
     exit(-1);
   }
   if (hasLoot->valueint < 0 || hasLoot->valueint > 1) {
-    fprintf(stderr, "hasLoot must only be 1 for true or 0 for false!");;
+    fprintf(stderr, "hasLoot must only be 1 for true or 0 for false!\n");;
     exit(-1);
   }
 
   cJSON* hasEnemies = cJSON_GetObjectItemCaseSensitive(room, "hasEnemies");
   if (hasEnemies == NULL) {
-    fprintf(stderr, "Room does not have hasEnemies data!");
+    fprintf(stderr, "Room does not have hasEnemies data!\n");
     exit(-1);
   }
   if (hasEnemies->valueint < 0 || hasEnemies->valueint > 1) {
-    fprintf(stderr, "hasEnemies must only be 1 for true or 0 for false!");;
+    fprintf(stderr, "hasEnemies must only be 1 for true or 0 for false!\n");;
     exit(-1);
   }
   
   cJSON* info = cJSON_GetObjectItemCaseSensitive(room, "info");
   if (info == NULL) {
-    fprintf(stderr, "Room does not have info data!");
+    fprintf(stderr, "Room does not have info data!\n");
     exit(-1);
   }
 
   cJSON* exits = cJSON_GetObjectItemCaseSensitive(room, "exits");
   if (exits == NULL) {
-    fprintf(stderr, "Room does not have exits data!");
+    fprintf(stderr, "Room does not have exits data!\n");
     exit(-1);
   }
   if (cJSON_GetArraySize(exits) != 4) {
-    fprintf(stderr, "Room exits must only be 4!");
+    fprintf(stderr, "Room exits must only be 4!\n");
     exit(-1);
   }
   cJSON* e = NULL;
   cJSON_ArrayForEach(e, exits) {
     if (e->valueint < -1) {
-      fprintf(stderr, "Exit markers cannot be less than -1!");
+      fprintf(stderr, "Exit markers cannot be less than -1!\n");
 
       exit(-1);
     }
@@ -113,7 +117,7 @@ static void validateRoom(cJSON* room) {
 
   cJSON* lootTable = cJSON_GetObjectItemCaseSensitive(room, "lootTable");
   if (lootTable == NULL) {
-    fprintf(stderr, "Room does not have loot table data!");
+    fprintf(stderr, "Room does not have loot table data!\n");
     exit(-1);
   }
   // TODO: When a system of all possible loot items is implemented
@@ -122,7 +126,7 @@ static void validateRoom(cJSON* room) {
 
   cJSON* enemyTable = cJSON_GetObjectItemCaseSensitive(room, "enemyTable");
   if (enemyTable == NULL) {
-    fprintf(stderr, "Room does not have enemy table data!");
+    fprintf(stderr, "Room does not have enemy table data!\n");
     exit(-1);
   }
 }
@@ -138,7 +142,7 @@ static char* selectFromTable(int hasTable, cJSON* table) {
   cJSON* item = cJSON_GetArrayItem(table, i);
 
   if (item == NULL) {
-    fprintf(stderr, "Error! Could not get item!");
+    fprintf(stderr, "Error! Could not get item!\n");
     exit(-1);
   }
 
@@ -223,12 +227,11 @@ Maze* initMaze() {
   // Quickly check if there is an entry room
   // Needs access to everything
   if (cJSON_GetObjectItemCaseSensitive(root, "0") == NULL) {
-    fprintf(stderr, "There does not exist a room with value of '0' for the entry!");
+    fprintf(stderr, "There does not exist a room with value of '0' for the entry!\n");
     exit(-1);
   }
 
   cJSON* roomI = root->child;
-  int i = 0; // ????
   int mazeSize = 0;
 
   Table* roomTable = initTable();
@@ -257,7 +260,7 @@ Maze* initMaze() {
 
   Maze* maze = (Maze*) malloc(sizeof(Maze));
   if (maze == NULL) {
-    fprintf(stderr, "Could not allocate maze!");
+    fprintf(stderr, "Could not allocate maze!\n");
     exit(-1);
   }
 
