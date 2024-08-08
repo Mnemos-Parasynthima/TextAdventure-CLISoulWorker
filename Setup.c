@@ -12,12 +12,12 @@
 // To do: be able to pass in a map of choice
 // For now, the map is hardcoded
 static char* readJSON() {
-  const char* filename = "./data/maps/bad_map.json";
+  const char* filename = "./data/maps/map.json";
 
   FILE* file = fopen(filename, "r");
 
   if (file == NULL) {
-    fprintf(stderr, "Could not open map!");
+    fprintf(stderr, "Could not open map!\n");
     exit(-1);
   }
 
