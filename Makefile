@@ -3,12 +3,12 @@ CFLAGS = -Wall
 
 INCLUDES = -I. -Iheaders
 
-COMMON_SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c
+COMMON_SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c
 LINUX_SRCS = $(COMMON_SRCS)
 WINDOWS_SRCS = $(COMMON_SRCS) getline.c
 
 
-COMMON_HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h
+COMMON_HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h
 LINUX_HEADERS = $(COMMON_HEADERS)
 WINDOWS_HEADERS = $(COMMON_HEADERS) headers/unistd.h
 
