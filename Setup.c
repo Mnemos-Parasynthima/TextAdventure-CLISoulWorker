@@ -140,6 +140,8 @@ static char* selectFromTable(int hasTable, cJSON* table) {
  */
 static Room* createRoom(cJSON* _room) {
   Room* room = (Room*) malloc(sizeof(Room));
+  room->enemy = NULL;
+  room->loot = NULL;
 
   cJSON* hasLoot = cJSON_GetObjectItemCaseSensitive(_room, "hasLoot");
   cJSON* hasEnemies = cJSON_GetObjectItemCaseSensitive(_room, "hasEnemies");
