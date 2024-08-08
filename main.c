@@ -5,8 +5,10 @@
 #include <stddef.h>
 #include <unistd.h>
 
+
 #include "SoulWorker.h"
 #include "Setup.h"
+#include "./unistd.h"
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
@@ -21,8 +23,13 @@ SoulWorker* player;
 Maze* maze;
 
 void loop() {
+  Room* currRoom = player->room;
+
   printf("Hello, %s! Welcome to Cloudream!\n", (player->name));
   printf("You are a SoulWorker exploring the N-102 Lab in Candus City.\n");
+
+  printf("You are in the entry room. %s\n", currRoom->info);
+
 }
 
 
@@ -40,6 +47,7 @@ int main(int argc, char const *argv[]) {
   *(name + nameLen - 1) = '\0';
 
   player = initSoulWorker(name);
+  player->room = maze->entry;
 
   // printf("");
   // printf("Is\n\t%s\t\tyour name?...\n", name);

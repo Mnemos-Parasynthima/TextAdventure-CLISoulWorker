@@ -1,3 +1,6 @@
+#ifndef _SETUP_
+#define _SETUP_
+
 typedef struct Room {
   char id; // The room id, note: it is not a string, just a number of 1 byte
   char* info;
@@ -31,3 +34,4 @@ Table* initTable();
 
 void deleteTable(Table* table);
 
+#endif // !_SETUP_
