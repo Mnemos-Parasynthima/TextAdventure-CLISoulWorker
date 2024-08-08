@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "Setup.h"
+#include "Error.h"
 
 Table* initTable() {
   Table* table = (Table*) malloc(sizeof(Table));
@@ -29,6 +30,8 @@ char putRoom(Table* table, Room* room) {
     if (id >= table->cap) { // Adding this item will increase the current array/size of the table
       // Increase the array by five more pointers
       table->rooms = (Room**) realloc(table->rooms, 5*sizeof(Room*));
+      if (table->rooms == NULL) handleError(ERR_MEM, "Could not reallocate space!\n");
+
       table->cap += 5;
     }
 

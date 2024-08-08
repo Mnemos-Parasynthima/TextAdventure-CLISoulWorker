@@ -10,6 +10,7 @@ set(SOURCES
     Setup.c
     SoulWorker.c
     Maze.c
+    Error.c
 )
 
 include_directories(headers)

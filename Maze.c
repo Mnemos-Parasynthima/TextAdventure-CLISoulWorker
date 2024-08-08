@@ -8,7 +8,7 @@ bool removeItemFromMap(Room *room) {
     return true;
   }
 
-  fprintf(stderr, "Could not remove item from map!\n");
+  fprintf(stderr, "Could not remove item from map!\n"); // Add to error handling???
 
   return false;
 }

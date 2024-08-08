@@ -3,9 +3,9 @@ CFLAGS = -Wall
 
 INCLUDES = -I. -Iheaders
 
-SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c
+SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c
 
-HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h
+HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h headers/Error.h
 
 OBJS = $(SRCS:.c=.o)
 

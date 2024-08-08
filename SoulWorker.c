@@ -1,9 +1,9 @@
 #include "SoulWorker.h"
+#include "Error.h"
 
 SoulWorker* initSoulWorker(char* name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
-
-  
+  if (sw == NULL) handleError(ERR_MEM, "Could not allocate space for the player!\n");  
 
   sw->name = name;
   sw->hp = 100;
