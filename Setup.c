@@ -10,6 +10,10 @@
 
 // To do: be able to pass in a map of choice
 // For now, the map is hardcoded
+/**
+ * Reads in the map json file as raw.
+ * @return The raw json text
+ */
 static char* readJSON() {
   const char* filename = "./data/maps/map.json";
 
@@ -39,7 +43,10 @@ static char* readJSON() {
   return buff;
 }
 
-
+/**
+ * Parses the json file into cJSON
+ * @return The root cJSON structure
+ */
 static cJSON* readData() {
   char* buffer = readJSON();
 
@@ -59,14 +66,20 @@ static cJSON* readData() {
   return json;
 }
 
+/**
+ * Given a room, it validates its JSON data
+ * @param room The cJSON structure to validate
+ */
 static void validateRoom(cJSON* room) {
+  char* roomId = room->string;
+
   cJSON* isEntry = cJSON_GetObjectItemCaseSensitive(room, "isEntry");
   if (isEntry == NULL) {
-    fprintf(stderr, "Room does not have isEntry data!\n");
+    fprintf(stderr, "Room %d does not have isEntry data!\n", roomId);
     exit(-1);
   }
   if (strcmp(room->string, "0") == 0 && isEntry->valueint != 1) {
-    fprintf(stderr, "The isEntry tag and room id do not match!\n"); // Better error text
+    fprintf(stderr, "The isEntry tag and room id do not match for room %d!\n", roomId); // Better error text
     exit(-1);
   }
 
@@ -132,6 +145,12 @@ static void validateRoom(cJSON* room) {
 
 
 // Better param naming
+/**
+ * Selects something from the provided table, if any. Is random.
+ * @param hasTable Whether there is a table to select from
+ * @param table The table to select from
+ * @return The selected object
+ */
 static char* selectFromTable(int hasTable, cJSON* table) {
   if (hasTable == 0) return NULL;
 
@@ -148,7 +167,11 @@ static char* selectFromTable(int hasTable, cJSON* table) {
   return item->valuestring;
 }
 
-
+/**
+ * Given a cJSON room, it creates a Room structure using its data
+ * @param _room The cJSON room structure
+ * @return The new Room
+ */
 static Room* createRoom(cJSON* _room) {
   Room* room = (Room*) malloc(sizeof(Room));
 
@@ -194,9 +217,16 @@ void deleteRoom(Room* room) {
   free(room->loot);
   free(room->info);
   free(room);
+
+  room = NULL;
 }
 
-Room* connectRooms(Table* table) {
+/**
+ * Connects the created rooms to form the maze.
+ * @param table The map containing the rooms
+ * @return The entry room
+ */
+static Room* connectRooms(Table* table) {
   Room *entry, *room;
 
   // Iterate though the table, getting each room

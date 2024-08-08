@@ -3,6 +3,8 @@
 SoulWorker* initSoulWorker(char* name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
 
+  
+
   sw->name = name;
   sw->hp = 100;
   sw->xp = 0;

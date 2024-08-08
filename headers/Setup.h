@@ -27,14 +27,36 @@ typedef struct Table {
   int len; // Number of items that the table contains
 } Table;
 
+/**
+ * Deletes the given room.
+ * @param room The room to delete
+ */
 void deleteRoom(Room* room);
 
+/**
+ * Inserts the given room into the given map
+ * @param table The map
+ * @param room The room to store
+ * @return The id of the inserted room
+ */
 char putRoom(Table* table, Room* room);
 
+/**
+ * Creates the maze.
+ * @return The Maze structure
+ */
 Maze* initMaze();
 
+/**
+ * Inititates the temporary map to store the room
+ * @return The Map
+ */
 Table* initTable();
 
+/**
+ * Deletes the temporary map.
+ * @param table The map to delete
+ */
 void deleteTable(Table* table);
 
 #endif
