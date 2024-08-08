@@ -57,13 +57,35 @@ bool validateInput(Room* room, int choice) {
 
 void loop() {
   Room* currRoom = player->room;
+  int choice;
 
-  printf("You are in the %s...\n", currRoom->info);
   
-
   while (true) {
+    printf("You are in the %s...\n", currRoom->info);
+
+    if (currRoom->loot != NULL) {
+      printf("You found %s! Do you want to add it to your inventory? (y|n) ", currRoom->loot);
+      choice = getchar();
+      getchar();
+
+      if (choice == 'y') {
+        addToInv(player, *(currRoom->loot));
+        removeItemFromMap(currRoom);
+        viewInventory(player);
+      } else {
+        printf("You did not add the item.\n");
+      }
+    }
+
+    if (currRoom->enemy != NULL) {
+      printf("You found an enemy! It's a %s!\n", currRoom->enemy);
+      // Fighting mechanics
+      removeEnemyFromMap(currRoom);
+    }
+
+
     printf("Which direction do you want to go? Type N for up, E for right, S for down, and W for left: ");
-    int choice = getchar();
+    choice = getchar();
     getchar();
 
     if (validateInput(currRoom, choice)) {
