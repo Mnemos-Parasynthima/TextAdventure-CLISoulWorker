@@ -1,6 +1,8 @@
 #ifndef _SETUP_
 #define _SETUP_
 
+#define NO_EXIT 0xFEEDFAED
+
 // A structure representing a room within a maze. Has connections to other possible rooms.
 typedef struct Room {
   char id; // The room id, note: it is not a string, just a number of 1 byte

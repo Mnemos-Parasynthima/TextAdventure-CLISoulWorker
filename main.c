@@ -25,6 +25,7 @@
     (c) == 'E' ? 1 : \
     (c) == 'S' ? 2 : \
     3)
+#define VALID_INPUT(c) ((c) == 'N' || (c) == 'E' || (c) == 'S' || (c) == 'W')
 
 SoulWorker* player;
 Maze* maze;
@@ -34,17 +35,17 @@ Maze* maze;
 bool validateInput(Room* room, int choice) {
   const char* DIR_CLOSED = "That direction is closed. Try another direction!\n";
 
-  if ((choice == 'N' && room->exits[0] == NULL) ||
-      (choice == 'E' && room->exits[1] == NULL) ||
-      (choice == 'S' && room->exits[2] == NULL) ||
-      (choice == 'W' && room->exits[3] == NULL)) {
+  if ((choice == 'N' && room->exits[0] == (void*)NO_EXIT) ||
+      (choice == 'E' && room->exits[1] == (void*)NO_EXIT) ||
+      (choice == 'S' && room->exits[2] == (void*)NO_EXIT) ||
+      (choice == 'W' && room->exits[3] == (void*)NO_EXIT)) {
 
     printf("%s", DIR_CLOSED);
 
     return false;
   }
 
-  if (choice != 'N' || choice != 'E' || choice != 'S' || choice != 'W') {
+  if (!VALID_INPUT(choice)) {
     printf("Not a direction. Try again.\n");
 
     return false;
