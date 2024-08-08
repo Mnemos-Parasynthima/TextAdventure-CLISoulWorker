@@ -3,14 +3,17 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <stddef.h>
-#include <unistd.h>
 #include <stdbool.h>
 
+#ifdef _WIN64
+#include "unistd.h" // For compiling in Windows MSVC
+#else
+#include <unistd.h>
+#endif
 
 #include "SoulWorker.h"
 #include "Setup.h"
 #include "Maze.h"
-#include "unistd.h" // For compiling in Windows MSVC
 
 #define ANSI_COLOR_RED     "\x1b[31m"
 #define ANSI_COLOR_GREEN   "\x1b[32m"
