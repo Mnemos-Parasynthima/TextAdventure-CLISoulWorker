@@ -6,7 +6,7 @@
     "hasLoot": 0,
     "hasEnemies": 0,
     "info": "You are at the entry of the N-102 lab.",
-    "exits": [1, -1, 3, 4],
+    "exits": [1, 3, 4, -1],
     "enemyTable": [],
     "lootTable": []
   },
@@ -41,7 +41,7 @@
     "isEntry": 0,
     "hasLoot": 0,
     "hasEnemies": 0,
-    "info": "End of maze for noq.",
+    "info": "End of maze for now.",
     "exits": [0, -1, -1, -1],
     "enemyTable": [],
     "lootTable": []
