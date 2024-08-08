@@ -5,7 +5,6 @@
 #include "Setup.h"
 #include "cJSON.h"
 
-#define NO_EXIT 0xFEEDFAED
 #define MAPS_DIR "./data/maps"
 // TODO: Make own error handling/display
 
@@ -66,7 +65,7 @@ static void validateRoom(cJSON* room) {
     fprintf(stderr, "Room does not have isEntry data!\n");
     exit(-1);
   }
-  if (isEntry->valueint != 1 && strcmp(room->string, "0")) {
+  if (strcmp(room->string, "0") == 0 && isEntry->valueint != 1) {
     fprintf(stderr, "The isEntry tag and room id do not match!\n"); // Better error text
     exit(-1);
   }
@@ -163,18 +162,18 @@ static Room* createRoom(cJSON* _room) {
 
   room->id = (char) atoi(_room->string);
 
-  room->info = (char*) malloc(sizeof(info->valuestring));
+  room->info = (char*) malloc(sizeof(char) * strlen(info->valuestring) + 1);
   strcpy(room->info, info->valuestring);
 
   char* loot = selectFromTable(hasLoot->valueint, lootTable);
   if (loot != NULL) {
-    room->loot = (char*) malloc(sizeof(loot));
+    room->loot = (char*) malloc(sizeof(char) * strlen(loot) + 1);
     strcpy(room->loot, loot);
   }
 
   char* enemy = selectFromTable(hasEnemies->valueint, enemyTable);
   if (enemy != NULL) {
-    room->enemy = (char*) malloc(sizeof(enemy));
+    room->enemy = (char*) malloc(sizeof(char) * strlen(enemy) + 1);
     strcpy(room->enemy, enemy);
   }
 
