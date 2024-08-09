@@ -15,60 +15,29 @@
 #include "Setup.h"
 #include "Maze.h"
 #include "Error.h"
+#include "Keyboard.h"
 
-
-#define CHAR_TO_INDEX(c) \
-    ((c) == 'N' ? 0 : \
-    (c) == 'E' ? 1 : \
-    (c) == 'S' ? 2 : \
-    3)
-#define VALID_INPUT(c) ((c) == 'N' || (c) == 'E' || (c) == 'S' || (c) == 'W')
 
 SoulWorker* player;
 Maze* maze;
 
 
-
-bool validateInput(Room* room, int choice) {
-  const char* DIR_CLOSED = "That direction is closed. Try another direction!\n";
-
-  if ((choice == 'N' && room->exits[0] == (void*)NO_EXIT) ||
-      (choice == 'E' && room->exits[1] == (void*)NO_EXIT) ||
-      (choice == 'S' && room->exits[2] == (void*)NO_EXIT) ||
-      (choice == 'W' && room->exits[3] == (void*)NO_EXIT)) {
-
-    printf("%s", DIR_CLOSED);
-
-    return false;
-  }
-
-  if (!VALID_INPUT(choice)) {
-    printf("Not a direction. Try again.\n");
-
-    return false;
-  }
-
-  return true;
-}
-
-
 void loop() {
   Room* currRoom = player->room;
-  int choice;
-
+  Commands choice;
   
-  while (true) {
-    printf("You are in the %s...\n", currRoom->info);
+  printf("You are in %s...\n", currRoom->info);
 
+  while (true) {
     if (currRoom->loot != NULL) {
       printf("You found %s! Do you want to add it to your inventory? (y|n) ", currRoom->loot);
       choice = getchar();
       getchar();
 
-      if (choice == 'y') {
+      if (choice == 'y' || choice == 'n') {
         addToInv(player, *(currRoom->loot));
         removeItemFromMap(currRoom);
-        viewInventory(player);
+        // viewInventory(player);
       } else {
         printf("You did not add the item.\n");
       }
@@ -81,20 +50,17 @@ void loop() {
     }
 
 
-    printf("Which direction do you want to go? Type N for up, E for right, S for down, and W for left: ");
+    printf("What are you going to do?... ");
     choice = getchar();
     getchar();
 
-    if (validateInput(currRoom, choice)) {
-      printf("Entering room...\n");
-      currRoom = currRoom->exits[CHAR_TO_INDEX(choice)];
-    } else {
-
-    }
+    while(!performAction(choice, player)) {
+      printf("That is not an action. Try again! For a list of acceptable actions, type 'h'!\n");
+      choice = getchar();
+      getchar();
+    };
   }
 }
-
-
 
 
 int main(int argc, char const *argv[]) {

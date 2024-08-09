@@ -4,6 +4,9 @@
 
 #include "Setup.h"
 
+#ifndef _SOULWORKER_
+#define _SOULWORKER_
+
 #define INV_CAP 50
 
 // The player model.
@@ -45,3 +48,6 @@ bool removeFromInv(SoulWorker* sw, char loot);
  * @param sw The player
  */
 void viewInventory(SoulWorker* sw);
+
+
+#endif
