@@ -74,13 +74,11 @@ static void displayHelp(HELP_T type) {
 }
 
 bool performAction(Commands action, SoulWorker* player) {
-  // Make better way to check in future when more actions are available
-  // if (action != WALK || action != OPEN_INVENTORY || action != HELP) return false;
-
   if (action == WALK) {
     printf("What direction do you want to move? ");
     Movement dir = getchar();
-    getchar();
+    FLUSH()
+    dir = tolower(dir);
 
     while(!validMove(&dir, player->room)) {
       printf("That is not a direction. Try again! For a list of acceptable direction, type 'h'. ");
