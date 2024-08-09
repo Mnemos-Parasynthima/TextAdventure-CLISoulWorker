@@ -11,6 +11,7 @@ set(SOURCES
     SoulWorker.c
     Maze.c
     Error.c
+    Keyboard.c
 )
 
 include_directories(headers)
