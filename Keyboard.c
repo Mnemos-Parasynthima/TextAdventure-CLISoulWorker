@@ -29,10 +29,10 @@ typedef enum {
  * @return True if valid, false otherwise
  */
 static bool validExit(Movement dir, Room* room) {
-  if ((dir == MOVE_NORTH && room->exits[0] == (void*)NO_EXIT) ||
-      (dir == MOVE_EAST && room->exits[1] == (void*)NO_EXIT) ||
-      (dir == MOVE_SOUTH && room->exits[2] == (void*)NO_EXIT) ||
-      (dir == MOVE_WEST && room->exits[3] == (void*)NO_EXIT)) {
+  if ((dir == MOVE_NORTH && room->exits[0] == (void*) ((long long)NO_EXIT)) ||
+      (dir == MOVE_EAST && room->exits[1] == (void*) ((long long)NO_EXIT)) ||
+      (dir == MOVE_SOUTH && room->exits[2] == (void*) ((long long)NO_EXIT)) ||
+      (dir == MOVE_WEST && room->exits[3] == (void*) ((long long)NO_EXIT))) {
 
     return false;
   }

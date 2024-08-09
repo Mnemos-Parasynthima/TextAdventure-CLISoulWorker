@@ -171,7 +171,7 @@ static Room* createRoom(cJSON* _room) {
   cJSON* e = NULL;
   int i = 0;
   cJSON_ArrayForEach(e, exits) {
-    if (e->valueint == -1) room->exits[i] = (void*) NO_EXIT;
+    if (e->valueint == -1) room->exits[i] = (void*) ((long long)NO_EXIT);
     else room->exits[i] = (void*) ((long long) e->valueint);
 
     i++;
