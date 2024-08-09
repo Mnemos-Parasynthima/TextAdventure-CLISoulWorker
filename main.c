@@ -4,7 +4,6 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdbool.h>
-#include <ctype.h>
 
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC
@@ -36,8 +35,8 @@ void loop() {
       getchar();
 
       if (choice == 'y' || choice == 'n') {
-        addToInv(player, *(currRoom->loot));
-        removeItemFromMap(currRoom);
+        bool added = addToInv(player, *(currRoom->loot));
+        if (added) removeItemFromMap(currRoom);
         // viewInventory(player);
       } else {
         printf("You did not add the item.\n");
@@ -62,6 +61,8 @@ void loop() {
       choice = tolower(choice);
       getchar();
     };
+
+    currRoom = player->room;
   }
 }
 

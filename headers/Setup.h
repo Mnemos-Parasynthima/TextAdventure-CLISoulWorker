@@ -1,3 +1,5 @@
+#include <ctype.h>
+
 #ifndef _SETUP_
 #define _SETUP_
 

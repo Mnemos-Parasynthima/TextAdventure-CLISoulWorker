@@ -8,15 +8,29 @@
 #define _SOULWORKER_
 
 #define INV_CAP 50
+#define ITEM_MAX 99
+
+
+typedef enum {
+  SLIME = 's',
+  KEY = 'k'
+} item_t;
+
+
+typedef struct Item {
+  item_t _item;
+  unsigned short count;
+} Item;
 
 // The player model.
 typedef struct SoulWorker {
   char* name; // The name of the player
-  int xp; // The current XP
-  int hp; // The current HP
-  int maxHP; // The max HP
-  char inv[INV_CAP]; // The player's inventory
-  int invCount; // Current items in the inventory
+  unsigned int xp; // The current XP
+  unsigned int hp; // The current HP
+  unsigned int maxHP; // The max HP
+  Item inv[INV_CAP]; // The player's inventory
+  unsigned short invCount; // Current items in the inventory
+  unsigned int dzenai; // The currency
   Room* room; // The current room that the player is in
 } SoulWorker;
 
@@ -33,7 +47,7 @@ SoulWorker* initSoulWorker(char* name);
  * @param loot The loot item
  * @return True if it was added, false otherwise
  */
-bool addToInv(SoulWorker* sw, char loot);
+bool addToInv(SoulWorker* sw, item_t loot);
 
 /**
  * Removes a given loot from a player.
@@ -41,7 +55,7 @@ bool addToInv(SoulWorker* sw, char loot);
  * @param loot The loot item
  * @return True if it was removed, false otherwise
  */
-bool removeFromInv(SoulWorker* sw, char loot);
+bool removeFromInv(SoulWorker* sw, item_t loot);
 
 /**
  * Displays the current inventory of the player

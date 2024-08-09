@@ -96,6 +96,8 @@ bool performAction(Commands action, SoulWorker* player) {
 
     player->room = player->room->exits[CHAR_TO_INDEX(dir)];
 
+    printf("You are in %s...\n", player->room->info);
+
     if (player->room == (void*)NO_EXIT) handleError(ERR_MEM, "Cannot access exit!\n");
 
     // printf("You are in %s...\n", currRoom->info);

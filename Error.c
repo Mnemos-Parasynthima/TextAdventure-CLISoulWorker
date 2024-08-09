@@ -8,7 +8,7 @@ static char buffer[150]; // Maybe increase size depending on future error text
 static char* errnames[ERR_IO+1] = {
   "DATA FORMAT ERROR",
   "MEMORY ERROR",
-  "IO ERRO"
+  "IO ERROR"
 };
 
 /**
