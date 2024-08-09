@@ -1,10 +1,12 @@
 #include "Keyboard.h"
 
+#include "Error.h"
+
 
 #define CHAR_TO_INDEX(c) \
-    ((c) == 'N' ? 0 : \
-    (c) == 'E' ? 1 : \
-    (c) == 'S' ? 2 : \
+    ((c) == 'n' ? 0 : \
+    (c) == 'e' ? 1 : \
+    (c) == 's' ? 2 : \
     3)
 
 
@@ -89,7 +91,12 @@ bool performAction(Commands action, SoulWorker* player) {
     }
 
     printf("Entering room...\n");
-    player->room = player->room->exits[CHAR_TO_INDEX(dir)];
+
+    int idx = CHAR_TO_INDEX(dir);
+
+    player->room = player->room->exits[idx];
+
+    if (player->room == (void*)NO_EXIT) handleError(ERR_MEM, "Cannot access exit!\n");
 
     // printf("You are in %s...\n", currRoom->info);
   } else if (action == OPEN_INVENTORY) viewInventory(player);
