@@ -34,7 +34,7 @@ void loop() {
       choice = getchar();
       getchar();
 
-      if (choice == 'y' || choice == 'n') {
+      if (choice == 'y') {
         bool added = addToInv(player, *(currRoom->loot));
         if (added) removeItemFromMap(currRoom);
         // viewInventory(player);
