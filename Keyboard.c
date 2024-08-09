@@ -49,10 +49,10 @@ static bool validExit(Movement dir, Room* room) {
 static bool validMove(Movement* dir, Room* room) {
   if (*dir == MOVE_NORTH || *dir == MOVE_EAST || *dir == MOVE_SOUTH || *dir == MOVE_WEST) {
     while (!validExit(*dir, room)) {
-      printf("That direction is closed. Try another direction!\n");
+      printf("That direction is closed. Try another direction! ");
 
       *dir = getchar();
-      getchar();
+      FLUSH()
       *dir = tolower(*dir);
     }
 
@@ -86,7 +86,7 @@ bool performAction(Commands action, SoulWorker* player) {
       printf("That is not a direction. Try again! For a list of acceptable direction, type 'h'. ");
 
       dir = getchar();
-      getchar();
+      FLUSH()
       dir = tolower(dir);
 
       if (dir == 'h') displayHelp(MOVEMENT);

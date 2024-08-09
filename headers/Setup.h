@@ -5,6 +5,8 @@
 
 #define NO_EXIT 0xFEEDFAED
 
+#define FLUSH() int c; while ((c = getchar()) != '\n' && c != EOF);
+
 // A structure representing a room within a maze. Has connections to other possible rooms.
 typedef struct Room {
   char id; // The room id, note: it is not a string, just a number of 1 byte

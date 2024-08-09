@@ -32,7 +32,7 @@ void loop() {
     if (currRoom->loot != NULL) {
       printf("You found %s! Do you want to add it to your inventory? (y|n) ", currRoom->loot);
       choice = getchar();
-      getchar();
+      FLUSH()
 
       if (choice == 'y') {
         bool added = addToInv(player, *(currRoom->loot));
@@ -53,13 +53,13 @@ void loop() {
     printf("What are you going to do?... ");
     choice = getchar();
     choice = tolower(choice);
-    getchar();
+    FLUSH()
 
     while(!performAction(choice, player)) {
       printf("That is not an action. Try again! For a list of acceptable actions, type 'h'!\n");
       choice = getchar();
       choice = tolower(choice);
-      getchar();
+      FLUSH()
     };
 
     currRoom = player->room;
