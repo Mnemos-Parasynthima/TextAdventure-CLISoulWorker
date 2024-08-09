@@ -53,6 +53,7 @@ static bool validMove(Movement* dir, Room* room) {
 
       *dir = getchar();
       getchar();
+      *dir = tolower(*dir);
     }
 
     return true;
@@ -86,15 +87,14 @@ bool performAction(Commands action, SoulWorker* player) {
 
       dir = getchar();
       getchar();
+      dir = tolower(dir);
 
       if (dir == 'h') displayHelp(MOVEMENT);
     }
 
     printf("Entering room...\n");
 
-    int idx = CHAR_TO_INDEX(dir);
-
-    player->room = player->room->exits[idx];
+    player->room = player->room->exits[CHAR_TO_INDEX(dir)];
 
     if (player->room == (void*)NO_EXIT) handleError(ERR_MEM, "Cannot access exit!\n");
 

@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC
@@ -52,11 +53,13 @@ void loop() {
 
     printf("What are you going to do?... ");
     choice = getchar();
+    choice = tolower(choice);
     getchar();
 
     while(!performAction(choice, player)) {
       printf("That is not an action. Try again! For a list of acceptable actions, type 'h'!\n");
       choice = getchar();
+      choice = tolower(choice);
       getchar();
     };
   }
