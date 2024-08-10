@@ -2,6 +2,8 @@
 #define _SETUP_H
 
 
+#include <stdbool.h>
+
 #include "Maze.h"
 
 
@@ -19,9 +21,10 @@ typedef struct Table {
  * Inserts the given room into the given map
  * @param table The map
  * @param room The room to store
- * @return The id of the inserted room
+ * @param overwrite Whether to overwrite the room if one exists
+ * @return Whether the room was put
  */
-char putRoom(Table* table, Room* room);
+bool putRoom(Table* table, Room* room, bool overwrite);
 
 /**
  * Creates the maze.

@@ -244,7 +244,7 @@ Maze* initMaze() {
     Room* room = createRoom(roomI);
     mazeSize++;
 
-    putRoom(roomTable, room);
+    putRoom(roomTable, room, true);
 
     roomI = roomI->next;
   }

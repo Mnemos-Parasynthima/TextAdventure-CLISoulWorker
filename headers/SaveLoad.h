@@ -10,4 +10,7 @@ extern Maze* maze;
  */
 void saveGame();
 
-void loadGame(const char* savefile);
+/**
+ * Loads saved game.
+ */
+void loadGame();

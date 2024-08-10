@@ -3,11 +3,12 @@ CFLAGS = -Wall
 
 INCLUDES = -I. -Iheaders
 
-SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c Keyboard.c SaveLoad.c
+SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c Keyboard.c SaveLoad.c itoa.s
 
 HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h headers/Error.h headers/Keyboard.h headers/SaveLoad.h
 
 OBJS = $(SRCS:.c=.o)
+OBJS := $(OBJS:.s=.o)
 
 TARGET = clisw
 
@@ -19,6 +20,8 @@ $(TARGET): $(OBJS)
 %.o: %.c $(HEADERS)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
+%.o: %.c
+	$(CC) $< -o $@
 
 debug: CFLAGS += -g -O0
 debug: $(TARGET)

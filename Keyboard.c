@@ -59,6 +59,8 @@ static bool validMove(Movement* dir, Room* room) {
       *dir = tolower(*dir);
     }
 
+    // Fix
+
     return true;
   }
   
