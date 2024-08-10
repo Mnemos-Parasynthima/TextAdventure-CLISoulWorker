@@ -33,6 +33,7 @@ void loop() {
     if (currRoom->loot != NULL) {
       printf("You found %s! Do you want to add it to your inventory? (y|n) ", currRoom->loot);
       choice = getchar();
+      choice = tolower(choice);
       FLUSH()
 
       if (choice == 'y') {
