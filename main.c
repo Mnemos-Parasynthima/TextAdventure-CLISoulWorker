@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdbool.h>
+#include <ctype.h>
 
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC

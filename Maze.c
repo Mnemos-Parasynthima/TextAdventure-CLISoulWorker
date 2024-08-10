@@ -1,3 +1,6 @@
+#include <stdio.h>
+#include <stdlib.h>
+
 #include "Maze.h"
 
 bool removeItemFromMap(Room *room) {

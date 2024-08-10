@@ -1,25 +1,24 @@
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
+#ifndef _SOULWORKER_H
+#define _SOULWORKER_H
 
+#include <stdbool.h>
+
+#include "Maze.h"
 #include "Setup.h"
 
-#ifndef _SOULWORKER_
-#define _SOULWORKER_
 
 #define INV_CAP 50
 #define ITEM_MAX 99
-
 
 typedef enum {
   SLIME = 's',
   KEY = 'k'
 } item_t;
 
-
+// The Item model.
 typedef struct Item {
-  item_t _item;
-  unsigned short count;
+  item_t _item; // The type of item
+  unsigned short count; // The amount of that item
 } Item;
 
 // The player model.

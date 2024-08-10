@@ -1,14 +1,16 @@
-#include <stdbool.h>
-#include <stdio.h>
+#ifndef _KEYBOARD_H
+#define _KEYBOARD_H
 
-#include "Setup.h"
+#include <stdbool.h>
+
 #include "SoulWorker.h"
 
 
 typedef enum {
   WALK = 'm',
   OPEN_INVENTORY = 'i',
-  HELP = 'h'
+  HELP = 'h',
+  SAVE = 's'
 } Commands;
 
 /**
@@ -17,3 +19,6 @@ typedef enum {
  * @return True if a valid action, false otherwise
  */
 bool performAction(Commands action, SoulWorker* player);
+
+
+#endif

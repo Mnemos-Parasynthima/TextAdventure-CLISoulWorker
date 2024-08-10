@@ -12,6 +12,7 @@ set(SOURCES
     Maze.c
     Error.c
     Keyboard.c
+    SaveLoad.c
 )
 
 include_directories(headers)

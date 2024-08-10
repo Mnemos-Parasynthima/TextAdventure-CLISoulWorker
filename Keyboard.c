@@ -1,6 +1,9 @@
-#include "Keyboard.h"
+#include <stdio.h>
+#include <ctype.h>
 
+#include "Keyboard.h"
 #include "Error.h"
+#include "SaveLoad.h"
 
 
 #define CHAR_TO_INDEX(c) \
@@ -69,6 +72,7 @@ static void displayHelp(HELP_T type) {
     printf("Possible actions are:\n");
     printf("\t Open Inventory ('i')\n");
     printf("\t Move ('m')\n");
+    printf("\t Save ('s')");
     printf("\t Help message ('h')\n");
   }
 }
@@ -101,6 +105,7 @@ bool performAction(Commands action, SoulWorker* player) {
     // printf("You are in %s...\n", currRoom->info);
   } else if (action == OPEN_INVENTORY) viewInventory(player);
     else if (action == HELP) displayHelp(ACTIONS);
+    else if (action == SAVE) saveGame();
     else return false;
 
   return true;

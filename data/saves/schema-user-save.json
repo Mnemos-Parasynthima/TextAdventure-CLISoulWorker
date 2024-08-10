@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Player State Save",
+  "description": "The structure of how the player state is saved.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "description": "The name of the player.",
+      "type": "string"
+    },
+    "xp": {
+      "description": "The current XP of the player.",
+      "type": "integer"
+    },
+    "hp": {
+      "description": "The current HP of the player.",
+      "type": "integer"
+    },
+    "maxHP": {
+      "description": "The max HP of the player.",
+      "type": "integer"
+    },
+    "invCount": {
+      "description": "The amount of items in the inventory of the player.",
+      "type": "integer"
+    },
+    "inventory": {
+      "description": "The inventory of the player.",
+      "type": "array",
+      "items": [
+        {
+          "description": "The item.",
+          "type": "object",
+          "properties": {
+            "item": {
+              "description": "The item type.",
+              "type": "string"
+            },
+            "count": {
+              "description": "The amount of the item.",
+              "type": "integer"
+            }
+          }
+        }
+      ]
+    },
+    "room": {
+      "description": "The room that the player was in at save.",
+      "type": "object",
+      "properties": {
+        "map": {
+          "description": "The map that the room is part of.",
+          "type": "string"
+        },
+        "id": {
+          "description": "The id of the room.",
+          "type": "integer"
+        }
+      }
+    }
+  }
+}
