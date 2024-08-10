@@ -15,6 +15,7 @@ SoulWorker* initSoulWorker(char* name) {
   sw->xp = 0;
   sw->invCount = 0;
   sw->dzenai = 0;
+  sw->maxHP = 100;
   
 
   for(int i = 0; i < INV_CAP; i++) {
