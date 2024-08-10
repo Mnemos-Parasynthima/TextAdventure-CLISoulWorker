@@ -27,6 +27,8 @@
     "inventory": {
       "description": "The inventory of the player.",
       "type": "array",
+      "minItems": 0,
+      "maxItems": 50,
       "items": [
         {
           "description": "The item.",
@@ -38,7 +40,9 @@
             },
             "count": {
               "description": "The amount of the item.",
-              "type": "integer"
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 999
             }
           }
         }
@@ -58,5 +62,14 @@
         }
       }
     }
-  }
+  },
+  "required": [
+    "name",
+    "xp",
+    "hp",
+    "maxHP",
+    "invCount",
+    "inventory",
+    "room"
+  ]
 }
