@@ -23,14 +23,17 @@ static void formatMessage(const char* fmsg, va_list args) {
 }
 
 
-void handleError(errType err, const char* fmsg, ...) {
+void handleError(errType err, sevType sev, const char* fmsg, ...) {
   va_list args;
   va_start(args, fmsg);
 
   formatMessage(fmsg, args);
 
-  fprintf(stdout, ANSI_COLOR_RED "%s %s" ANSI_RESET, errnames[err], buffer);
-  // TODO: write/log errors to files in future
+  if (sev == FATAL) {
+    fprintf(stdout, ANSI_COLOR_RED "%s %s" ANSI_RESET, errnames[err], buffer);
+    // TODO: write/log errors to files in future
+    exit(-1);
+  }
 
-  exit(-1);
+  fprintf(stdout, ANSI_COLOR_YELLOW "%s %s" ANSI_RESET, errnames[err], buffer);
 }

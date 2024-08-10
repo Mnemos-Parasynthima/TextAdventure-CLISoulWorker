@@ -100,7 +100,7 @@ bool performAction(Commands action, SoulWorker* player) {
 
     printf("You are in %s...\n", player->room->info);
 
-    if (player->room == (void*)NO_EXIT) handleError(ERR_MEM, "Cannot access exit!\n");
+    if (player->room == (void*)NO_EXIT) handleError(ERR_MEM, FATAL, "Cannot access exit!\n");
 
     // printf("You are in %s...\n", currRoom->info);
   } else if (action == OPEN_INVENTORY) viewInventory(player);

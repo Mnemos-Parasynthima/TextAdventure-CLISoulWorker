@@ -3,8 +3,8 @@
   "title": "Player State Save",
   "description": "The structure of how the player state is saved.",
   "type": "object",
-  "minProperties": 7,
-  "maxProperties": 7,
+  "minProperties": 8,
+  "maxProperties": 8,
   "properties": {
     "name": {
       "description": "The name of the player.",

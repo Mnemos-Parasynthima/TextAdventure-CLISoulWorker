@@ -30,7 +30,7 @@ char putRoom(Table* table, Room* room) {
     if (id >= table->cap) { // Adding this item will increase the current array/size of the table
       // Increase the array by five more pointers
       table->rooms = (Room**) realloc(table->rooms, 5*sizeof(Room*));
-      if (table->rooms == NULL) handleError(ERR_MEM, "Could not reallocate space!\n");
+      if (table->rooms == NULL) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
 
       table->cap += 5;
     }
