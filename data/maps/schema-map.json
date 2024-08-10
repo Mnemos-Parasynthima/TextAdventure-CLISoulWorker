@@ -7,6 +7,8 @@
     "id": {
       "description": "Specification for a given room in a map.",
       "type": "object",
+      "minProperties": 7,
+      "maxProperties": 7,
       "properties": {
         "isEntry": {
           "description": "Whether this room is the entry. Note, only one entry is allowed per map.",
@@ -69,5 +71,6 @@
         "enemyTable"
       ]
     }
-  }
+  },
+  "required": ["id"]
 }

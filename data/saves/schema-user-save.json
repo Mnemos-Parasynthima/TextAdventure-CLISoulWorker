@@ -3,6 +3,8 @@
   "title": "Player State Save",
   "description": "The structure of how the player state is saved.",
   "type": "object",
+  "minProperties": 7,
+  "maxProperties": 7,
   "properties": {
     "name": {
       "description": "The name of the player.",
@@ -33,6 +35,8 @@
         {
           "description": "The item.",
           "type": "object",
+          "minProperties": 2,
+          "maxProperties": 2,
           "properties": {
             "item": {
               "description": "The item type.",
@@ -44,13 +48,19 @@
               "minimum": 0,
               "maximum": 999
             }
-          }
+          },
+          "required": [
+            "item",
+            "count"
+          ]
         }
       ]
     },
     "room": {
       "description": "The room that the player was in at save.",
       "type": "object",
+      "minProperties": 2,
+      "maxProperties": 2,
       "properties": {
         "map": {
           "description": "The map that the room is part of.",
@@ -60,7 +70,11 @@
           "description": "The id of the room.",
           "type": "integer"
         }
-      }
+      },
+      "required": [
+        "map",
+        "id"
+      ]
     }
   },
   "required": [

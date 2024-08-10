@@ -7,6 +7,8 @@
     "id": {
       "description": "The ID of the room.",
       "type": "object",
+      "minProperties": 3,
+      "maxProperties": 3,
       "properties": {
         "isEntry": {
           "description": "Whether this room is the entry. Note, only one entry is allowed per map.",
@@ -24,13 +26,21 @@
               "type": "integer",
               "minimum": -1
             }
+          ],
+          "required": [
+            "items"
           ]
         },
         "info": {
           "description": "The description of the room to be used in the game. It is used as-is within game.",
           "type": "string"
         }
-      }
+      },
+      "required": [
+        "isEntry",
+        "exits",
+        "info"
+      ]
     }
   }
 }
