@@ -13,9 +13,12 @@ set(SOURCES
     Error.c
     Keyboard.c
     SaveLoad.c
+    itoa.s
 )
 
 include_directories(headers)
+
+set_source_files_properties(itoa.s PROPERTIES LANGUAGE ASM)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
