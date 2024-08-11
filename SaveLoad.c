@@ -1,6 +1,7 @@
 #include <time.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "SaveLoad.h"
 #include "LoadJSON.h"
@@ -335,7 +336,7 @@ static SoulWorker* loadPlayer() {
   for(int i = 0; i < cJSON_GetArraySize(inv); i++) {
     cJSON* invItem = cJSON_GetArrayItem(inv, i);
     cJSON* itemItem = cJSON_GetObjectItemCaseSensitive(invItem, ITEM);
-    cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(itemCount, COUNT);
+    cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(invItem, COUNT);
 
     player->inv[i]._item = (item_t)itemItem->valuestring;
     player->inv[i].count = itemCount->valueint;
