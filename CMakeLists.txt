@@ -18,11 +18,12 @@ set(SOURCES
 
 include_directories(headers)
 
+enable_language(ASM)
 set_source_files_properties(itoa.s PROPERTIES LANGUAGE ASM)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-add_definitions(-D_CRT_SECTURE_NO_WARNINGS)
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
