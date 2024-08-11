@@ -62,5 +62,11 @@ bool removeFromInv(SoulWorker* sw, item_t loot);
  */
 void viewInventory(SoulWorker* sw);
 
+/**
+ * Deletes the structure and frees the memory for the end of the gametime.
+ * @param sw The SoulWorker structure to delete and free
+ */
+void deleteSoulWorker(SoulWorker* sw);
+
 
 #endif

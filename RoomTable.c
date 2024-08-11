@@ -59,4 +59,5 @@ void deleteTable(Table* table) {
 
   free(table->rooms);
   free(table);
+  table = NULL;
 }

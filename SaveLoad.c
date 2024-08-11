@@ -315,7 +315,8 @@ static SoulWorker* loadPlayer() {
 
 
   int nameLen = strlen(name->valuestring);
-  char playerName[nameLen+1];
+  char* playerName = (char*) malloc(nameLen + 1);
+  if (playerName == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player name!\n");
   strncpy(playerName, name->valuestring, nameLen+1);
 
   SoulWorker* player = initSoulWorker(playerName);

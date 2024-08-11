@@ -120,3 +120,11 @@ void viewInventory(SoulWorker* sw) {
     }
   }
 }
+
+void deleteSoulWorker(SoulWorker *sw) {
+  if (sw == NULL) return;
+
+  free(sw->name);
+  free(sw);
+  sw = NULL;
+}
