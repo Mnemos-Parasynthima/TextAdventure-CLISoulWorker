@@ -3,7 +3,7 @@
 #include <string.h>
 
 #include "SaveLoad.h"
-#include "cJSON.h"
+#include "LoadJSON.h"
 #include "Error.h"
 #include "Setup.h"
 
@@ -24,7 +24,10 @@
 #define IS_ENTRY "isEntry"
 #define INFO "info"
 #define EXITS "exits"
+#define LOOT "loot"
+#define ENEMY "enemy"
 
+const char* SAVE_DIR = "./data/saves";
 
 // itoa is in assembly (just for fun), change it to C later
 /**
@@ -35,6 +38,12 @@
  */
 extern char* itoa(int n, char* buffer);
 
+/**
+ * Handles errors regarding cJSON objects.
+ * @param obj The cJSON object
+ * @param type The JSON object tag
+ * @return NULL
+ */
 static char* createError(cJSON* obj, const char* type) {
   cJSON_Delete(obj);
 
@@ -42,6 +51,26 @@ static char* createError(cJSON* obj, const char* type) {
 
   return NULL;
 }
+
+/**
+ * Finds a room with the given ID.
+ * @param room The room to look at
+ * @param id The target ID
+ * @return Room with matching ID
+ */
+static Room* findRoom(Room* room, char id) {
+  if (room != (void*)((long long)NO_EXIT)) {
+    if (room->id == id) return room;
+
+    for (int i = 0; i < 4; i++) {
+      Room* target = findRoom(room->exits[i], id);
+      if (target != (void*)((long long)NO_EXIT)) return target;
+    }
+  }
+
+  return (void*)((long long)NO_EXIT);
+}
+
 
 /**
  * Recursively, adds the room to the table.
@@ -65,7 +94,10 @@ static void addAndRecurse(Room* room, Table* table) {
   }
 }
 
-
+/**
+ * Creates the maze state for saving.
+ * @return The maze as a JSON string
+ */
 static char* createMapState() {
   Table* table = initTable();
   if (table == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the table!\n");
@@ -86,28 +118,44 @@ static char* createMapState() {
     char* idAsChar = itoa(room->id, buffer);
 
     cJSON* roomObj = cJSON_AddObjectToObject(mapObj, idAsChar);
-    if (roomObj == NULL) return createError(roomObj, idAsChar);
+    if (roomObj == NULL) return createError(mapObj, idAsChar);
 
     cJSON* isEntry = cJSON_AddNumberToObject(roomObj, IS_ENTRY, (room->id == 0) ? 1 : 0);
-    if (isEntry == NULL) return createError(roomObj, IS_ENTRY);
+    if (isEntry == NULL) return createError(mapObj, IS_ENTRY);
 
     cJSON* info = cJSON_AddStringToObject(roomObj, INFO, room->info);
-    if (info == NULL) return createError(roomObj, INFO);
+    if (info == NULL) return createError(mapObj, INFO);
 
     cJSON* exits = cJSON_AddArrayToObject(roomObj, EXITS);
-    if (exits == NULL) return createError(roomObj, EXITS);
-    for(int i = 0; i < 4; i++) {
+    if (exits == NULL) return createError(mapObj, EXITS);
+    for (int i = 0; i < 4; i++) {
       Room* roomExit = room->exits[i];
-      // cJSON* exit;
-      // if (roomExit == NO_ITEM) {
-      //   exit = cJSON_CreateNumber(-1);
-      // } else {
-      //   exit = cJSON_CreateNumber(roomExit->id);
-      // }
-      cJSON* exit = cJSON_CreateNumber((roomExit == (void*)((long long)NO_EXIT) ? -1 : roomExit->id));
-      if (exit == NULL) return createError(roomObj, "exit");
 
-      if (!cJSON_AddItemToArray(exits, exit)) return createError(mapObj, "exit in exits\n");
+      cJSON* exit = cJSON_CreateNumber((roomExit == (void*)((long long)NO_EXIT) ? -1 : roomExit->id));
+      if (exit == NULL) return createError(mapObj, "exit");
+
+      if (!cJSON_AddItemToArray(exits, exit)) return createError(mapObj, "exit in exits");
+    }
+
+
+    // Explore usage with CreateStringArray
+    // Create the arrays just to be in compliance to format
+    // But no need to add when none are present
+
+    cJSON* loot = cJSON_AddArrayToObject(roomObj, LOOT);
+    if (loot == NULL) return createError(mapObj, LOOT);
+    if (room->loot != NULL) {
+      cJSON* lootItem = cJSON_CreateString(room->loot);
+      if (lootItem == NULL) return createError(mapObj, "loot item");
+      if (!cJSON_AddItemToArray(loot, lootItem)) return createError(mapObj, "loot item in loot");
+    }
+
+    cJSON* enemy = cJSON_AddArrayToObject(roomObj, ENEMY);
+    if (enemy == NULL) return createError(mapObj, ENEMY);
+    if (room->enemy != NULL) {
+      cJSON* enemyEntity = cJSON_CreateString(room->enemy);
+      if (enemyEntity == NULL) return createError(mapObj, "enemy entity");
+      if (!cJSON_AddItemToArray(enemy, enemyEntity)) return createError(mapObj, "enemy entity in enemy");
     }
   }
 
@@ -119,29 +167,32 @@ static char* createMapState() {
   return mapState;
 }
 
+/**
+ * Saves the current state of the maze.
+ */
 static void saveMap() {
-  const char* dir = "./data/saves/maps";
-
   char* mapState = createMapState();
   if (mapState == NULL) handleError(ERR_DATA, ERROR, "Could not create map state!\n");
 
-    char filename[35];
-    sprintf(filename, "%s/map_save.json", dir);
+  char filename[35];
+  sprintf(filename, "%s/map_save.json", SAVE_DIR);
 
-    FILE* file = fopen(filename, "w");
-    if (file == NULL) {
-      handleError(ERR_IO, ERROR, "Unable to create the save!\n");
-    } else {
-      int written = fprintf(file, "%s", mapState);
+  FILE* file = fopen(filename, "w");
+  if (file == NULL) handleError(ERR_IO, ERROR, "Unable to create the save!\n");
+  else {
+    int written = fprintf(file, "%s", mapState);
+    if (written <= 0) handleError(ERR_IO, ERROR, "Unable to save the map data!\n");
+  }
 
-      if (written <= 0) handleError(ERR_IO, ERROR, "Unable to save the map data!\n");
-    }
+  fclose(file);
 
-    fclose(file);
-
-    cJSON_free(mapState);
+  cJSON_free(mapState);
 }
 
+/**
+ * Creates the player state.
+ * @return The player state as JSON string
+ */
 static char* createPlayerState() {
   cJSON* playerObj = cJSON_CreateObject();
   if (playerObj == NULL) return createError(playerObj, "player");
@@ -191,6 +242,9 @@ static char* createPlayerState() {
   return playerState;
 }
 
+/**
+ * Saves the current state of the player.
+ */
 static void savePlayer() {
   const char* dir = "./data/saves";
 
@@ -221,6 +275,98 @@ void saveGame() {
   printf("The game has been saved!\n");
 }
 
-void loadGame(const char* savefile) {
+/**
+ * Loads the player data.
+ * @return The player
+ */
+static SoulWorker* loadPlayer() {
+  char filename[30];
+  sprintf(filename, "%s/player_save.json", SAVE_DIR);
 
+
+  cJSON* root = readData(filename);
+  if (root == NULL) handleError(ERR_DATA, FATAL, "Could not parse JSON!\n");
+
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(root, NAME);
+  if (name == NULL) handleError(ERR_DATA, FATAL, "No name data found!\n");
+
+  cJSON* hp = cJSON_GetObjectItemCaseSensitive(root, HP);
+  if (hp == NULL) handleError(ERR_DATA, FATAL, "No hp data found!\n");
+
+  cJSON* maxHP = cJSON_GetObjectItemCaseSensitive(root, MAX_HP);
+  if (maxHP == NULL) handleError(ERR_DATA, FATAL, "No maxHP data found!\n");
+
+  cJSON* invCount = cJSON_GetObjectItemCaseSensitive(root, INV_COUNT);
+  if (invCount == NULL) handleError(ERR_DATA, FATAL, "No invCount data found!\n");
+
+  cJSON* xp = cJSON_GetObjectItemCaseSensitive(root, XP);
+  if (xp == NULL) handleError(ERR_DATA, FATAL, "No xp data found!\n");
+
+  cJSON* room = cJSON_GetObjectItemCaseSensitive(root, ROOM);
+  if (room == NULL) handleError(ERR_DATA, FATAL, "No room data found!\n");
+  cJSON* roomId = cJSON_GetObjectItemCaseSensitive(room, ID);
+  if (roomId == NULL) handleError(ERR_DATA, FATAL, "No roomID data found!\n");
+  cJSON* roomMap = cJSON_GetObjectItemCaseSensitive(room, MAP);
+  if (roomMap == NULL) handleError(ERR_DATA, FATAL, "No roomMap data found!\n");
+
+  cJSON* inv = cJSON_GetObjectItemCaseSensitive(root, INV);
+  if (inv == NULL) handleError(ERR_DATA, FATAL, "No inventory data found!\n");
+
+
+  int nameLen = strlen(name->valuestring);
+  char playerName[nameLen+1];
+  strncpy(playerName, name->valuestring, nameLen+1);
+
+  SoulWorker* player = initSoulWorker(playerName);
+  player->hp = hp->valueint;
+  player->xp = xp->valueint;
+  player->invCount = invCount->valueint;
+  player->maxHP = maxHP->valueint;
+
+  player->room = findRoom(maze->entry, (char)roomId->valueint);
+  if (player->room == NULL|| player->room == (void*)((long long)NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
+
+  // Make sure room is the same
+  if (player->room->id != (char)(roomId->valueint)) handleError(ERR_DATA, FATAL, "Room ID does not match!\n");
+
+
+  for(int i = 0; i < cJSON_GetArraySize(inv); i++) {
+    cJSON* invItem = cJSON_GetArrayItem(inv, i);
+    cJSON* itemItem = cJSON_GetObjectItemCaseSensitive(invItem, ITEM);
+    cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(itemCount, COUNT);
+
+    player->inv[i]._item = (item_t)itemItem->valuestring;
+    player->inv[i].count = itemCount->valueint;
+  }
+
+  cJSON_Delete(root);
+
+  return player;
+}
+
+/**
+ * Loads the maze data. Just a wrapper to initMaze.
+ * @return The maze
+ */
+static Maze* loadMap() {
+  char filename[35];
+  sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
+
+  return initMaze(filename);
+}
+
+/**
+ * Loads a saved game.
+ */
+void loadGame() {
+  printf("Loading map...\n");
+  maze = loadMap();
+  printf("Map loaded!\n");
+
+  printf("Loading player...\n");
+  player = loadPlayer();
+  printf("Player loaded!\n");
+
+  printf("The game has been loaded!\n");
 }

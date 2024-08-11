@@ -28,9 +28,10 @@ bool putRoom(Table* table, Room* room, bool overwrite);
 
 /**
  * Creates the maze.
+ * @param filename The map to initiate
  * @return The Maze structure
  */
-Maze* initMaze();
+Maze* initMaze(const char* filename);
 
 /**
  * Inititates the temporary map to store the room
@@ -43,6 +44,13 @@ Table* initTable();
  * @param table The map to delete
  */
 void deleteTable(Table* table);
+
+/**
+ * Connects the created rooms to form the maze.
+ * @param table The map containing the rooms
+ * @return The entry room
+ */
+Room* connectRooms(Table* table);
 
 
 #endif

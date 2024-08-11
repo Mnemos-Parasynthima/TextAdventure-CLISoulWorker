@@ -5,25 +5,13 @@
   "type": "object",
   "properties": {
     "id": {
-      "description": "Specification for a given room in a map.",
+      "description": "The ID of the room.",
       "type": "object",
-      "minProperties": 7,
-      "maxProperties": 7,
+      "minProperties": 5,
+      "maxProperties": 5,
       "properties": {
         "isEntry": {
           "description": "Whether this room is the entry. Note, only one entry is allowed per map.",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "hasLoot": {
-          "description": "Whether this room has loot. 0 for false|none, 1 for true",
-          "type": "integer",
-          "minimum": 0,
-          "maximum": 1
-        },
-        "hasEnemies": {
-          "description": "Whether this room has enemies. 0 for false|none, 1 for true",
           "type": "integer",
           "minimum": 0,
           "maximum": 1
@@ -44,16 +32,16 @@
           "description": "The description of the room to be used in the game. It is used as-is within game.",
           "type": "string"
         },
-        "lootTable": {
-          "description": "The possible loot items that the room can have. At gametime, only one is chosen.",
+        "loot": {
+          "description": "The possible loot items that the room can have. At gametime, only one is chosen. A map save only has at most one item.",
           "type": "array",
           "uniqueItems": true,
           "items": [
             {"type": "string"}
           ]
         },
-        "enemyTable": {
-          "description": "The possible enemies that the room can contain. At gametime, only one is chosen.",
+        "enemy": {
+          "description": "The possible enemies that the room can contain. At gametime, only one is chosen. A map save only has at most one enemy.",
           "type": "array",
           "uniqueItems": true,
           "items": [
@@ -63,12 +51,10 @@
       },
       "required": [
         "isEntry",
-        "hasLoot",
-        "hasEnemies",
         "exits",
         "info",
-        "lootTable",
-        "enemyTable"
+        "loot",
+        "enemy"
       ]
     }
   }

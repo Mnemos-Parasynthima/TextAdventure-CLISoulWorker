@@ -17,10 +17,30 @@
 #include "Maze.h"
 #include "Error.h"
 #include "Keyboard.h"
+#include "SaveLoad.h"
 
 
 SoulWorker* player;
 Maze* maze;
+
+
+/**
+ * Detects whether there is a saved game so the player can resume.
+ * @return True if a saved game exists, false otherwise
+ */
+static bool detectSave() {
+  FILE* mapSave = fopen("./data/saves/maps/map_save.json", "r");
+  FILE* playerSave = fopen("./data/saves/player_save.json", "r");
+
+  if (mapSave != NULL && playerSave != NULL) {
+    fclose(mapSave);
+    fclose(playerSave);
+
+    return true;
+  }
+
+  return false;
+}
 
 
 void loop() {
@@ -70,7 +90,29 @@ void loop() {
 
 
 int main(int argc, char const *argv[]) {
-  maze = initMaze();
+  printf("Welcome to the Cloudream Adventure!\n");
+
+  bool saveExists = detectSave();
+
+  if (saveExists) {
+    printf("A save has been detected! Do you want to load that save? (yes|no) ");
+
+    char buff[5];
+    fgets(buff, sizeof(buff), stdin);
+
+    if (strncmp(buff, "yes", 3) == 0) {
+      printf("Loading save...\n");
+      loadGame();
+
+      printf("Welcome back to Cloudream, %s!\n", player->name);
+
+      loop();
+    } else {
+      printf("Starting a new game...\n");
+    }
+  }
+
+  maze = initMaze("./data/maps/map.json");
 
   printf("Welcome to the Cloudream Adventure!\n");
   printf("Enter your name: ");

@@ -4,23 +4,15 @@
 
 #include "Error.h"
 #include "Setup.h"
-#include "cJSON.h"
+#include "LoadJSON.h"
 
-#define MAPS_DIR "./data/maps"
-// TODO: Make own error handling/display
+#define MAPS_DIR "./data/maps";
 
-// To do: be able to pass in a map of choice
-// For now, the map is hardcoded
-/**
- * Reads in the map json file as raw.
- * @return The raw json text
- */
-static char* readJSON() {
-  const char* filename = "./data/maps/map.json";
 
+char* readJSON(const char* filename) {
   FILE* file = fopen(filename, "r");
 
-  if (file == NULL) handleError(ERR_IO, FATAL, "Could not open map!\n");
+  if (file == NULL) handleError(ERR_IO, FATAL, "Could not open file!\n");
 
   fseek(file, 0, SEEK_END);
   long len = ftell(file);
@@ -38,12 +30,8 @@ static char* readJSON() {
   return buff;
 }
 
-/**
- * Parses the json file into cJSON
- * @return The root cJSON structure
- */
-static cJSON* readData() {
-  char* buffer = readJSON();
+cJSON* readData(const char* filename) {
+  char* buffer = readJSON(filename);
 
   cJSON* json = cJSON_Parse(buffer);
   if (json == NULL) {
@@ -76,18 +64,6 @@ static void validateRoom(cJSON* room) {
     handleError(ERR_DATA, FATAL, "Room %d: No matching isEntry data and room id!\n", roomId);
   }
 
-  cJSON* hasLoot = cJSON_GetObjectItemCaseSensitive(room, "hasLoot");
-  if (hasLoot == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "hasLoot");
-  if (hasLoot->valueint < 0 || hasLoot->valueint > 1) {
-    handleError(ERR_DATA, FATAL, "Room %d: hasLoot must only be 1 for true or 0 for false!\n", roomId);
-  }
-
-  cJSON* hasEnemies = cJSON_GetObjectItemCaseSensitive(room, "hasEnemies");
-  if (hasEnemies == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "hasEnemies");
-  if (hasEnemies->valueint < 0 || hasEnemies->valueint > 1) {
-    handleError(ERR_DATA, FATAL, "Room %d: hasEnemies must only be 1 for true or 0 for false!\n", roomId);
-  }
-  
   cJSON* info = cJSON_GetObjectItemCaseSensitive(room, "info");
   if (info == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "info");
 
@@ -99,28 +75,27 @@ static void validateRoom(cJSON* room) {
     if (e->valueint < -1) handleError(ERR_DATA, FATAL, "Room %d: exit markers cannot be less than -1!\n", roomId);
   };
 
-  cJSON* lootTable = cJSON_GetObjectItemCaseSensitive(room, "lootTable");
-  if (lootTable == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot table");
+  cJSON* loot = cJSON_GetObjectItemCaseSensitive(room, "loot");
+  if (loot == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot");
   // TODO: When a system of all possible loot items is implemented
   //    add a check to make sure all the items in the loot table are valid
   //  Do the same for enemies.
 
-  cJSON* enemyTable = cJSON_GetObjectItemCaseSensitive(room, "enemyTable");
-  if (enemyTable == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy table");
+  cJSON* enemy = cJSON_GetObjectItemCaseSensitive(room, "enemy");
+  if (enemy == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy");
 }
 
-
-// Better param naming
 /**
  * Selects something from the provided table, if any. Is random.
  * @param hasTable Whether there is a table to select from
  * @param table The table to select from
  * @return The selected object
  */
-static char* selectFromTable(int hasTable, cJSON* table) {
-  if (hasTable == 0) return NULL;
-
+static char* selectFromTable(cJSON* table) {
   int len = cJSON_GetArraySize(table);
+
+  if (len == 0) return NULL; // No items in table
+
   int i = rand() % len;
 
   cJSON* item = cJSON_GetArrayItem(table, i);
@@ -143,12 +118,10 @@ static Room* createRoom(cJSON* _room) {
   room->enemy = NULL;
   room->loot = NULL;
 
-  cJSON* hasLoot = cJSON_GetObjectItemCaseSensitive(_room, "hasLoot");
-  cJSON* hasEnemies = cJSON_GetObjectItemCaseSensitive(_room, "hasEnemies");
   cJSON* info = cJSON_GetObjectItemCaseSensitive(_room, "info");
   cJSON* exits = cJSON_GetObjectItemCaseSensitive(_room, "exits");
-  cJSON* lootTable = cJSON_GetObjectItemCaseSensitive(_room, "lootTable");
-  cJSON* enemyTable = cJSON_GetObjectItemCaseSensitive(_room, "enemyTable");
+  cJSON* lootTable = cJSON_GetObjectItemCaseSensitive(_room, "loot");
+  cJSON* enemyTable = cJSON_GetObjectItemCaseSensitive(_room, "enemy");
 
 
   room->id = (char) atoi(_room->string);
@@ -156,13 +129,13 @@ static Room* createRoom(cJSON* _room) {
   room->info = (char*) malloc(sizeof(char) * strlen(info->valuestring) + 1);
   strcpy(room->info, info->valuestring);
 
-  char* loot = selectFromTable(hasLoot->valueint, lootTable);
+  char* loot = selectFromTable(lootTable);
   if (loot != NULL) {
     room->loot = (char*) malloc(sizeof(char) * strlen(loot) + 1);
     strcpy(room->loot, loot);
   }
 
-  char* enemy = selectFromTable(hasEnemies->valueint, enemyTable);
+  char* enemy = selectFromTable(enemyTable);
   if (enemy != NULL) {
     room->enemy = (char*) malloc(sizeof(char) * strlen(enemy) + 1);
     strcpy(room->enemy, enemy);
@@ -189,12 +162,7 @@ void deleteRoom(Room* room) {
   room = NULL;
 }
 
-/**
- * Connects the created rooms to form the maze.
- * @param table The map containing the rooms
- * @return The entry room
- */
-static Room* connectRooms(Table* table) {
+Room* connectRooms(Table* table) {
   Room *entry, *room;
 
   // Iterate though the table, getting each room
@@ -218,9 +186,8 @@ static Room* connectRooms(Table* table) {
   return entry;
 }
 
-Maze* initMaze() {
-  cJSON* root = readData();
-
+Maze* initMaze(const char* filename) {
+  cJSON* root = readData(filename);
   if (root == NULL) handleError(ERR_DATA, FATAL, "Could not parse JSON!\n");
 
   // Quickly check if there is an entry room
@@ -252,7 +219,6 @@ Maze* initMaze() {
   // fprintf(stdout, "%d rooms have been created...", mazeSize);
   cJSON_Delete(root);
 
-  // Time to connect the rooms
   Room* entry = connectRooms(roomTable);
   // Maybe a function to make sure all rooms have at least one connection???
   deleteTable(roomTable);

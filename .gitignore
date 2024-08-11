@@ -4,3 +4,8 @@ clisw
 .gdbinit
 TODO
 storyboard
+/data/saves/maps/*-ex.json
+/data/saves/maps/*save.json
+/data/saves/*-ex.json
+/data/saves/*save.json
+test.c
