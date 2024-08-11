@@ -175,7 +175,7 @@ static void saveMap() {
   if (mapState == NULL) handleError(ERR_DATA, ERROR, "Could not create map state!\n");
 
   char filename[35];
-  sprintf(filename, "%s/map_save.json", SAVE_DIR);
+  sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
 
   FILE* file = fopen(filename, "w");
   if (file == NULL) handleError(ERR_IO, ERROR, "Unable to create the save!\n");

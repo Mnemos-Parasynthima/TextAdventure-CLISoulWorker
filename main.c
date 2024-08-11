@@ -114,7 +114,6 @@ int main(int argc, char const *argv[]) {
 
   maze = initMaze("./data/maps/map.json");
 
-  printf("Welcome to the Cloudream Adventure!\n");
   printf("Enter your name: ");
 
   char* name = NULL;
