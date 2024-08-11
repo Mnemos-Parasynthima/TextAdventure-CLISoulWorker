@@ -10,7 +10,8 @@ typedef enum {
   WALK = 'm',
   OPEN_INVENTORY = 'i',
   HELP = 'h',
-  SAVE = 's'
+  SAVE = 's',
+  QUIT = 'q'
 } Commands;
 
 /**

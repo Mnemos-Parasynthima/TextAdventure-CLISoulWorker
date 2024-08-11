@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #include "Keyboard.h"
@@ -74,9 +75,18 @@ static void displayHelp(HELP_T type) {
     printf("Possible actions are:\n");
     printf("\t Open Inventory ('i')\n");
     printf("\t Move ('m')\n");
-    printf("\t Save ('s')");
+    printf("\t Save ('s')\n");
+    printf("\t Save and Quit ('q')\n");
     printf("\t Help message ('h')\n");
   }
+}
+
+/**
+ * Saves te game and quits.
+ */
+static void quitGame() {
+  saveGame();
+  exit(0);
 }
 
 bool performAction(Commands action, SoulWorker* player) {
@@ -108,6 +118,7 @@ bool performAction(Commands action, SoulWorker* player) {
   } else if (action == OPEN_INVENTORY) viewInventory(player);
     else if (action == HELP) displayHelp(ACTIONS);
     else if (action == SAVE) saveGame();
+    else if (action == QUIT) quitGame();
     else return false;
 
   return true;

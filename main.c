@@ -5,11 +5,13 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC
+#include <windows.h> // Using sleep(). Note, this sleep takes in ms
 #else
-#include <unistd.h>
+#include <unistd.h> // Note, the sleep takes in sec
 #endif
 
 #include "SoulWorker.h"
@@ -40,6 +42,27 @@ static bool detectSave() {
   }
 
   return false;
+}
+
+static void introStory() {
+  FILE* intro = fopen("./data/story/intro.dat", "r");
+
+  if (intro == NULL) handleError(ERR_IO, FATAL, "Could not open story!\n");
+
+  char* line = NULL;
+  size_t n = 0;
+
+  printf("\n");
+  while (!feof(intro)) {
+    getline(&line, &n, intro);
+    if (feof(intro)) break;
+    sleep(1);
+    printf("%s", line);
+  }
+  printf("\n\n");
+
+
+  fclose(intro);
 }
 
 
@@ -97,18 +120,25 @@ int main(int argc, char const *argv[]) {
   if (saveExists) {
     printf("A save has been detected! Do you want to load that save? (yes|no) ");
 
-    char buff[5];
-    fgets(buff, sizeof(buff), stdin);
+    // char buff[5];
+    // fgets(buff, sizeof(buff), stdin);
+    char* buff = (char*) malloc(5); // max is 3 for "yes", plus newline, plus null
+    fgets(buff, 5, stdin);
 
-    if (strncmp(buff, "yes", 3) == 0) {
+    char* in = buff; // better name
+    for(;*buff != '\0';buff++) *buff = tolower(*buff);
+
+    if (strncmp(in, "yes", 3) == 0) {
       printf("Loading save...\n");
       loadGame();
 
       printf("Welcome back to Cloudream, %s!\n", player->name);
 
       loop();
-    } else {
+    } else if (strncmp(in, "no", 2) == 0) {
       printf("Starting a new game...\n");
+    } else {
+      printf("Invalid decision. Starting a new game.\n");
     }
   }
 
@@ -130,8 +160,7 @@ int main(int argc, char const *argv[]) {
   // printf("")
 
   printf("Hello, %s! Welcome to Cloudream!\n", (player->name));
-  printf("You are a SoulWorker exploring the N-102 Lab in Candus City.\n");
-
+  introStory();
   loop();
 
 
