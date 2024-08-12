@@ -7,6 +7,7 @@
 #include "LoadJSON.h"
 #include "Error.h"
 #include "Setup.h"
+#include "DArray.h"
 
 
 #define NO_ITEM 0x0
@@ -59,19 +60,22 @@ static char* createError(cJSON* obj, const char* type) {
  * @param id The target ID
  * @return Room with matching ID
  */
-static Room* findRoom(Room* room, char id) {
+static Room* findRoom(Room* room, char id, DArray* visited) {
   if (room != (void*)((long long)NO_EXIT)) {
     if (room->id == id) return room;
 
+    if (dArrayExists(visited, room->id)) return NULL;
+
+    dArrayAdd(visited, room->id);
+
     for (int i = 0; i < 4; i++) {
-      Room* target = findRoom(room->exits[i], id);
-      if (target != (void*)((long long)NO_EXIT)) return target;
+      Room* target = findRoom(room->exits[i], id, visited);
+      if (target != NULL) return target;
     }
   }
 
-  return (void*)((long long)NO_EXIT);
+  return NULL;
 }
-
 
 /**
  * Recursively, adds the room to the table.
@@ -326,7 +330,13 @@ static SoulWorker* loadPlayer() {
   player->invCount = invCount->valueint;
   player->maxHP = maxHP->valueint;
 
-  player->room = findRoom(maze->entry, (char)roomId->valueint);
+
+  DArray* visited = initDArray(maze->size);
+
+  player->room = findRoom(maze->entry, (char)roomId->valueint, visited);
+
+  dArrayFree(visited);
+
   if (player->room == NULL|| player->room == (void*)((long long)NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
 
   // Make sure room is the same
