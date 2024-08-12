@@ -10,8 +10,10 @@
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC
 #include <windows.h> // Using sleep(). Note, this sleep takes in ms
+#define DELAY 1000
 #else
 #include <unistd.h> // Note, the sleep takes in sec
+#define DELAY 1
 #endif
 
 #include "SoulWorker.h"
@@ -56,7 +58,7 @@ static void introStory() {
   while (!feof(intro)) {
     getline(&line, &n, intro);
     if (feof(intro)) break;
-    sleep(1);
+    sleep(DELAY);
     printf("%s", line);
     line = NULL;
   }
