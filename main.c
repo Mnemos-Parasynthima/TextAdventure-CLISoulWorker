@@ -58,6 +58,7 @@ static void introStory() {
     if (feof(intro)) break;
     sleep(1);
     printf("%s", line);
+    line = NULL;
   }
   printf("\n\n");
 
