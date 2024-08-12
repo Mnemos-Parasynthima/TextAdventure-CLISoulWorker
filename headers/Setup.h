@@ -10,10 +10,10 @@
 #define FLUSH() int c; while ((c = getchar()) != '\n' && c != EOF);
 
 // A temporary hashmap to store the rooms to later connect them.
-typedef struct Table {
-  Room** rooms; // The array of room pointers
-  int cap; // The current capacity of the table
-  int len; // Number of items that the table contains
+typedef struct Table {                              // 16B
+  Room** rooms; // The array of room pointers           8B
+  int cap; // The current capacity of the table         4B
+  int len; // Number of items that the table contains   4B
 } Table;
 
 

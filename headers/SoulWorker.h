@@ -16,21 +16,21 @@ typedef enum {
 } item_t;
 
 // The Item model.
-typedef struct Item {
-  item_t _item; // The type of item
-  unsigned short count; // The amount of that item
+typedef struct Item {               // 3B+1B(PAD) = 4B
+  item_t _item; // The type of item                 1B
+  unsigned short count; // The amount of that item  2B
 } Item;
 
 // The player model.
-typedef struct SoulWorker {
-  char* name; // The name of the player
-  unsigned int xp; // The current XP
-  unsigned int hp; // The current HP
-  unsigned int maxHP; // The max HP
-  Item inv[INV_CAP]; // The player's inventory
-  unsigned short invCount; // Current items in the inventory
-  unsigned int dzenai; // The currency
-  Room* room; // The current room that the player is in
+typedef struct SoulWorker {               // 234B+6B(PAD) = 240B
+  char* name; // The name of the player                       8B
+  Room* room; // The current room that the player is in       8B
+  unsigned int xp; // The current XP                          4B
+  unsigned int hp; // The current HP                          4B
+  unsigned int maxHP; // The max HP                           4B
+  unsigned int dzenai; // The currency                        4B
+  unsigned short invCount; // Current items in the inventory  2B
+  Item inv[INV_CAP]; // The player's inventory     50B*4B = 200B  
 } SoulWorker;
 
 /**
