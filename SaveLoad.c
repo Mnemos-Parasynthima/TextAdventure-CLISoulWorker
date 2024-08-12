@@ -338,7 +338,7 @@ static SoulWorker* loadPlayer() {
     cJSON* itemItem = cJSON_GetObjectItemCaseSensitive(invItem, ITEM);
     cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(invItem, COUNT);
 
-    player->inv[i]._item = (item_t)itemItem->valuestring;
+    player->inv[i]._item = (item_t) *(itemItem->valuestring);
     player->inv[i].count = itemCount->valueint;
   }
 
