@@ -10,10 +10,8 @@
 #ifdef _WIN64
 #include "unistd.h" // For compiling in Windows MSVC
 #include <windows.h> // Using sleep(). Note, this sleep takes in ms
-#define DELAY 1000
 #else
 #include <unistd.h> // Note, the sleep takes in sec
-#define DELAY 1
 #endif
 
 #include "SoulWorker.h"
@@ -27,6 +25,18 @@
 SoulWorker* player;
 Maze* maze;
 
+
+/**
+ * Wrapper around sleep function for Windows and Linux.
+ * @param ms Amount of milliseconds to sleep for
+ */
+void ssleep(int ms) {
+  #ifdef _WIN64
+    Sleep(ms);
+  #else
+    usleep(ms * 1000);
+  #endif
+}
 
 /**
  * Detects whether there is a saved game so the player can resume.
@@ -58,7 +68,7 @@ static void introStory() {
   while (!feof(intro)) {
     getline(&line, &n, intro);
     if (feof(intro)) break;
-    sleep(DELAY);
+    ssleep(1000);
     printf("%s", line);
     line = NULL;
   }
