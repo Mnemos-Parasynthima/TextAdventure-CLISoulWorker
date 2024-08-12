@@ -15,7 +15,7 @@ typedef enum {
 
 typedef enum {
   FATAL, // Fatal, terminate program
-  ERROR // Do not terminate program
+  WARNING // Do not terminate program
 } sevType;
 
 

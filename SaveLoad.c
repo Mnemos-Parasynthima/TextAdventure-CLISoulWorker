@@ -48,7 +48,7 @@ extern char* itoa(int n, char* buffer);
 static char* createError(cJSON* obj, const char* type) {
   cJSON_Delete(obj);
 
-  handleError(ERR_DATA, ERROR, "Could not create JSON for %s!\n", type);
+  handleError(ERR_DATA, WARNING, "Could not create JSON for %s!\n", type);
 
   return NULL;
 }
@@ -173,16 +173,16 @@ static char* createMapState() {
  */
 static void saveMap() {
   char* mapState = createMapState();
-  if (mapState == NULL) handleError(ERR_DATA, ERROR, "Could not create map state!\n");
+  if (mapState == NULL) handleError(ERR_DATA, WARNING, "Could not create map state!\n");
 
   char filename[35];
   sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
 
   FILE* file = fopen(filename, "w");
-  if (file == NULL) handleError(ERR_IO, ERROR, "Unable to create the save!\n");
+  if (file == NULL) handleError(ERR_IO, WARNING, "Unable to create the save!\n");
   else {
     int written = fprintf(file, "%s", mapState);
-    if (written <= 0) handleError(ERR_IO, ERROR, "Unable to save the map data!\n");
+    if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the map data!\n");
   }
 
   fclose(file);
@@ -250,18 +250,18 @@ static void savePlayer() {
   const char* dir = "./data/saves";
 
   char* playerState = createPlayerState();
-  if (playerState == NULL) handleError(ERR_DATA, ERROR, "Could not create player state!\n");
+  if (playerState == NULL) handleError(ERR_DATA, WARNING, "Could not create player state!\n");
 
   char filename[32];
   sprintf(filename, "%s/player_save.json", dir);
 
   FILE* file = fopen(filename, "w");
   if (file == NULL) {
-    handleError(ERR_IO, ERROR, "Unable to create the save!\n");
+    handleError(ERR_IO, WARNING, "Unable to create the save!\n");
   } else {
     int written = fprintf(file, "%s", playerState);
 
-    if (written <= 0) handleError(ERR_IO, ERROR, "Unable to save the player data!\n");
+    if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the player data!\n");
   }
 
   fclose(file);
