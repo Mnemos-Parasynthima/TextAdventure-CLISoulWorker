@@ -14,6 +14,7 @@ set(SOURCES
     Keyboard.c
     SaveLoad.c
     itoa.s
+    DArray.c
 )
 
 include_directories(headers)
