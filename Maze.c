@@ -2,13 +2,14 @@
 #include <stdlib.h>
 
 #include "Maze.h"
+#include "Error.h"
 
-bool removeItemFromMap(Room *room) {
+Item* removeItemFromMap(Room *room) {
   if (room != NULL || room->loot != NULL) {
-    free(room->loot);
+    Item* retItem = room->loot;
     room->loot = NULL;
 
-    return true;
+    return retItem;
   }
 
   fprintf(stderr, "Could not remove item from map!\n"); // Add to error handling???
@@ -16,13 +17,10 @@ bool removeItemFromMap(Room *room) {
   return false;
 }
 
-bool removeEnemyFromMap(Room *room) {
-  if (room != NULL || room->enemy != NULL) {
-    free(room->enemy);
-    room->enemy = NULL;
+bool deleteEnemyFromMap(Room *room) {
+  if (room == NULL ||  room->enemy.enemy == NULL || room->enemy.boss == NULL) return false;
 
-    return true;
-  }
-
-  return false;
+  if (room->hasBoss) return deleteBoss(room->enemy.boss);
+  
+  return deleteEnemy(room->enemy.enemy);
 }

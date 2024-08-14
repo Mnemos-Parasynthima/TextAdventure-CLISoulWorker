@@ -3,15 +3,22 @@
 
 #include <stdbool.h>
 
+#include "Misc.h"
+#include "SoulWorker.h"
+
 #define NO_EXIT 0xFEEDFAED
 
 // A structure representing a room within a maze. Has connections to other possible rooms.
-typedef struct Room {                                       // 57B+7B(PAD) = 64B
+typedef struct Room {                                       // 58B+6B(PAD) = 64B
   struct Room* exits[4]; // The possible exits that a room can have          32B
   char* info; // The description of the room.                                 8B
   // At initialization, the pointers will be the room ids in hex (-1 -> 0xFEEDFAED; 0 -> 0x0; 1 -> 0x1; ...; 10 -> 0xa; etc..)
-  char* enemy; // The possible enemy that the room can have                   8B
-  char* loot; // The possible loot item that the room can have                8B
+  union enemy { // The possible enemy that the room can have                  8B
+    Enemy* enemy;
+    Boss* boss;
+  } enemy;
+  Item* loot;// The possible loot item that the room can have                 8B
+  bool hasBoss; // Whether the room holds a normal enemy or a boss            1B
   char id; // The room id, note: it is not a string, just a number of 1 byte  1B
 } Room;
 
@@ -23,24 +30,25 @@ typedef struct Maze {                      // 9B+7B(PAD) = 16B
 } Maze;
 
 /**
- * Deletes the given room.
+ * Deletes the given room, freeing the memory.
  * @param room The room to delete
  */
 void deleteRoom(Room* room);
 
 /**
- * Removes an item from the given room.
+ * Removes an item from the given room. Note, this transfers pointer ownership to player.
+ * It does not free memory. Call deleteItem() to properly delete it.
  * @param room The target room
- * @return True if it was removed, false otherwise
+ * @return The pointer to the item to transfer
  */
-bool removeItemFromMap(Room* room);
+Item* removeItemFromMap(Room* room);
 
 /**
- * Removes an enemy from the given room.
+ * Deletes an enemy from the given room. Note, this frees the memory of the item.
  * @param room The target room
- * @return True if it was removed, false otherwise
+ * @return True if it was deleted, false otherwise
  */
-bool removeEnemyFromMap(Room* room);
+bool deleteEnemyFromMap(Room* room);
 
 
 #endif

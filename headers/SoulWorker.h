@@ -5,32 +5,31 @@
 
 #include "Maze.h"
 #include "Setup.h"
+#include "Misc.h"
 
 
-#define INV_CAP 50
+#define INV_CAP 25
 #define ITEM_MAX 99
 
-typedef enum {
-  SLIME = 's',
-  KEY = 'k'
-} item_t;
-
-// The Item model.
-typedef struct Item {               // 3B+1B(PAD) = 4B
-  item_t _item; // The type of item                 1B
-  unsigned short count; // The amount of that item  2B
-} Item;
-
 // The player model.
-typedef struct SoulWorker {               // 234B+6B(PAD) = 240B
-  char* name; // The name of the player                       8B
-  Room* room; // The current room that the player is in       8B
-  unsigned int xp; // The current XP                          4B
-  unsigned int hp; // The current HP                          4B
-  unsigned int maxHP; // The max HP                           4B
-  unsigned int dzenai; // The currency                        4B
-  unsigned short invCount; // Current items in the inventory  2B
-  Item inv[INV_CAP]; // The player's inventory     50B*4B = 200B  
+typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
+  char* name; // The name of the player                     8B
+  Room* room; // The current room that the player is in     8B
+  uint xp; // The current XP                                4B
+  uint lvl; // The current level                            4B
+  uint hp; // The current HP                                4B
+  uint maxHP; // The max HP                                 4B
+  uint dzenai; // The currency                              4B
+  struct gear { //                                         40B
+    SoulWeapon* sw; // 8B
+    Armor* helmet; // 8B
+    Armor* guard; // 8B
+    Armor* chestplate; // 8B
+    Armor* boots; // 8B
+  } gear;
+  Stats* stats; //                                          8B
+  ushort invCount; // Current items in the inventory        2B
+  Item inv[INV_CAP]; // The player's inventory  25B*16B = 400B
 } SoulWorker;
 
 /**
@@ -46,21 +45,34 @@ SoulWorker* initSoulWorker(char* name);
  * @param loot The loot item
  * @return True if it was added, false otherwise
  */
-bool addToInv(SoulWorker* sw, item_t loot);
+bool addToInv(SoulWorker* sw, Item* loot);
 
 /**
  * Removes a given loot from a player.
  * @param sw The target player
  * @param loot The loot item
+ * @param count How many to remove
  * @return True if it was removed, false otherwise
  */
-bool removeFromInv(SoulWorker* sw, item_t loot);
+bool removeFromInv(SoulWorker* sw, Item* loot, ushort count);
 
 /**
- * Displays the current inventory of the player
+ * Displays the current inventory of the player.
  * @param sw The player
  */
 void viewInventory(SoulWorker* sw);
+
+/**
+ * Displays player info.
+ * @param sw The player
+ */
+void viewSelf(SoulWorker* sw);
+
+/**
+ * Displays the equipped gear (armor and weapon) of the player.
+ * @param sw The player
+ */
+void viewGear(SoulWorker* sw);
 
 /**
  * Deletes the structure and frees the memory for the end of the gametime.

@@ -87,26 +87,26 @@ void loop() {
 
   while (true) {
     if (currRoom->loot != NULL) {
-      printf("You found %s! Do you want to add it to your inventory? (y|n) ", currRoom->loot);
-      choice = getchar();
-      choice = tolower(choice);
-      FLUSH()
+      char* name = getItemName(currRoom->loot);
+      printf("You found %s!", name);
+      bool added = addToInv(player, currRoom->loot);
+      if (added) removeItemFromMap(currRoom);
 
-      if (choice == 'y') {
-        bool added = addToInv(player, *(currRoom->loot));
-        if (added) removeItemFromMap(currRoom);
-        // viewInventory(player);
-      } else {
-        printf("You did not add the item.\n");
+      // Since some strings have been alloc'd, free them
+      switch (currRoom->loot->type) {
+        case HP_KITS_T:
+        case WEAPON_UPGRADE_MATERIALS_T:
+        case ARMOR_UPGRADE_MATERIALS_T:
+          free(name);
+          name = NULL;
       }
     }
 
-    if (currRoom->enemy != NULL) {
+    if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
       printf("You found an enemy! It's a %s!\n", currRoom->enemy);
       // Fighting mechanics
-      removeEnemyFromMap(currRoom);
+      deleteEnemyFromMap(currRoom);
     }
-
 
     printf("What are you going to do?... ");
     choice = getchar();
