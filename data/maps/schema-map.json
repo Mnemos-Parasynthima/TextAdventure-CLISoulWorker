@@ -35,17 +35,290 @@
         "loot": {
           "description": "The possible loot items that the room can have. At gametime, only one is chosen. A map save only has at most one item.",
           "type": "array",
-          "uniqueItems": true,
-          "items": [
-            {"type": "string"}
-          ]
+          "items": [{
+              "description": "The item.",
+              "type": "object",
+              "minProperties": 3,
+              "maxProperties": 3,
+              "properties": {
+                "item": {
+                  "description": "The item type. Note, a void pointer.",
+                  "type": "object",
+                  "properties": {
+                    "_description": { "type": "string", "description": "" }
+                  }
+                },
+                "type": {
+                  "description": "The type of item.",
+                  "type": "integer"
+                },
+                "count": {
+                  "description": "The amount of the item.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 99
+                }
+              },
+              "required": [
+                "item",
+                "type",
+                "count"
+              ]
+            }]
+        },
+        "hasBoss": {
+          "description": "Whether this room is a boss room.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
         },
         "enemy": {
           "description": "The possible enemies that the room can contain. At gametime, only one is chosen. A map save only has at most one enemy.",
           "type": "array",
           "uniqueItems": true,
+          "minItems": 0,
           "items": [
-            {"type": "string"}
+            {
+              "description": "The possibly enemy. Boss rooms have a single boss.",
+              "type": "object",
+              "minProperties": 4,
+              "maxProperties": 4,
+              "properties": {
+                "name": {
+                  "description": "The name of the enemy",
+                  "type": "string"
+                },
+                "xpPoints": {
+                  "description": "How many XP points it will provide.",
+                  "type": "integer"
+                },
+                "hp": {
+                  "description": "The HP of the enemy.",
+                  "type": "integer"
+                },
+                "lvl": {
+                  "description": "The level of the enemy",
+                  "type": "integer"
+                },
+                "stats": {
+                  "description": "The stats of the enemy.",
+                  "type": "object",
+                  "minProperties": 5,
+                  "maxProperties": 5,
+                  "properties": {
+                    "ATK": {
+                      "description": "The attack stat.",
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "DEF": {
+                      "description": "The defense stat.",
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "ACC": {
+                      "description": "The accuracy stat.",
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "ATK_CRIT_DMG": {
+                      "description": "The attack critical damage stat.",
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "ATK_CRIT": {
+                      "description": "The attack critical percentage stat.",
+                      "type": "number",
+                      "minimum": 0
+                    }
+                  },
+                  "required": ["ATK", "DEF", "ACC", "ATK_CRIT_DMG", "ATK_CRIT"]
+                },
+                "gear": {
+                  "description": "The gear that the boss will drop.",
+                  "type": "object",
+                  "minProperties": 5,
+                  "maxProperties": 5,
+                  "properties": {
+                    "sw": {
+                      "description": "The SoulWeapon.",
+                      "type": "object",
+                      "minProperties": 8,
+                      "maxProperties": 8,
+                      "properties": {
+                        "name": {
+                          "description": "The name of the SoulWeapon.",
+                          "type": "string"
+                        },
+                        "atk": {
+                          "description": "The attack stat.",
+                          "type": "integer"
+                        },
+                        "acc": {
+                          "description": "The accuracy stats.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "atk_crit": {
+                          "description": "The attack critical damage stat.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "atk_crit_dmg": {
+                          "description": "The attack critical damage stat.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "lvl": {
+                          "description": "The level of the weapon.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "upgrades": {
+                          "description": "How many upgrades it has been through.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "durability": {
+                          "description": "The durability.",
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["name", "atk", "acc", "atk_crit", "atk_crit_dmg", "lvl", "upgrades", "durability"]
+                    },
+                    "helmet": {
+                      "description": "The equipped helment.",
+                      "type": "object",
+                      "minProperties": 4,
+                      "maxProperties": 4,
+                      "properties": {
+                        "name": {
+                          "description": "The name of the armor.",
+                          "type": "string"
+                        },
+                        "type": {
+                          "description": "The type of armor.",
+                          "type": "integer"
+                        },
+                        "acc": {
+                          "description": "The accuracy it provides.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "def": {
+                          "description": "The defense stat.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "lvl": {
+                          "description": "The level of the armor.",
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["name", "type", "acc", "def", "lvl"]
+                    },
+                    "guard": {
+                      "description": "The equipped shoulder guard.",
+                      "type": "object",
+                      "minProperties": 4,
+                      "maxProperties": 4,
+                      "properties": {
+                        "name": {
+                          "description": "The name of the armor.",
+                          "type": "string"
+                        },
+                        "type": {
+                          "description": "The type of armor.",
+                          "type": "integer"
+                        },
+                        "acc": {
+                          "description": "The accuracy it provides.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "def": {
+                          "description": "The defense stat.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "lvl": {
+                          "description": "The level of the armor.",
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["name", "type", "acc", "def", "lvl"]
+                    },
+                    "chestplate": {
+                      "description": "The equipped chestplate.",
+                      "type": "object",
+                      "minProperties": 4,
+                      "maxProperties": 4,
+                      "properties": {
+                        "name": {
+                          "description": "The name of the armor.",
+                          "type": "string"
+                        },
+                        "type": {
+                          "description": "The type of armor.",
+                          "type": "integer"
+                        },
+                        "acc": {
+                          "description": "The accuracy it provides.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "def": {
+                          "description": "The defense stat.",
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "lvl": {
+                          "description": "The level of the armor.",
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["name", "type", "acc", "def", "lvl"]
+                    },
+                    "boots": {
+                      "description": "The equipped boots.",
+                      "type": "object",
+                      "minProperties": 4,
+                      "maxProperties": 4,
+                      "properties": {
+                        "name": {
+                          "description": "The name of the armor.",
+                          "type": "string"
+                        },
+                        "type": {
+                          "description": "The type of armor.",
+                          "type": "integer"
+                        },
+                        "acc": {
+                          "description": "The accuracy it provides.",
+                          "type": "integer"
+                        },
+                        "def": {
+                          "description": "The defense stat.",
+                          "type": "integer"
+                        },
+                        "lvl": {
+                          "description": "The level of the armor.",
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": ["name", "type", "acc", "def", "lvl"]
+                    }
+                  },
+                  "required": ["sw", "helmet", "guard", "chestplate", "boots"]
+                }
+              },
+              "required": ["name", "xpPoints", "hp", "lvl", "stats"]
+            }
           ]
         }
       },
@@ -54,6 +327,7 @@
         "exits",
         "info",
         "loot",
+        "hasBoss",
         "enemy"
       ]
     }

@@ -35,6 +35,15 @@ SoulWorker* initSoulWorker(char* name) {
     sw->inv[i].type = NONE;
   }
 
+  Stats* stats = (Stats*) malloc(sizeof(Stats));
+  if (stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
+
+  stats->ACC = 100;
+  stats->ATK = 100;
+  stats->ATK_CRIT = 5.0;
+  stats->ATK_CRIT_DMG = 10;
+  stats->DEF = 100;
+
   return sw;
 }
 
@@ -181,7 +190,7 @@ void viewGear(SoulWorker* sw) {
    * [armor piece]: (Unequipped)|([name]; LVL: [lvl], ACC: [acc], DEF: [def])
    */
 
-  char* weaponStats, helmetStats, shoulderGuardStats, chestplateStats, bootsStats;
+  char *weaponStats, *helmetStats, *shoulderGuardStats, *chestplateStats, *bootsStats;
   int weaponNameLen, helmetNameLen, shoulderGuardNameLen, chestplateNameLen, bootsNameLen;
   weaponNameLen = strlen(swp->name);
   helmetNameLen = strlen(helmet->name);

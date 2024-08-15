@@ -122,21 +122,25 @@ bool deleteItem(Item* item);
 /**
  * Deletes the given SoulWeapon, freeing memory.
  * @param sw The SoulWeapon to delete
- * @return True if the item was deleted, false otherwise
  */
-bool deleteSoulWeapon(SoulWeapon* sw);
+void deleteSoulWeapon(SoulWeapon* sw);
 
 /**
  * Deletes the given armor piece, freeing memory.
  * @param armor The armor piece to delete
- * @return True if the item was deleted, false otherwise
  */
-bool deleteArmor(Armor* armor);
+void deleteArmor(Armor* armor);
 
 
 
 
-
+typedef struct Gear {
+  SoulWeapon* sw; //    8B
+  Armor* helmet; //     8B
+  Armor* guard; //      8B
+  Armor* chestplate; // 8B
+  Armor* boots; //      8B
+} Gear;
 
 
 typedef struct Enemy { // 25B+(7B) = 32B
@@ -149,13 +153,7 @@ typedef struct Enemy { // 25B+(7B) = 32B
 
 typedef struct Boss { // 72B
   Enemy base; //         32B
-  struct gear { //       40B
-    SoulWeapon* sw; //    8B
-    Armor* helmet; //     8B
-    Armor* guard; //      8B
-    Armor* chestplate; // 8B
-    Armor* boots; //      8B
-  } gear_drop;
+  Gear gearDrop; //     40B
   // Note, the gear is only the drop, boss is not equipped
   // Add skills
 } Boss;

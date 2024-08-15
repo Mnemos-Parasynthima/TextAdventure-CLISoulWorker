@@ -67,6 +67,9 @@ static void validateRoom(cJSON* room) {
   cJSON* info = cJSON_GetObjectItemCaseSensitive(room, "info");
   if (info == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "info");
 
+  cJSON* hasBoss = cJSON_GetObjectItemCaseSensitive(room, "hasBoss");
+  if (hasBoss == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "hasBoss");
+
   cJSON* exits = cJSON_GetObjectItemCaseSensitive(room, "exits");
   if (exits == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "exits");
   if (cJSON_GetArraySize(exits) != 4) handleError(ERR_DATA, FATAL, "Room %d: Exits must only be 4!\n", roomId);
@@ -77,21 +80,231 @@ static void validateRoom(cJSON* room) {
 
   cJSON* loot = cJSON_GetObjectItemCaseSensitive(room, "loot");
   if (loot == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot");
+  e = NULL;
+  cJSON_ArrayForEach(e, loot) {
+    cJSON* item = cJSON_GetObjectItemCaseSensitive(e, "item");
+    if (item == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot item");
+
+    cJSON* type = cJSON_GetObjectItemCaseSensitive(e, "type");
+    if (type == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot type");
+
+    cJSON* count = cJSON_GetObjectItemCaseSensitive(e, "count");
+    if (count == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot count");
+  }
+
+
   // TODO: When a system of all possible loot items is implemented
   //    add a check to make sure all the items in the loot table are valid
   //  Do the same for enemies.
 
   cJSON* enemy = cJSON_GetObjectItemCaseSensitive(room, "enemy");
   if (enemy == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy");
+  e = NULL;
+  cJSON_ArrayForEach(e, enemy) {
+    cJSON* name = cJSON_GetObjectItemCaseSensitive(e, "name");
+    if (name == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy name");
+
+    cJSON* xpPoints = cJSON_GetObjectItemCaseSensitive(e, "xpPoints");
+    if (xpPoints == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy xpPoints");
+
+    cJSON* hp = cJSON_GetObjectItemCaseSensitive(e, "hp");
+    if (hp == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy hp");
+
+    cJSON* lvl = cJSON_GetObjectItemCaseSensitive(e, "lvl");
+    if (lvl == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy lvl");
+
+    cJSON* stats = cJSON_GetObjectItemCaseSensitive(e, "stats");
+    if (stats == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats");
+    cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
+    if (atk == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats atk");
+    cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
+    if (def == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats def");
+    cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
+    if (acc == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats acc");
+    cJSON* critD = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
+    if (critD == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats crit_dmg");
+    cJSON* crit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
+    if (crit == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats crit");
+
+    if (hasBoss->valueint == 1) {
+      handleError(ERR_DATA, FATAL, "BOSS GEAR CHECK NOT IMPLEMENTED!\n");
+    }
+  }
+}
+
+
+static SoulWeapon* createSoulWeapon(cJSON* obj) {
+  const char* errMsg = "Could not find data for SoulWeapon %s!\n";
+
+  SoulWeapon* sw = (SoulWeapon*) malloc(sizeof(SoulWeapon));
+  if (sw == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for SoulWeapon!\n");
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
+  if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
+  sw->name = (char*) malloc(strlen(name->valuestring) + 1);
+  if (sw->name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for SoulWeapon name!\n");
+  strcpy(sw->name, name->valuestring);
+
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(obj, "atk");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk");
+  sw->atk = atk->valueint;
+
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(obj, "acc");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  sw->acc = acc->valueint;
+
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(obj, "atk_crit");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
+  sw->atk_crit = atkCrit->valuedouble;
+
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(obj, "akt_crit_dmg");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
+  sw->atk_crit_dmg = critDmg->valueint;
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
+  if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
+  sw->lvl = lvl->valueint;
+
+  cJSON* upgrades = cJSON_GetObjectItemCaseSensitive(obj, "upgrades");
+  if (upgrades == NULL) handleError(ERR_DATA, FATAL, errMsg, "upgrades");
+  sw->upgrades = upgrades->valueint;
+
+  cJSON* durability = cJSON_GetObjectItemCaseSensitive(obj, "durability");
+  if (durability == NULL) handleError(ERR_DATA, FATAL, errMsg, "durability");
+  sw->durability = durability->valueint;
+
+  return sw;
+}
+
+static Armor* createArmor(cJSON* obj) {
+  const char* errMsg = "Could not find data for armor %s!\n";
+
+  Armor* armor = (Armor*) malloc(sizeof(Armor));
+  if (armor == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for armor!\n");
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
+  if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
+  armor->name = (char*) malloc(strlen(name->valuestring) + 1);
+  if (armor->name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for armor name!\n");
+  strcpy(armor->name, name->valuestring);
+
+  cJSON* type = cJSON_GetObjectItemCaseSensitive(obj, "type");
+  if (type == NULL) handleError(ERR_DATA, FATAL, errMsg, "type");
+  armor->type = type->valueint;
+
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(obj, "acc");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  armor->acc = acc->valueint;
+
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(obj, "def");
+  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "def");
+  armor->def = def->valueint;
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
+  if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
+  armor->lvl = lvl->valueint;
+
+  return armor;
+}
+
+static HPKit* createHPKit(cJSON* obj) {
+  HPKit* hpKit = (HPKit*) malloc(sizeof(HPKit));
+  if (hpKit == NULL) handleError(ERR_MEM, FATAL, "Could not allocate for HP Kit!\n");
+
+  cJSON* type = cJSON_GetObjectItemCaseSensitive(obj, "type");
+  if (type == NULL) handleError(ERR_DATA, FATAL, "Could not find data for HP Kit type!\n");
+  hpKit->type = type->valueint;
+
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for HP Kit description!\n");
+  hpKit->desc = (char*) malloc(strlen(desc->valuestring) + 1);
+  if (hpKit->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for HP Kit description!\n");
+  strcpy(hpKit->desc, desc->valuestring);
+
+  return hpKit;
+}
+
+static Upgrade* createUpgrade(cJSON* obj) {
+  Upgrade* upgrade = (Upgrade*) malloc(sizeof(Upgrade));
+  if (upgrade == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade material!\n");
+
+  cJSON* rank = cJSON_GetObjectItemCaseSensitive(obj, "rank");
+  if (rank == NULL) handleError(ERR_DATA, FATAL, "Could not find data for upgrade rank!\n");
+  upgrade->rank = rank->valueint;
+
+  cJSON* type = cJSON_GetObjectItemCaseSensitive(obj, "type");
+  if (type == NULL) handleError(ERR_DATA, FATAL, "Could not find data for upgrade type!\n");
+  upgrade->type = type->valueint;
+
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for upgrade description!\n");
+  upgrade->desc = (char*) malloc(strlen(desc->valuestring) + 1);
+  if (upgrade->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade description!\n");
+  strcpy(upgrade->desc, desc->valuestring);
+
+  return upgrade;
+}
+
+static Slime* createSlime(cJSON* obj) {
+  Slime* slime = (Slime*) malloc(sizeof(Slime));
+  if (slime == NULL) handleError(ERR_MEM, FATAL, "Could not allocate for slime!\n");
+
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for slime description!\n");
+  slime->desc = (char*) malloc(strlen(desc->valuestring) + 1);
+  if (slime->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for slime description!\n");
+  strcpy(slime->desc, desc->valuestring);
+
+  return slime;
 }
 
 /**
- * Selects something from the provided table, if any. Is random.
- * @param hasTable Whether there is a table to select from
- * @param table The table to select from
- * @return The selected object
+ * Creates an item object given tie cJSON object.
+ * @param obj The raw item data
+ * @param type The type of item
+ * @return The item
  */
-static char* selectFromTable(cJSON* table) {
+Item* createItem(cJSON* obj, item_t type) {
+  Item* item = (Item*) malloc(sizeof(Item));
+  if (item == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for item!\n");
+
+  item->type = type;
+
+  cJSON* _count = cJSON_GetObjectItemCaseSensitive(obj, "count");
+  if (_count == NULL) handleError(ERR_DATA, FATAL, "Could not get count data!\n");
+  item->count = _count->valueint;
+
+  cJSON* objItem = cJSON_GetObjectItemCaseSensitive(obj, "item");
+
+  switch (type) {
+    case SOULWEAPON_T:
+      item->_item = createSoulWeapon(objItem);
+      break;
+    case HELMET_T:
+    case SHOULDER_GUARD_T:
+    case CHESTPLATE_T:
+    case BOOTS_T:
+      item->_item = createArmor(objItem);
+    case HP_KITS_T:
+      item->_item = createHPKit(objItem);
+    case WEAPON_UPGRADE_MATERIALS_T:
+    case ARMOR_UPGRADE_MATERIALS_T:
+      item->_item = createUpgrade(objItem);
+    case SLIME_T:
+      item->_item = createSlime(objItem);
+    default:
+      break;
+  }  
+
+  return item;
+}
+
+/**
+ * Randomly selects an item from the table.
+ * @param table The table to select from
+ * @return The selected item
+ */
+static Item* selectLoot(cJSON* table) {
   int len = cJSON_GetArraySize(table);
 
   if (len == 0) return NULL; // No items in table
@@ -105,7 +318,157 @@ static char* selectFromTable(cJSON* table) {
     exit(-1);
   }
 
-  return item->valuestring;
+  cJSON* itemType = cJSON_GetObjectItemCaseSensitive(item, "type");
+  item_t type = itemType->valueint;
+
+  return createItem(item, type);
+}
+
+
+Enemy* initEnemy(cJSON* obj) {
+  const char* errMsg = "Could not find data for enemy %s!\n";
+
+  Enemy* enemy = (Enemy*) malloc(sizeof(Enemy));
+  if (enemy == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for enemy!\n");
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
+  if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
+  enemy->name = (char*) malloc(strlen(name->valuestring));
+  if (enemy->name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for enemy name!\n");
+  strcpy(enemy->name, name->valuestring);
+
+  cJSON* xpPoints = cJSON_GetObjectItemCaseSensitive(obj, "xpPoints");
+  if (xpPoints == NULL) handleError(ERR_DATA, FATAL, errMsg, "xp points");
+  enemy->xpPoints = xpPoints->valueint;
+
+  cJSON* hp = cJSON_GetObjectItemCaseSensitive(obj, "hp");
+  if (hp == NULL) handleError(ERR_DATA, FATAL, errMsg, "hp");
+  enemy->hp = hp->valueint;
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
+  if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
+  enemy->lvl = lvl->valueint;
+
+
+  cJSON* stats = cJSON_GetObjectItemCaseSensitive(obj, "stats");
+
+  enemy->stats = (Stats*) malloc(sizeof(Stats));
+  if (enemy->stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for enemy stats!\n");
+
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "atk");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk");
+  enemy->stats->ATK = atk->valueint;
+
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "def");
+  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "def");
+  enemy->stats->DEF = def->valueint;
+
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "acc");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  enemy->stats->ACC = acc->valueint;
+
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "atk_crit");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
+  enemy->stats->ATK_CRIT = atkCrit->valuedouble;
+
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "akt_crit_dmg");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
+  enemy->stats->ATK_CRIT_DMG = critDmg->valueint;
+
+  return enemy;
+}
+
+Boss* initBoss(cJSON* obj) {
+  const char* errMsg = "Could not find data for boss %s!\n";
+
+  Boss* boss = (Boss*) malloc(sizeof(Boss));
+  if (boss == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for boss!\n");
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
+  if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
+  boss->base.name = (char*) malloc(strlen(name->valuestring));
+  if (boss->base.name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for boss name!\n");
+  strcpy(boss->base.name, name->valuestring);
+
+  cJSON* xpPoints = cJSON_GetObjectItemCaseSensitive(obj, "xpPoints");
+  if (xpPoints == NULL) handleError(ERR_DATA, FATAL, errMsg, "xp points");
+  boss->base.xpPoints = xpPoints->valueint;
+
+  cJSON* hp = cJSON_GetObjectItemCaseSensitive(obj, "hp");
+  if (hp == NULL) handleError(ERR_DATA, FATAL, errMsg, "hp");
+  boss->base.hp = hp->valueint;
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
+  if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
+  boss->base.lvl = lvl->valueint;
+
+  cJSON* stats = cJSON_GetObjectItemCaseSensitive(obj, "stats");
+
+  boss->base.stats = (Stats*) malloc(sizeof(Stats));
+  if (boss->base.stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for boss stats!\n");
+
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "atk");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk");
+  boss->base.stats->ATK = atk->valueint;
+
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "def");
+  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "def");
+  boss->base.stats->DEF = def->valueint;
+
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "acc");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  boss->base.stats->ACC = acc->valueint;
+
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "atk_crit");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
+  boss->base.stats->ATK_CRIT = atkCrit->valuedouble;
+
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "akt_crit_dmg");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
+  boss->base.stats->ATK_CRIT_DMG = critDmg->valueint;
+
+
+  cJSON* gear = cJSON_GetObjectItemCaseSensitive(obj, "gear");
+  if (gear == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear");
+
+  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "sw");
+  if (sw == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear soulweapon");
+  boss->gearDrop.sw = createSoulWeapon(sw);
+
+  cJSON* helmet = cJSON_GetObjectItemCaseSensitive(gear, "helmet");
+  if (helmet == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear helmet");
+  boss->gearDrop.helmet = createArmor(helmet);
+
+  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "guard");
+  if (guard == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear shoulder guard");
+  boss->gearDrop.guard = createArmor(guard);
+
+  cJSON* chestplate = cJSON_GetObjectItemCaseSensitive(gear, "chestplate");
+  if (chestplate == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear chestplate");
+  boss->gearDrop.chestplate = createArmor(chestplate);
+
+  cJSON* boots = cJSON_GetObjectItemCaseSensitive(gear, "boots");
+  if (boots == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear boots");
+  boss->gearDrop.boots = createArmor(boots);
+
+  return boss;
+}
+
+static Enemy* selectEnemy(cJSON* table) {
+  int len = cJSON_GetArraySize(table);
+
+  if (len == 0) return NULL; // No items in table
+
+  int i = rand() % len;
+
+  cJSON* enemy = cJSON_GetArrayItem(table, i);
+
+  if (enemy == NULL) {
+    fprintf(stderr, "Error! Could not get enemy!\n");
+    exit(-1);
+  }
+
+  return initEnemy(enemy);
 }
 
 /**
@@ -115,10 +478,11 @@ static char* selectFromTable(cJSON* table) {
  */
 static Room* createRoom(cJSON* _room) {
   Room* room = (Room*) malloc(sizeof(Room));
-  room->enemy = NULL;
+  room->enemy.enemy = NULL;
   room->loot = NULL;
 
   cJSON* info = cJSON_GetObjectItemCaseSensitive(_room, "info");
+  cJSON* hasBoss = cJSON_GetObjectItemCaseSensitive(_room, "hasBoss");
   cJSON* exits = cJSON_GetObjectItemCaseSensitive(_room, "exits");
   cJSON* lootTable = cJSON_GetObjectItemCaseSensitive(_room, "loot");
   cJSON* enemyTable = cJSON_GetObjectItemCaseSensitive(_room, "enemy");
@@ -126,19 +490,31 @@ static Room* createRoom(cJSON* _room) {
 
   room->id = (char) atoi(_room->string);
 
+  room->hasBoss = (bool)hasBoss->valueint;
+
   room->info = (char*) malloc(sizeof(char) * strlen(info->valuestring) + 1);
   strcpy(room->info, info->valuestring);
 
-  char* loot = selectFromTable(lootTable);
-  if (loot != NULL) {
-    room->loot = (char*) malloc(sizeof(char) * strlen(loot) + 1);
-    strcpy(room->loot, loot);
+  Item* loot = selectLoot(lootTable);
+  if (loot == NULL) {
+    fprintf(stderr, "Could not select loot!\n");
+    exit(-1);
   }
+  room->loot = loot;
 
-  char* enemy = selectFromTable(enemyTable);
-  if (enemy != NULL) {
-    room->enemy = (char*) malloc(sizeof(char) * strlen(enemy) + 1);
-    strcpy(room->enemy, enemy);
+  bool _hasBoss = (bool)hasBoss->valueint;
+
+  if (_hasBoss) {
+    cJSON* _boss = cJSON_GetArrayItem(enemyTable, 0);
+    if (_boss == NULL) {
+      fprintf(stderr, "Could not get boss data!\n");
+      exit(-1);
+    }
+    Boss* boss = initBoss(_boss);
+    room->enemy.boss = boss;
+  } else {
+    Enemy* enemy = selectEnemy(enemyTable);
+    room->enemy.enemy = enemy;
   }
 
   cJSON* e = NULL;
@@ -154,8 +530,8 @@ static Room* createRoom(cJSON* _room) {
 }
 
 void deleteRoom(Room* room) {
-  free(room->enemy);
-  free(room->loot);
+  deleteItem(room->loot->_item);
+  deleteEnemyFromMap(room);
   free(room->info);
   free(room);
 

@@ -99,11 +99,13 @@ void loop() {
         case ARMOR_UPGRADE_MATERIALS_T:
           free(name);
           name = NULL;
+        default:
+          break;
       }
     }
 
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
-      printf("You found an enemy! It's a %s!\n", currRoom->enemy);
+      printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
       // Fighting mechanics
       deleteEnemyFromMap(currRoom);
     }

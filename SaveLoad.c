@@ -16,11 +16,14 @@
 #define MAX_HP "maxHP"
 #define INV_COUNT "invCount"
 #define XP "xp"
+#define LVL "lvl"
+#define DZ "dzenai"
 #define ROOM "room"
 #define INV "inventory"
 #define ID "id"
 #define MAP "map"
 #define ITEM "item"
+#define TYPE "type"
 #define COUNT "count"
 
 #define IS_ENTRY "isEntry"
@@ -28,6 +31,7 @@
 #define EXITS "exits"
 #define LOOT "loot"
 #define ENEMY "enemy"
+#define HAS_BOSS "hasBoss"
 
 const char* SAVE_DIR = "./data/saves";
 
@@ -99,6 +103,179 @@ static void addAndRecurse(Room* room, Table* table) {
   }
 }
 
+static void saveSoulWeapon(cJSON* parentObj, SoulWeapon* data) {
+  cJSON* name = cJSON_AddStringToObject(parentObj, NAME, data->name);
+  if (name == NULL) { createError(parentObj, "SoulWeapon name"); return; }
+
+  cJSON* atk = cJSON_AddNumberToObject(parentObj, "atk", data->atk);
+  if (atk == NULL) { createError(parentObj, "SoulWeapon atk"); return; }
+
+  cJSON* acc = cJSON_AddNumberToObject(parentObj, "acc", data->acc);
+  if (acc == NULL) { createError(parentObj, "SoulWeapon acc"); return; }
+
+  cJSON* atkCrit = cJSON_AddNumberToObject(parentObj, "atk_crit", data->atk_crit);
+  if (atkCrit == NULL) { createError(parentObj, "SoulWeapon atk crit"); return; }
+
+  cJSON* critDmg = cJSON_AddNumberToObject(parentObj, "atk_crit_dmg", data->atk_crit_dmg);
+  if (critDmg == NULL) { createError(parentObj, "SoulWeapon atk crit dmg"); return; }
+
+  cJSON* lvl = cJSON_AddNumberToObject(parentObj, LVL, data->lvl);
+  if (lvl == NULL) { createError(parentObj, "SoulWeapon lvl"); return; }
+
+  cJSON* upgrades = cJSON_AddNumberToObject(parentObj, "upgrades", data->upgrades);
+  if (upgrades == NULL) { createError(parentObj, "SoulWeapon upgrades"); return; }
+
+  cJSON* durability = cJSON_AddNumberToObject(parentObj, "durability", data->durability);
+  if (durability == NULL) { createError(parentObj, "SoulWeapon durability"); return; }
+}
+
+static void saveArmor(cJSON* parentObj, Armor* data) {
+  cJSON* name = cJSON_AddStringToObject(parentObj, NAME, data->name);
+  if (name == NULL) { createError(parentObj, "armor name"); return; }
+
+  cJSON* type = cJSON_AddNumberToObject(parentObj, TYPE, data->type);
+  if (type == NULL) { createError(parentObj, "armor type"); return; }
+
+  cJSON* acc = cJSON_AddNumberToObject(parentObj, "acc", data->acc);
+  if (acc == NULL) { createError(parentObj, "armor acc"); return; }
+
+  cJSON* def = cJSON_AddNumberToObject(parentObj, "def", data->def);
+  if (def == NULL) { createError(parentObj, "armor def"); return; }
+  
+  cJSON* lvl = cJSON_AddNumberToObject(parentObj, LVL, data->lvl);
+  if (lvl == NULL) { createError(parentObj, "armor lvl"); return; }
+}
+
+static cJSON* saveGear(cJSON* parentObj, Gear data) { return NULL; }
+
+static cJSON* saveLootItem(cJSON* parentObj, void* lootItem, item_t lootType) {
+  cJSON* _lootItem = cJSON_AddObjectToObject(parentObj, ITEM);
+  if (_lootItem == NULL) { createError(parentObj, "loot item"); return NULL; }
+
+  switch (lootType) {
+    case SOULWEAPON_T:
+      saveSoulWeapon(_lootItem, (SoulWeapon*) lootItem);
+      break;
+    case HELMET_T:
+    case SHOULDER_GUARD_T:
+    case CHESTPLATE_T:
+    case BOOTS_T:
+      saveArmor(_lootItem, (Armor*) lootItem);
+      break;
+    case HP_KITS_T:
+      HPKit* hpKit = (HPKit*) lootItem;
+
+      cJSON* hpKitDesc = cJSON_AddStringToObject(_lootItem, "description", hpKit->desc);
+      if (hpKitDesc == NULL) { createError(parentObj, "item HP Kit description"); return NULL; }
+
+      cJSON* hpKitT = cJSON_AddNumberToObject(_lootItem, TYPE, hpKit->type);
+      if (hpKitT == NULL) { createError(parentObj, "item HP Kit type"); return NULL; }
+      break;
+    case WEAPON_UPGRADE_MATERIALS_T:
+    case ARMOR_UPGRADE_MATERIALS_T:
+      Upgrade* upgrade = (Upgrade*) lootItem;
+
+      cJSON* upgradeDesc = cJSON_AddStringToObject(_lootItem, "description", upgrade->desc);
+      if (upgradeDesc == NULL) { createError(parentObj, "item upgrade material description"); return NULL; }
+
+      cJSON* upgradeT = cJSON_AddNumberToObject(_lootItem, TYPE, upgrade->type);
+      if (upgradeT == NULL) { createError(parentObj, "item upgrade material type"); return NULL; }
+
+      cJSON* upgradeR = cJSON_AddNumberToObject(_lootItem, "rank", upgrade->rank);
+      if (upgradeR == NULL) { createError(parentObj, "item upgrade material rank"); return NULL; }
+    case SLIME_T:
+      Slime* slime = (Slime*) lootItem;
+
+      cJSON* slimeDesc = cJSON_AddStringToObject(_lootItem, "description", slime->desc);
+      if (slimeDesc == NULL) { createError(parentObj, "item slime description"); return NULL; }
+    default:
+      break;
+  }
+
+  return _lootItem;
+}
+
+static cJSON* saveLoot(Item* loot) {
+  cJSON* _loot = cJSON_CreateObject();
+  if (_loot == NULL) { createError(_loot, "loot"); return NULL; }
+
+  cJSON* item = saveLootItem(_loot, loot->_item, loot->type);
+  if (item == NULL) { createError(_loot, "loot item"); return NULL; }
+
+  cJSON* type = cJSON_AddNumberToObject(_loot, TYPE, loot->type);
+  if (type == NULL) { createError(_loot, "loot type"); return NULL; }
+
+  cJSON* count = cJSON_AddNumberToObject(_loot, "count", loot->count);
+  if (count == NULL) { createError(_loot, "loot count"); return NULL; }
+
+  return _loot;
+}
+
+static cJSON* saveStats(cJSON* parentObj, Stats* data) {
+  cJSON* stats = cJSON_CreateObject();
+  if (stats == NULL) { createError(parentObj, "stats"); return NULL; }
+
+  cJSON* atk = cJSON_AddNumberToObject(stats, "ATK", data->ATK);
+  if (atk == NULL) { createError(parentObj, "atk"); return NULL; }
+
+  cJSON* def = cJSON_AddNumberToObject(stats, "DEF", data->DEF);
+  if (def == NULL) { createError(parentObj, "def"); return NULL; }
+
+  cJSON* acc = cJSON_AddNumberToObject(stats, "ACC", data->ACC);
+  if (acc == NULL) { createError(parentObj, "acc"); return NULL; }
+
+  cJSON* critDmg = cJSON_AddNumberToObject(stats, "ATK_CRIT_DMG", data->ATK_CRIT_DMG);
+  if (critDmg == NULL) { createError(parentObj, "critDmg"); return NULL; }
+
+  cJSON* atkCrit = cJSON_AddNumberToObject(stats, "ATK_CRIT", data->ATK_CRIT);
+  if (atkCrit == NULL) { createError(parentObj, "atkCrit"); return NULL; }
+
+  return stats;
+}
+
+
+static cJSON* saveEnemy(union {Enemy* enemy; Boss* boss; }* _enemy, bool hasBoss) {
+  /**
+   * NOTE
+   * enemy union contains an address, either to Enemy or Boss,
+   * but an address nonetheless. Thus no matter which type,
+   * it'll still lead to the object.
+   * Considering Boss has the Enemy structure at the beginning,
+   * its data will be in the same relative order as a regular Enemy
+   * Thus, doing _enemy->enemy->[] will do the same pointer arithmetic
+   * as _enemy->boss->base->[].
+   * However, since Boss has 40B of data more than Enemy,
+   * that will need to be saved using the lens as Boss.
+   */
+
+
+  cJSON* enemy = cJSON_CreateObject();
+  if (enemy == NULL) { createError(enemy, "enemy"); return NULL; }
+
+  cJSON* name = cJSON_AddStringToObject(enemy, NAME, _enemy->enemy->name);
+  if (name == NULL) { createError(enemy, "enemy name"); return NULL; }
+
+  cJSON* xpPoints = cJSON_AddNumberToObject(enemy, "xpPoints", _enemy->enemy->xpPoints);
+  if (xpPoints == NULL) { createError(enemy, "enemy xpPoints"); return NULL; }
+
+  cJSON* hp = cJSON_AddNumberToObject(enemy, HP, _enemy->enemy->hp);
+  if (hp == NULL) { createError(enemy, "enemy hp"); return NULL; }
+
+  cJSON* lvl = cJSON_AddNumberToObject(enemy, LVL, _enemy->enemy->lvl);
+  if (lvl == NULL) { createError(enemy, "enemy lvl"); return NULL; }
+
+  cJSON* stats = saveStats(enemy, _enemy->enemy->stats);
+  if (stats == NULL) { createError(enemy, "enemy stats"); return NULL; }
+
+  if (hasBoss) {
+    cJSON* gear = saveGear(enemy, _enemy->boss->gearDrop);
+    if (gear == NULL) { createError(enemy, "boss gear drop"); return NULL; }
+  }
+
+  return enemy;
+}
+
+
 /**
  * Creates the maze state for saving.
  * @return The maze as a JSON string
@@ -131,6 +308,9 @@ static char* createMapState() {
     cJSON* info = cJSON_AddStringToObject(roomObj, INFO, room->info);
     if (info == NULL) return createError(mapObj, INFO);
 
+    cJSON* hasBoss = cJSON_AddNumberToObject(roomObj, HAS_BOSS, (room->hasBoss) ? 1 : 0);
+    if (hasBoss == NULL) return createError(mapObj, HAS_BOSS);
+
     cJSON* exits = cJSON_AddArrayToObject(roomObj, EXITS);
     if (exits == NULL) return createError(mapObj, EXITS);
     for (int i = 0; i < 4; i++) {
@@ -142,23 +322,21 @@ static char* createMapState() {
       if (!cJSON_AddItemToArray(exits, exit)) return createError(mapObj, "exit in exits");
     }
 
-
-    // Explore usage with CreateStringArray
     // Create the arrays just to be in compliance to format
     // But no need to add when none are present
 
     cJSON* loot = cJSON_AddArrayToObject(roomObj, LOOT);
     if (loot == NULL) return createError(mapObj, LOOT);
     if (room->loot != NULL) {
-      cJSON* lootItem = cJSON_CreateString(room->loot);
-      if (lootItem == NULL) return createError(mapObj, "loot item");
-      if (!cJSON_AddItemToArray(loot, lootItem)) return createError(mapObj, "loot item in loot");
+      cJSON* _loot = saveLoot(room->loot);
+      if (_loot == NULL) return createError(mapObj, "item loot");
+      if (!cJSON_AddItemToArray(loot, _loot)) return createError(mapObj, "item loot in loot");
     }
 
     cJSON* enemy = cJSON_AddArrayToObject(roomObj, ENEMY);
     if (enemy == NULL) return createError(mapObj, ENEMY);
-    if (room->enemy != NULL) {
-      cJSON* enemyEntity = cJSON_CreateString(room->enemy);
+    if (room->enemy.enemy != NULL) {
+      cJSON* enemyEntity = saveEnemy(&(room->enemy), room->hasBoss);
       if (enemyEntity == NULL) return createError(mapObj, "enemy entity");
       if (!cJSON_AddItemToArray(enemy, enemyEntity)) return createError(mapObj, "enemy entity in enemy");
     }
@@ -205,17 +383,23 @@ static char* createPlayerState() {
   cJSON* playerName = cJSON_AddStringToObject(playerObj, NAME, player->name);
   if (playerName == NULL) return createError(playerObj, NAME);
 
+  cJSON* playerXP = cJSON_AddNumberToObject(playerObj, XP, player->xp);
+  if (playerXP == NULL) return createError(playerObj, XP);
+
+  cJSON* playerLvl = cJSON_AddNumberToObject(playerObj, LVL, player->lvl);
+  if (playerLvl == NULL) return createError(playerObj, LVL);
+
   cJSON* playerHP = cJSON_AddNumberToObject(playerObj, HP, player->hp);
   if (playerHP == NULL) return createError(playerObj, HP);
 
   cJSON* playerMaxHP = cJSON_AddNumberToObject(playerObj, MAX_HP, player->maxHP);
   if (playerMaxHP == NULL) return createError(playerObj, MAX_HP);
 
+  cJSON* playerDZ = cJSON_AddNumberToObject(playerObj, DZ, player->dzenai);
+  if (playerDZ == NULL) return createError(playerObj, DZ);
+
   cJSON* playerInvCount = cJSON_AddNumberToObject(playerObj, INV_COUNT, player->invCount);
   if (playerInvCount == NULL) return createError(playerObj, INV_COUNT);
-
-  cJSON* playerXP = cJSON_AddNumberToObject(playerObj, XP, player->xp);
-  if (playerXP == NULL) return createError(playerObj, XP);
 
   cJSON* playerRoom = cJSON_AddObjectToObject(playerObj, ROOM);
   if (playerRoom == NULL) return createError(playerObj, ROOM);
@@ -231,8 +415,11 @@ static char* createPlayerState() {
       cJSON* item = cJSON_CreateObject();
       if (item == NULL) return createError(playerObj, ITEM);
 
-      cJSON* itemItem = cJSON_AddStringToObject(item, ITEM, (char*) &(player->inv[i]._item));
-      if (itemItem == NULL) return createError(playerObj, "item name");
+      cJSON* itemItem = saveLootItem(itemItem, player->inv[i]._item, player->inv[i].type);
+      if (itemItem == NULL) return createError(playerObj, "item item");
+
+      cJSON* itemType = cJSON_AddNumberToObject(item, TYPE, player->inv[i].type);
+      if (itemType == NULL) return createError(playerObj, TYPE);
 
       cJSON* itemCount = cJSON_AddNumberToObject(item, COUNT, player->inv[i].count);
       if (itemCount == NULL) return createError(playerObj, COUNT);
@@ -343,12 +530,15 @@ static SoulWorker* loadPlayer() {
   if (player->room->id != (char)(roomId->valueint)) handleError(ERR_DATA, FATAL, "Room ID does not match!\n");
 
 
-  for(int i = 0; i < cJSON_GetArraySize(inv); i++) {
+  for (int i = 0; i < cJSON_GetArraySize(inv); i++) {
     cJSON* invItem = cJSON_GetArrayItem(inv, i);
+
     cJSON* itemItem = cJSON_GetObjectItemCaseSensitive(invItem, ITEM);
+    cJSON* itemType = cJSON_GetObjectItemCaseSensitive(invItem, TYPE);
     cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(invItem, COUNT);
 
-    player->inv[i]._item = (item_t) *(itemItem->valuestring);
+    player->inv[i]._item = createItem(itemItem, itemType->valueint);
+    player->inv[i].type = (item_t) itemType->valueint;
     player->inv[i].count = itemCount->valueint;
   }
 

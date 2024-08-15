@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 #include "Misc.h"
 #include "Error.h"
@@ -207,13 +208,13 @@ char *getItemName(Item *item) {
   return name;
 }
 
-bool deleteSoulWeapon(SoulWeapon* sw) {
+void deleteSoulWeapon(SoulWeapon* sw) {
   free(sw->name);
   free(sw);
   sw = NULL;
 }
 
-bool deleteArmor(Armor* armor) {
+void deleteArmor(Armor* armor) {
   free(armor->name);
   free(armor);
   armor = NULL;
@@ -247,6 +248,8 @@ bool deleteItem(Item* item) {
     case ARMOR_UPGRADE_MATERIALS_T:
     case SLIME_T:
       deleteOther((HPKit*)item->_item);
+    default:
+      break;
   }
 
   free(item);
@@ -269,9 +272,10 @@ bool deleteEnemy(Enemy* enemy) {
 bool deleteBoss(Boss* boss) {
   if (boss == NULL) return false;
 
-  deleteEnemy(&(boss->base));
-  // Make drop function that copies the structure (alloc 40B, transfer pointer ownership of gear and weapon)
-  // deleteGear(boss->gear_drop);
+  // deleteEnemy(&(boss->base));
+  free(boss->base.name);
+  free(boss->base.stats);
+  // Do not delete the gear. Transfer ownership (copy addresses) to player
   free(boss);
   boss = NULL;
 

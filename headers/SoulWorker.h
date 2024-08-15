@@ -3,9 +3,7 @@
 
 #include <stdbool.h>
 
-#include "Maze.h"
 #include "Setup.h"
-#include "Misc.h"
 
 
 #define INV_CAP 25
@@ -20,13 +18,7 @@ typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
   uint hp; // The current HP                                4B
   uint maxHP; // The max HP                                 4B
   uint dzenai; // The currency                              4B
-  struct gear { //                                         40B
-    SoulWeapon* sw; // 8B
-    Armor* helmet; // 8B
-    Armor* guard; // 8B
-    Armor* chestplate; // 8B
-    Armor* boots; // 8B
-  } gear;
+  Gear gear; //                                            40B
   Stats* stats; //                                          8B
   ushort invCount; // Current items in the inventory        2B
   Item inv[INV_CAP]; // The player's inventory  25B*16B = 400B

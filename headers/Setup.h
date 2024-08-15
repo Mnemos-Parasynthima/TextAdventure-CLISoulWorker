@@ -6,6 +6,8 @@
 
 #include "Maze.h"
 
+#include "cJSON.h"
+
 
 #define FLUSH() int c; while ((c = getchar()) != '\n' && c != EOF);
 
@@ -52,5 +54,13 @@ void deleteTable(Table* table);
  */
 Room* connectRooms(Table* table);
 
+
+/**
+ * Creates an item object given tie cJSON object.
+ * @param obj The raw item data
+ * @param type The type of item
+ * @return The item
+ */
+Item* createItem(cJSON* obj, item_t type);
 
 #endif
