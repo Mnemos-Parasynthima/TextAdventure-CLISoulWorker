@@ -496,10 +496,6 @@ static Room* createRoom(cJSON* _room) {
   strcpy(room->info, info->valuestring);
 
   Item* loot = selectLoot(lootTable);
-  if (loot == NULL) {
-    fprintf(stderr, "Could not select loot!\n");
-    exit(-1);
-  }
   room->loot = loot;
 
   bool _hasBoss = (bool)hasBoss->valueint;

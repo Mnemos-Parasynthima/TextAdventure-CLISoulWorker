@@ -20,7 +20,6 @@ SoulWorker* initSoulWorker(char* name) {
   sw->maxHP = 100;
 
   sw->room = NULL;
-  sw->stats = NULL;
 
   sw->gear.sw = NULL;
   sw->gear.helmet = NULL;
@@ -43,6 +42,7 @@ SoulWorker* initSoulWorker(char* name) {
   stats->ATK_CRIT = 5.0;
   stats->ATK_CRIT_DMG = 10;
   stats->DEF = 100;
+  sw->stats = stats;
 
   return sw;
 }
@@ -192,11 +192,11 @@ void viewGear(SoulWorker* sw) {
 
   char *weaponStats, *helmetStats, *shoulderGuardStats, *chestplateStats, *bootsStats;
   int weaponNameLen, helmetNameLen, shoulderGuardNameLen, chestplateNameLen, bootsNameLen;
-  weaponNameLen = strlen(swp->name);
-  helmetNameLen = strlen(helmet->name);
-  shoulderGuardNameLen = strlen(guard->name);
-  chestplateNameLen = strlen(chestplate->name);
-  bootsNameLen = strlen(boots->name);
+  if (swp != NO_ITEM) weaponNameLen = strlen(swp->name);
+  if (helmet != NO_ITEM) helmetNameLen = strlen(helmet->name);
+  if (guard != NO_ITEM) shoulderGuardNameLen = strlen(guard->name);
+  if (chestplate != NO_ITEM) chestplateNameLen = strlen(chestplate->name);
+  if (boots != NO_ITEM) bootsNameLen = strlen(boots->name);
 
   // If no gear piece equipped, only get space for "Unequipped\0"
   // Otherwise, space for name and its stats

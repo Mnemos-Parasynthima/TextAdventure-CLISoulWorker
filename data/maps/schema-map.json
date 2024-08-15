@@ -7,8 +7,8 @@
     "id": {
       "description": "The ID of the room.",
       "type": "object",
-      "minProperties": 5,
-      "maxProperties": 5,
+      "minProperties": 6,
+      "maxProperties": 6,
       "properties": {
         "isEntry": {
           "description": "Whether this room is the entry. Note, only one entry is allowed per map.",

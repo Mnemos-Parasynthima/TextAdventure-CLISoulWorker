@@ -77,6 +77,8 @@ static void displayHelp(HELP_T type) {
     printf("\t Move ('m')\n");
     printf("\t Save ('s')\n");
     printf("\t Save and Quit ('q')\n");
+    printf("\t View self ('e')\n");
+    printf("\t View gear ('g')\n");
     printf("\t Help message ('h')\n");
   }
 }
@@ -119,6 +121,8 @@ bool performAction(Commands action, SoulWorker* player) {
     else if (action == HELP) displayHelp(ACTIONS);
     else if (action == SAVE) saveGame();
     else if (action == QUIT) quitGame();
+    else if (action == INFO) viewSelf(player);
+    else if (action == GEAR) viewGear(player);
     else return false;
 
   return true;

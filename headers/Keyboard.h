@@ -11,7 +11,9 @@ typedef enum {
   OPEN_INVENTORY = 'i',
   HELP = 'h',
   SAVE = 's',
-  QUIT = 'q'
+  QUIT = 'q',
+  INFO = 'e',
+  GEAR = 'g'
 } Commands;
 
 /**

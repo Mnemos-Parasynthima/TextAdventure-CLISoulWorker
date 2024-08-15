@@ -5,6 +5,7 @@
     "isEntry": 1,
     "info": "You are at the entry of the N-102 lab.",
     "exits": [1, 3, 4, -1],
+    "hasBoss": 0,
     "enemy": [],
     "loot": []
   },
@@ -12,27 +13,31 @@
     "isEntry": 0,
     "info": "Some desc1.",
     "exits": [-1, 2, 0, -1],
-    "enemy": ["spider", "zombie"],
+    "hasBoss": 0,
+    "enemy": [],
     "loot": []
   },
   "2": {
     "isEntry": 0,
     "info": "Some desc2.",
     "exits": [-1, -1, 3, 1],
+    "hasBoss": 0,
     "enemy": [],
-    "loot": ["key", "slime"]
+    "loot": []
   },
   "3": {
     "isEntry": 0,
     "info": "Some desc3.",
     "exits": [2, -1, -1, 0],
-    "enemy": ["spider", "zombie"],
+    "hasBoss": 0,
+    "enemy": [],
     "loot": []
   },
   "4": {
     "isEntry": 0,
     "info": "End of maze for now.",
     "exits": [0, -1, -1, -1],
+    "hasBoss": 0,
     "enemy": [],
     "loot": []
   }
