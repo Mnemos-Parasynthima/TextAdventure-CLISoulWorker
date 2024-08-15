@@ -8,15 +8,17 @@
 
 #define NO_EXIT 0xFEEDFAED
 
+// Better name
+typedef union EnemyU {
+  Enemy* enemy;
+  Boss* boss;
+} EnemyU;
 // A structure representing a room within a maze. Has connections to other possible rooms.
 typedef struct Room {                                       // 58B+6B(PAD) = 64B
   struct Room* exits[4]; // The possible exits that a room can have          32B
   char* info; // The description of the room.                                 8B
   // At initialization, the pointers will be the room ids in hex (-1 -> 0xFEEDFAED; 0 -> 0x0; 1 -> 0x1; ...; 10 -> 0xa; etc..)
-  union enemy { // The possible enemy that the room can have                  8B
-    Enemy* enemy;
-    Boss* boss;
-  } enemy;
+  EnemyU enemy; // The possible enemy that the room can have                  8B
   Item* loot;// The possible loot item that the room can have                 8B
   bool hasBoss; // Whether the room holds a normal enemy or a boss            1B
   char id; // The room id, note: it is not a string, just a number of 1 byte  1B

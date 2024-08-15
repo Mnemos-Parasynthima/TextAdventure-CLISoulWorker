@@ -234,7 +234,7 @@ static cJSON* saveStats(cJSON* parentObj, Stats* data) {
 }
 
 
-static cJSON* saveEnemy(union {Enemy* enemy; Boss* boss; }* _enemy, bool hasBoss) {
+static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   /**
    * NOTE
    * enemy union contains an address, either to Enemy or Boss,
