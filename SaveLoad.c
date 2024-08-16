@@ -573,7 +573,7 @@ static SoulWorker* loadPlayer() {
   if (xp == NULL) handleError(ERR_DATA, FATAL, "No xp data found!\n");
 
   cJSON* dzenai = cJSON_GetObjectItemCaseSensitive(root, DZ);
-  if (dzenai == NULL) handleError(ERR_DATA, FATAL, "No dzenai data found!\n"); //
+  if (dzenai == NULL) handleError(ERR_DATA, FATAL, "No dzenai data found!\n");
 
   cJSON* lvl = cJSON_GetObjectItemCaseSensitive(root, LVL);
   if (lvl == NULL) handleError(ERR_DATA, FATAL, "No lvl data found!\n");
@@ -617,13 +617,12 @@ static SoulWorker* loadPlayer() {
   for (int i = 0; i < cJSON_GetArraySize(inv); i++) {
     cJSON* invItem = cJSON_GetArrayItem(inv, i);
 
-    cJSON* itemItem = cJSON_GetObjectItemCaseSensitive(invItem, ITEM);
     cJSON* itemType = cJSON_GetObjectItemCaseSensitive(invItem, TYPE);
-    cJSON* itemCount = cJSON_GetObjectItemCaseSensitive(invItem, COUNT);
 
-    player->inv[i]._item = createItem(itemItem, itemType->valueint);
-    player->inv[i].type = (item_t) itemType->valueint;
-    player->inv[i].count = itemCount->valueint;
+    Item* item = createItem(invItem, itemType->valueint);
+    player->inv[i]._item = item->_item;
+    player->inv[i].type = item->type;
+    player->inv[i].count = item->count;
   }
 
   // TODO: Make loadGear and loadStats, use with loading enemies???
@@ -660,23 +659,23 @@ static SoulWorker* loadPlayer() {
 
   cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "sw");
   if (sw == NULL) handleError(ERR_DATA, FATAL, "No SoulWeapon data found!\n");
-  player->gear.sw = createSoulWeapon(sw);
+  if (!cJSON_IsNull(sw)) player->gear.sw = createSoulWeapon(sw);
 
   cJSON* helmet = cJSON_GetObjectItemCaseSensitive(gear, "helmet");
   if (helmet == NULL) handleError(ERR_DATA, FATAL, "No helmet data found!\n");
-  player->gear.helmet = createArmor(helmet);
+  if (!cJSON_IsNull(helmet)) player->gear.helmet = createArmor(helmet);
 
   cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "guard");
   if (guard == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
-  player->gear.guard = createArmor(guard);
+  if (!cJSON_IsNull(guard)) player->gear.guard = createArmor(guard);
 
   cJSON* chestplate = cJSON_GetObjectItemCaseSensitive(gear, "chestplate");
   if (chestplate == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
-  player->gear.chestplate = createArmor(chestplate);
+  if (!cJSON_IsNull(chestplate)) player->gear.chestplate = createArmor(chestplate);
 
   cJSON* boots = cJSON_GetObjectItemCaseSensitive(gear, "boots");
   if (boots == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
-  player->gear.boots = createArmor(boots);
+  if (!cJSON_IsNull(boots)) player->gear.boots = createArmor(boots);
 
 
   cJSON_Delete(root);

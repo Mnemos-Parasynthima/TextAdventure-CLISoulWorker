@@ -210,7 +210,7 @@ void viewGear(SoulWorker* sw) {
   // atk_crit: ###.##
 
   if (swp == NO_ITEM) sprintf(weaponStats, "Unequipped");
-  else sprintf(weaponStats, "%s, ATK: %d, ACC: %d, ATK CRIT: %3.2f, ATK CRIT DMG: %d,\n\tLVL: %d, UPGRADES: %d, DURABILITY, %d", 
+  else sprintf(weaponStats, "%s, ATK: %d, ACC: %d, ATK CRIT: %3.2f, ATK CRIT DMG: %d,\n\t\tLVL: %d, UPGRADES: %d, DURABILITY, %d", 
                             swp->name, swp->atk, swp->acc, swp->atk_crit, swp->atk_crit_dmg, swp->lvl, swp->upgrades, swp->durability);
 
   if (helmet == NO_ITEM) sprintf(helmetStats, "Unequipped");
