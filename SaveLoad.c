@@ -500,6 +500,9 @@ static char* createPlayerState() {
   bool gear = saveGear(playerObj, player->gear);
   if (!gear) return createError(playerObj, GEAR);
 
+  bool stats = saveStats(playerObj, player->stats);
+  if (!stats) { createError(playerObj, "player stats"); return NULL; }
+
   char* playerState = cJSON_Print(playerObj);
 
   cJSON_Delete(playerObj);
@@ -623,8 +626,58 @@ static SoulWorker* loadPlayer() {
     player->inv[i].count = itemCount->valueint;
   }
 
-  // Load gear
-  // Load stats
+  // TODO: Make loadGear and loadStats, use with loading enemies???
+
+  cJSON* stats = cJSON_GetObjectItemCaseSensitive(root, "stats");
+  if (stats == NULL) handleError(ERR_DATA, FATAL, "No stats data found!\n");
+
+  player->stats = (Stats*) malloc(sizeof(Stats));
+  if (player->stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
+
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, "No atk stats data found!\n");
+  player->stats->ATK = atk->valueint;
+
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
+  if (def == NULL) handleError(ERR_DATA, FATAL, "No def stats data found!\n");
+  player->stats->DEF = def->valueint;
+
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, "No acc stats data found!\n");
+  player->stats->ACC = acc->valueint;
+
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, "No atk_crit stats data found!\n");
+  player->stats->ATK_CRIT = atkCrit->valuedouble;
+
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, "No atk_crit_dmg stats data found!\n");
+  player->stats->ATK_CRIT_DMG = critDmg->valueint;
+
+
+  cJSON* gear = cJSON_GetObjectItemCaseSensitive(root, "gear");
+  if (gear == NULL) handleError(ERR_DATA, FATAL, "No gear data found!\n");
+
+  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "sw");
+  if (sw == NULL) handleError(ERR_DATA, FATAL, "No SoulWeapon data found!\n");
+  player->gear.sw = createSoulWeapon(sw);
+
+  cJSON* helmet = cJSON_GetObjectItemCaseSensitive(gear, "helmet");
+  if (helmet == NULL) handleError(ERR_DATA, FATAL, "No helmet data found!\n");
+  player->gear.helmet = createArmor(helmet);
+
+  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "guard");
+  if (guard == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
+  player->gear.guard = createArmor(guard);
+
+  cJSON* chestplate = cJSON_GetObjectItemCaseSensitive(gear, "chestplate");
+  if (chestplate == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
+  player->gear.chestplate = createArmor(chestplate);
+
+  cJSON* boots = cJSON_GetObjectItemCaseSensitive(gear, "boots");
+  if (boots == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
+  player->gear.boots = createArmor(boots);
+
 
   cJSON_Delete(root);
 

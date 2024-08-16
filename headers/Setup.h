@@ -54,6 +54,41 @@ void deleteTable(Table* table);
  */
 Room* connectRooms(Table* table);
 
+/**
+ * Creates a SoulWeapon with the given cJSON data.
+ * @param obj The data to create the SoulWeapon
+ * @return The SoulWeapon
+ */
+SoulWeapon* createSoulWeapon(cJSON* obj);
+
+/**
+ * Creates an armor with the given cJSON data.
+ * @param obj The data to create the armor
+ * @return The armor
+ */
+Armor* createArmor(cJSON* obj);
+
+/**
+ * Creates an HP Kit with the given cJSON data.
+ * @param obj The data to create the HP Kit
+ * @return The HP Kit
+ */
+HPKit* createHPKit(cJSON* obj);
+
+/**
+ * Creates a upgrade material with the given cJSON data.
+ * @param obj The data to create the upgrade material
+ * @return The upgrade material
+ */
+Upgrade* createUpgrade(cJSON* obj);
+
+/**
+ * Creates a slime with the given cJSON data.
+ * @param obj The data to create the slime
+ * @return The slime
+ */
+Slime* createSlime(cJSON* obj);
+
 
 /**
  * Creates an item object given tie cJSON object.

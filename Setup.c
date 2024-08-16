@@ -138,8 +138,7 @@ static void validateRoom(cJSON* room) {
   }
 }
 
-
-static SoulWeapon* createSoulWeapon(cJSON* obj) {
+SoulWeapon* createSoulWeapon(cJSON* obj) {
   const char* errMsg = "Could not find data for SoulWeapon %s!\n";
 
   SoulWeapon* sw = (SoulWeapon*) malloc(sizeof(SoulWeapon));
@@ -182,7 +181,7 @@ static SoulWeapon* createSoulWeapon(cJSON* obj) {
   return sw;
 }
 
-static Armor* createArmor(cJSON* obj) {
+Armor* createArmor(cJSON* obj) {
   const char* errMsg = "Could not find data for armor %s!\n";
 
   Armor* armor = (Armor*) malloc(sizeof(Armor));
@@ -213,7 +212,7 @@ static Armor* createArmor(cJSON* obj) {
   return armor;
 }
 
-static HPKit* createHPKit(cJSON* obj) {
+HPKit* createHPKit(cJSON* obj) {
   HPKit* hpKit = (HPKit*) malloc(sizeof(HPKit));
   if (hpKit == NULL) handleError(ERR_MEM, FATAL, "Could not allocate for HP Kit!\n");
 
@@ -230,7 +229,7 @@ static HPKit* createHPKit(cJSON* obj) {
   return hpKit;
 }
 
-static Upgrade* createUpgrade(cJSON* obj) {
+Upgrade* createUpgrade(cJSON* obj) {
   Upgrade* upgrade = (Upgrade*) malloc(sizeof(Upgrade));
   if (upgrade == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade material!\n");
 
@@ -251,7 +250,7 @@ static Upgrade* createUpgrade(cJSON* obj) {
   return upgrade;
 }
 
-static Slime* createSlime(cJSON* obj) {
+Slime* createSlime(cJSON* obj) {
   Slime* slime = (Slime*) malloc(sizeof(Slime));
   if (slime == NULL) handleError(ERR_MEM, FATAL, "Could not allocate for slime!\n");
 
