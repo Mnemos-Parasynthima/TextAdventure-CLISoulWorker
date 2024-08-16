@@ -277,22 +277,22 @@ static cJSON* saveLoot(Item* loot) {
 
 static bool saveStats(cJSON* parentObj, Stats* data) {
   cJSON* stats = cJSON_CreateObject();
-  if (stats == NULL) { createError(parentObj, "stats"); return NULL; }
+  if (stats == NULL) { createError(parentObj, "stats"); return false; }
 
   cJSON* atk = cJSON_AddNumberToObject(stats, "ATK", data->ATK);
-  if (atk == NULL) { createError(parentObj, "atk"); return NULL; }
+  if (atk == NULL) { createError(parentObj, "atk"); return false; }
 
   cJSON* def = cJSON_AddNumberToObject(stats, "DEF", data->DEF);
-  if (def == NULL) { createError(parentObj, "def"); return NULL; }
+  if (def == NULL) { createError(parentObj, "def"); return false; }
 
   cJSON* acc = cJSON_AddNumberToObject(stats, "ACC", data->ACC);
-  if (acc == NULL) { createError(parentObj, "acc"); return NULL; }
+  if (acc == NULL) { createError(parentObj, "acc"); return false; }
 
   cJSON* critDmg = cJSON_AddNumberToObject(stats, "ATK_CRIT_DMG", data->ATK_CRIT_DMG);
-  if (critDmg == NULL) { createError(parentObj, "critDmg"); return NULL; }
+  if (critDmg == NULL) { createError(parentObj, "critDmg"); return false; }
 
   cJSON* atkCrit = cJSON_AddNumberToObject(stats, "ATK_CRIT", data->ATK_CRIT);
-  if (atkCrit == NULL) { createError(parentObj, "atkCrit"); return NULL; }
+  if (atkCrit == NULL) { createError(parentObj, "atkCrit"); return false; }
 
   return cJSON_AddItemToObject(parentObj, "stats", stats);
 }
