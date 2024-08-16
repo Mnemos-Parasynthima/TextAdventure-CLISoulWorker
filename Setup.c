@@ -220,7 +220,7 @@ HPKit* createHPKit(cJSON* obj) {
   if (type == NULL) handleError(ERR_DATA, FATAL, "Could not find data for HP Kit type!\n");
   hpKit->type = type->valueint;
 
-  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "description");
   if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for HP Kit description!\n");
   hpKit->desc = (char*) malloc(strlen(desc->valuestring) + 1);
   if (hpKit->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for HP Kit description!\n");
@@ -254,7 +254,7 @@ Slime* createSlime(cJSON* obj) {
   Slime* slime = (Slime*) malloc(sizeof(Slime));
   if (slime == NULL) handleError(ERR_MEM, FATAL, "Could not allocate for slime!\n");
 
-  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "description");
   if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for slime description!\n");
   slime->desc = (char*) malloc(strlen(desc->valuestring) + 1);
   if (slime->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for slime description!\n");
