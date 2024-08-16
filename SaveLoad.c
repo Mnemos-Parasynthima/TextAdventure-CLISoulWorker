@@ -197,7 +197,7 @@ static bool saveGear(cJSON* parentObj, Gear data) {
   else {
     cJSON* boots = cJSON_AddObjectToObject(gear, "boots");
     if (boots == NULL) { createError(parentObj, "boots"); return false; }
-    
+
     bool _boots = saveArmor(boots, data.boots);
     if (!_boots) { createError(parentObj, "boots"); return false; }
   }
@@ -297,7 +297,6 @@ static bool saveStats(cJSON* parentObj, Stats* data) {
   return cJSON_AddItemToObject(parentObj, "stats", stats);
 }
 
-
 static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   /**
    * NOTE
@@ -338,7 +337,6 @@ static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
 
   return enemy;
 }
-
 
 /**
  * Creates the maze state for saving.
@@ -416,24 +414,31 @@ static char* createMapState() {
 
 /**
  * Saves the current state of the maze.
+ * @return True if the map was saved, false otherwise
  */
-static void saveMap() {
+static bool saveMap() {
   char* mapState = createMapState();
   if (mapState == NULL) handleError(ERR_DATA, WARNING, "Could not create map state!\n");
 
-  char filename[35];
-  sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
+  if (mapState != NULL) {
+    char filename[35];
+    sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
 
-  FILE* file = fopen(filename, "w");
-  if (file == NULL) handleError(ERR_IO, WARNING, "Unable to create the save!\n");
-  else {
-    int written = fprintf(file, "%s", mapState);
-    if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the map data!\n");
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; }
+    else {
+      int written = fprintf(file, "%s", mapState);
+      if (written <= 0) { handleError(ERR_IO, WARNING, "Unable to save the map data!\n"); return false; }
+    }
+
+    fclose(file);
+
+    cJSON_free(mapState);
+
+    return true;
   }
 
-  fclose(file);
-
-  cJSON_free(mapState);
+  return false;
 }
 
 /**
@@ -492,7 +497,6 @@ static char* createPlayerState() {
     }
   }
 
-  // Save player gear state
   bool gear = saveGear(playerObj, player->gear);
   if (!gear) return createError(playerObj, GEAR);
 
@@ -504,37 +508,37 @@ static char* createPlayerState() {
 
 /**
  * Saves the current state of the player.
+ * @return True if the player was saved, false otherwise
  */
-static void savePlayer() {
-  const char* dir = "./data/saves";
-
+static bool savePlayer() {
   char* playerState = createPlayerState();
   if (playerState == NULL) handleError(ERR_DATA, WARNING, "Could not create player state!\n");
 
   if (playerState != NULL) {
     char filename[32];
-    sprintf(filename, "%s/player_save.json", dir);
+    sprintf(filename, "%s/player_save.json", SAVE_DIR);
 
     FILE* file = fopen(filename, "w");
-    if (file == NULL) {
-      handleError(ERR_IO, WARNING, "Unable to create the save!\n");
-    } else {
+    if (file == NULL) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; } 
+    else {
       int written = fprintf(file, "%s", playerState);
 
-      if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the player data!\n");
+      if (written <= 0) { handleError(ERR_IO, WARNING, "Unable to save the player data!\n"); return false; }
     }
 
     fclose(file);
 
     cJSON_free(playerState);
+
+    return true;
   }
+
+  return false;
 }
 
 void saveGame() {
-  savePlayer();
-  saveMap();
-
-  printf("The game has been saved!\n");
+  if (savePlayer() && saveMap()) printf("The game has been saved!\n");
+  else printf("The game could not be saved!\n");
 }
 
 /**
@@ -565,6 +569,12 @@ static SoulWorker* loadPlayer() {
   cJSON* xp = cJSON_GetObjectItemCaseSensitive(root, XP);
   if (xp == NULL) handleError(ERR_DATA, FATAL, "No xp data found!\n");
 
+  cJSON* dzenai = cJSON_GetObjectItemCaseSensitive(root, DZ);
+  if (dzenai == NULL) handleError(ERR_DATA, FATAL, "No dzenai data found!\n"); //
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(root, LVL);
+  if (lvl == NULL) handleError(ERR_DATA, FATAL, "No lvl data found!\n");
+
   cJSON* room = cJSON_GetObjectItemCaseSensitive(root, ROOM);
   if (room == NULL) handleError(ERR_DATA, FATAL, "No room data found!\n");
   cJSON* roomId = cJSON_GetObjectItemCaseSensitive(room, ID);
@@ -586,7 +596,8 @@ static SoulWorker* loadPlayer() {
   player->xp = xp->valueint;
   player->invCount = invCount->valueint;
   player->maxHP = maxHP->valueint;
-
+  player->dzenai = dzenai->valueint;
+  player->lvl = lvl->valueint;
 
   DArray* visited = initDArray(maze->size);
 
@@ -611,6 +622,9 @@ static SoulWorker* loadPlayer() {
     player->inv[i].type = (item_t) itemType->valueint;
     player->inv[i].count = itemCount->valueint;
   }
+
+  // Load gear
+  // Load stats
 
   cJSON_Delete(root);
 
