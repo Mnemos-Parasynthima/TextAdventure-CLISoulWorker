@@ -166,7 +166,7 @@ typedef struct Boss { // 72B
 bool deleteEnemy(Enemy* enemy);
 
 /**
- * Deletes the boss, freeing the memory.
+ * Deletes the boss, freeing the memory. Note, does not free the dropped gear.
  * @param boss 
  * @return 
  */

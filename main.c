@@ -86,11 +86,28 @@ void loop() {
   printf("You are in %s...\n", currRoom->info);
 
   while (true) {
+    if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
+      printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
+      // Fighting mechanics
+      deleteEnemyFromMap(currRoom);
+    }
+
+    if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
+      printf("Boss %s encountered!\n", currRoom->enemy.boss->base.name);
+      printf("It died from surprise! You are so powerful, wow!!\n");
+      player->gear.boots = currRoom->enemy.boss->gearDrop.boots;
+      player->gear.helmet = currRoom->enemy.boss->gearDrop.helmet;
+      player->gear.guard = currRoom->enemy.boss->gearDrop.guard;
+      player->gear.chestplate = currRoom->enemy.boss->gearDrop.chestplate;
+      player->gear.sw = currRoom->enemy.boss->gearDrop.sw;
+
+      deleteEnemyFromMap(currRoom);
+    }
+
     if (currRoom->loot != NULL) {
       char* name = getItemName(currRoom->loot);
-      printf("You found %s!", name);
+      printf("You found %s!\n", name);
       bool added = addToInv(player, currRoom->loot);
-      if (added) removeItemFromMap(currRoom);
 
       // Since some strings have been alloc'd, free them
       switch (currRoom->loot->type) {
@@ -102,12 +119,8 @@ void loop() {
         default:
           break;
       }
-    }
 
-    if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
-      printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
-      // Fighting mechanics
-      deleteEnemyFromMap(currRoom);
+      if (added) removeItemFromMap(currRoom);
     }
 
     printf("What are you going to do?... ");
@@ -175,7 +188,7 @@ int main(int argc, char const *argv[]) {
   // printf("")
 
   printf("Hello, %s! Welcome to Cloudream!\n", (player->name));
-  introStory();
+  // introStory();
   loop();
 
 

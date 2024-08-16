@@ -46,7 +46,7 @@ void deleteRoom(Room* room);
 Item* removeItemFromMap(Room* room);
 
 /**
- * Deletes an enemy from the given room. Note, this frees the memory of the item.
+ * Deletes an enemy from the given room.
  * @param room The target room
  * @return True if it was deleted, false otherwise
  */

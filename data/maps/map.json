@@ -78,7 +78,7 @@
     "enemy": [],
     "loot": []
   },
-  "id": {
+  "4": {
     "isEntry": 0,
     "info": "End of maze for now.",
     "exits": [0, -1, -1, -1],

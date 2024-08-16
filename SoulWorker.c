@@ -74,9 +74,9 @@ bool addToInv(SoulWorker* sw, Item* loot) {
     for (int i = 0; i < INV_CAP; i++) {
       // Finding first slot with no item
       if (sw->inv[i].type == NONE) {
-        sw->inv[i]._item = item->_item;
-        sw->inv[i].count = item->count;
-        sw->inv[i].type = item->type;
+        sw->inv[i]._item = loot->_item;
+        sw->inv[i].count = loot->count;
+        sw->inv[i].type = loot->type;
         sw->invCount++;
 
         printf("Item has been added to the inventory!\n");
@@ -147,7 +147,7 @@ void viewInventory(SoulWorker* sw) {
 
     for (int i = 0; i < INV_CAP; i++) {
       if (sw->inv[i]._item != NO_ITEM) {
-        char* name = getItemName(sw->inv[i]._item);
+        char* name = getItemName(&(sw->inv[i]));
 
         printf("%s * %d\n", name, sw->inv[i].count);
 

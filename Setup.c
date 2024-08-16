@@ -90,6 +90,12 @@ static void validateRoom(cJSON* room) {
 
     cJSON* count = cJSON_GetObjectItemCaseSensitive(e, "count");
     if (count == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot count");
+
+    // To do, validate loot items
+    // Temp:
+    // Item* _item = createItem(item, type->valueint);
+    // if (_item == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "loot item item");
+    // deleteItem(_item);
   }
 
 
@@ -127,7 +133,7 @@ static void validateRoom(cJSON* room) {
     if (crit == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "enemy stats crit");
 
     if (hasBoss->valueint == 1) {
-      handleError(ERR_DATA, FATAL, "BOSS GEAR CHECK NOT IMPLEMENTED!\n");
+      // handleError(ERR_DATA, FATAL, "BOSS GEAR CHECK NOT IMPLEMENTED!\n");
     }
   }
 }
@@ -157,7 +163,7 @@ static SoulWeapon* createSoulWeapon(cJSON* obj) {
   if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
   sw->atk_crit = atkCrit->valuedouble;
 
-  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(obj, "akt_crit_dmg");
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(obj, "atk_crit_dmg");
   if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
   sw->atk_crit_dmg = critDmg->valueint;
 
@@ -236,7 +242,7 @@ static Upgrade* createUpgrade(cJSON* obj) {
   if (type == NULL) handleError(ERR_DATA, FATAL, "Could not find data for upgrade type!\n");
   upgrade->type = type->valueint;
 
-  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "desc");
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "description");
   if (desc == NULL) handleError(ERR_DATA, FATAL, "Could not find data for upgrade description!\n");
   upgrade->desc = (char*) malloc(strlen(desc->valuestring) + 1);
   if (upgrade->desc == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade description!\n");
@@ -285,13 +291,17 @@ Item* createItem(cJSON* obj, item_t type) {
     case CHESTPLATE_T:
     case BOOTS_T:
       item->_item = createArmor(objItem);
+      break;
     case HP_KITS_T:
       item->_item = createHPKit(objItem);
+      break;
     case WEAPON_UPGRADE_MATERIALS_T:
     case ARMOR_UPGRADE_MATERIALS_T:
       item->_item = createUpgrade(objItem);
+      break;
     case SLIME_T:
       item->_item = createSlime(objItem);
+      break;
     default:
       break;
   }  
@@ -355,24 +365,24 @@ Enemy* initEnemy(cJSON* obj) {
   enemy->stats = (Stats*) malloc(sizeof(Stats));
   if (enemy->stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for enemy stats!\n");
 
-  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "atk");
-  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk");
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK");
   enemy->stats->ATK = atk->valueint;
 
-  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "def");
-  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "def");
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
+  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "DEF");
   enemy->stats->DEF = def->valueint;
 
-  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "acc");
-  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "ACC");
   enemy->stats->ACC = acc->valueint;
 
-  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "atk_crit");
-  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT");
   enemy->stats->ATK_CRIT = atkCrit->valuedouble;
 
-  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "akt_crit_dmg");
-  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT DMG");
   enemy->stats->ATK_CRIT_DMG = critDmg->valueint;
 
   return enemy;
@@ -407,24 +417,24 @@ Boss* initBoss(cJSON* obj) {
   boss->base.stats = (Stats*) malloc(sizeof(Stats));
   if (boss->base.stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for boss stats!\n");
 
-  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "atk");
-  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk");
+  cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
+  if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK");
   boss->base.stats->ATK = atk->valueint;
 
-  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "def");
-  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "def");
+  cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
+  if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "DEF");
   boss->base.stats->DEF = def->valueint;
 
-  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "acc");
-  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "acc");
+  cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
+  if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "ACC");
   boss->base.stats->ACC = acc->valueint;
 
-  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "atk_crit");
-  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit");
+  cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
+  if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT");
   boss->base.stats->ATK_CRIT = atkCrit->valuedouble;
 
-  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "akt_crit_dmg");
-  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "atk crit dmg");
+  cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
+  if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT DMG");
   boss->base.stats->ATK_CRIT_DMG = critDmg->valueint;
 
 
@@ -526,7 +536,7 @@ static Room* createRoom(cJSON* _room) {
 }
 
 void deleteRoom(Room* room) {
-  deleteItem(room->loot->_item);
+  if (room->loot != NULL) deleteItem(room->loot->_item);
   deleteEnemyFromMap(room);
   free(room->info);
   free(room);

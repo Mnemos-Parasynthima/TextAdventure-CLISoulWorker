@@ -183,11 +183,13 @@ static cJSON* saveLootItem(cJSON* parentObj, void* lootItem, item_t lootType) {
 
       cJSON* upgradeR = cJSON_AddNumberToObject(_lootItem, "rank", upgrade->rank);
       if (upgradeR == NULL) { createError(parentObj, "item upgrade material rank"); return NULL; }
+      break;
     case SLIME_T:
       Slime* slime = (Slime*) lootItem;
 
       cJSON* slimeDesc = cJSON_AddStringToObject(_lootItem, "description", slime->desc);
       if (slimeDesc == NULL) { createError(parentObj, "item slime description"); return NULL; }
+      break;
     default:
       break;
   }
@@ -443,21 +445,23 @@ static void savePlayer() {
   char* playerState = createPlayerState();
   if (playerState == NULL) handleError(ERR_DATA, WARNING, "Could not create player state!\n");
 
-  char filename[32];
-  sprintf(filename, "%s/player_save.json", dir);
+  if (playerState != NULL) {
+    char filename[32];
+    sprintf(filename, "%s/player_save.json", dir);
 
-  FILE* file = fopen(filename, "w");
-  if (file == NULL) {
-    handleError(ERR_IO, WARNING, "Unable to create the save!\n");
-  } else {
-    int written = fprintf(file, "%s", playerState);
+    FILE* file = fopen(filename, "w");
+    if (file == NULL) {
+      handleError(ERR_IO, WARNING, "Unable to create the save!\n");
+    } else {
+      int written = fprintf(file, "%s", playerState);
 
-    if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the player data!\n");
+      if (written <= 0) handleError(ERR_IO, WARNING, "Unable to save the player data!\n");
+    }
+
+    fclose(file);
+
+    cJSON_free(playerState);
   }
-
-  fclose(file);
-
-  cJSON_free(playerState);
 }
 
 void saveGame() {

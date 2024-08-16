@@ -20,7 +20,19 @@ Item* removeItemFromMap(Room *room) {
 bool deleteEnemyFromMap(Room *room) {
   if (room == NULL ||  room->enemy.enemy == NULL || room->enemy.boss == NULL) return false;
 
-  if (room->hasBoss) return deleteBoss(room->enemy.boss);
+  bool del;
+
+  if (room->hasBoss) {
+    del = deleteBoss(room->enemy.boss);
+    room->enemy.boss = NULL; // For some reason, NULL applied in deleteBoss does not carry over????
+    room->hasBoss = false;
+
+    return del;
+  }
   
-  return deleteEnemy(room->enemy.enemy);
+  del = deleteEnemy(room->enemy.enemy);
+  // Same thing, NULL doesn't carry over for some reason
+  room->enemy.enemy = NULL;
+
+  return del;
 }
