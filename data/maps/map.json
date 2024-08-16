@@ -14,7 +14,34 @@
     "info": "Some desc1.",
     "exits": [-1, 2, 0, -1],
     "hasBoss": 0,
-    "enemy": [],
+    "enemy": [
+      {
+        "name": "Souljunk",
+        "hp": 2,
+        "lvl": 1,
+        "stats": {
+          "ATK": 1,
+          "ACC": 1,
+          "ATK_CRIT": 0,
+          "ATK_CRIT_DMG": 0,
+          "DEF": 1
+        },
+        "xpPoints": 1
+      },
+      {
+        "name": "Souljunk",
+        "hp": 3,
+        "lvl": 1,
+        "stats": {
+          "ATK": 1,
+          "ACC": 0,
+          "ATK_CRIT": 0,
+          "ATK_CRIT_DMG": 0,
+          "DEF": 1
+        },
+        "xpPoints": 1
+      }
+    ],
     "loot": []
   },
   "2": {
@@ -23,7 +50,25 @@
     "exits": [-1, -1, 3, 1],
     "hasBoss": 0,
     "enemy": [],
-    "loot": []
+    "loot": [
+      {
+        "count": 5,
+        "type": 7,
+        "item": {
+          "description": "Weapon Upgrade Material.",
+          "rank": 66,
+          "type": 0
+        }
+      },
+      {
+        "count": 2,
+        "type": 6,
+        "item": {
+          "description": "Deka HP Kit heals 30.",
+          "type": 0
+        }
+      }
+    ]
   },
   "3": {
     "isEntry": 0,
@@ -33,12 +78,66 @@
     "enemy": [],
     "loot": []
   },
-  "4": {
+  "id": {
     "isEntry": 0,
     "info": "End of maze for now.",
     "exits": [0, -1, -1, -1],
-    "hasBoss": 0,
-    "enemy": [],
+    "hasBoss": 1,
+    "enemy": [
+      {
+        "name": "Kairon",
+        "hp": 30,
+        "lvl": 2,
+        "xpPoints": 10,
+        "stats": {
+          "ACC": 2,
+          "ATK": 5,
+          "ATK_CRIT": 5,
+          "ATK_CRIT_DMG": 3,
+          "DEF": 4
+        },
+        "gear": {
+          "sw": {
+            "acc": 10,
+            "atk": 10,
+            "atk_crit": 7.5,
+            "atk_crit_dmg": 10,
+            "durability": 100,
+            "lvl": 2,
+            "name": "Kat",
+            "upgrades": 0
+          },
+          "helmet": {
+            "acc": 2,
+            "def": 5,
+            "lvl": 2,
+            "name": "Hel",
+            "type": 0
+          },
+          "guard": {
+            "acc": 0,
+            "def": 3,
+            "lvl": 2,
+            "name": "Gua",
+            "type": 1
+          },
+          "chestplate": {
+            "acc": 1,
+            "def": 5,
+            "lvl": 2,
+            "name": "Che",
+            "type": 2
+          },
+          "boots": {
+            "acc": 0,
+            "def": 1,
+            "lvl": 2,
+            "name": "Bo",
+            "type": 3
+          }
+        }
+      }
+    ],
     "loot": []
   }
 }

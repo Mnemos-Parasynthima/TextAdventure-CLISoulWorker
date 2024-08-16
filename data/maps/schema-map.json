@@ -43,10 +43,7 @@
               "properties": {
                 "item": {
                   "description": "The item type. Note, a void pointer.",
-                  "type": "object",
-                  "properties": {
-                    "_description": { "type": "string", "description": "" }
-                  }
+                  "type": "object"
                 },
                 "type": {
                   "description": "The type of item.",
@@ -81,8 +78,8 @@
             {
               "description": "The possibly enemy. Boss rooms have a single boss.",
               "type": "object",
-              "minProperties": 4,
-              "maxProperties": 4,
+              "minProperties": 5,
+              "maxProperties": 6,
               "properties": {
                 "name": {
                   "description": "The name of the enemy",
@@ -160,8 +157,8 @@
                           "minimum": 0
                         },
                         "atk_crit": {
-                          "description": "The attack critical damage stat.",
-                          "type": "integer",
+                          "description": "The attack critical percent stat.",
+                          "type": "number",
                           "minimum": 0
                         },
                         "atk_crit_dmg": {
@@ -190,8 +187,8 @@
                     "helmet": {
                       "description": "The equipped helment.",
                       "type": "object",
-                      "minProperties": 4,
-                      "maxProperties": 4,
+                      "minProperties": 5,
+                      "maxProperties": 5,
                       "properties": {
                         "name": {
                           "description": "The name of the armor.",
@@ -222,8 +219,8 @@
                     "guard": {
                       "description": "The equipped shoulder guard.",
                       "type": "object",
-                      "minProperties": 4,
-                      "maxProperties": 4,
+                      "minProperties": 5,
+                      "maxProperties": 5,
                       "properties": {
                         "name": {
                           "description": "The name of the armor.",
@@ -254,8 +251,8 @@
                     "chestplate": {
                       "description": "The equipped chestplate.",
                       "type": "object",
-                      "minProperties": 4,
-                      "maxProperties": 4,
+                      "minProperties": 5,
+                      "maxProperties": 5,
                       "properties": {
                         "name": {
                           "description": "The name of the armor.",
@@ -286,8 +283,8 @@
                     "boots": {
                       "description": "The equipped boots.",
                       "type": "object",
-                      "minProperties": 4,
-                      "maxProperties": 4,
+                      "minProperties": 5,
+                      "maxProperties": 5,
                       "properties": {
                         "name": {
                           "description": "The name of the armor.",
