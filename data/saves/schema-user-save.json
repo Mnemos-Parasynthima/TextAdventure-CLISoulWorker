@@ -268,7 +268,8 @@
           "properties": {
             "item": {
               "description": "The item type. Note, a void pointer.",
-              "type": "object"
+              "type": "object",
+              "properties": {}
             },
             "type": {
               "description": "The type of item.",
