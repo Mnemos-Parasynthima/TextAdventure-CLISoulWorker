@@ -220,12 +220,7 @@ void deleteArmor(Armor* armor) {
   armor = NULL;
 }
 
-/**
- * Deletes items that only have the description allocated.
- * Note, even if the type is HPKit*, it does the same for the upgrade materials.
- * @param item Any other item
- */
-static void deleteOther(HPKit* item) {
+void deleteOther(HPKit* item) {
   free(item->desc);
   free(item);
   item = NULL;

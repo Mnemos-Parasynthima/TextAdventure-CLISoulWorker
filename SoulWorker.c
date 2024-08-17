@@ -116,7 +116,7 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
     }
   }
 
-  if (item != NULL) {
+  if (item == NULL) {
     printf("You do not have that item in your inventory!\n");
 
     return false;
@@ -124,10 +124,28 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
 
   for (int i = 0; i < INV_CAP; i++) {
     if (equalItems(&(sw->inv[i]), loot)) {
-      if (sw->inv[i].count > 1) {
-        sw->inv[i].count -= count; // Handle proper count user input at caller fxn
-      } else {
-        free(sw->inv[i]._item);
+      sw->inv[i].count -= count;
+
+      if (sw->inv[i].count == 0) {
+        void* _item = sw->inv[i]._item;
+
+        switch (sw->inv[i].type) {
+          case SOULWEAPON_T:
+            deleteSoulWeapon((SoulWeapon*) _item);
+          case HELMET_T:
+          case SHOULDER_GUARD_T:
+          case CHESTPLATE_T:
+          case BOOTS_T:
+            deleteArmor((Armor*) _item);
+          case HP_KITS_T:
+          case WEAPON_UPGRADE_MATERIALS_T:
+          case ARMOR_UPGRADE_MATERIALS_T:
+          case SLIME_T:
+            deleteOther((HPKit*) _item);
+          default:
+            break;
+        }
+        free(_item);
         sw->inv[i]._item = NO_ITEM;
         sw->inv[i].count = 0;
         sw->inv[i].type = NONE;
@@ -149,7 +167,7 @@ void viewInventory(SoulWorker* sw) {
       if (sw->inv[i]._item != NO_ITEM) {
         char* name = getItemName(&(sw->inv[i]));
 
-        printf("%s * %d\n", name, sw->inv[i].count);
+        printf("%d: %s * %d\n", i+1, name, sw->inv[i].count);
 
         // Since some strings have been alloc'd, free them
         switch (sw->inv[i].type) {

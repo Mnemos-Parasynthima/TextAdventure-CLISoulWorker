@@ -106,7 +106,7 @@ void loop() {
 
     if (currRoom->loot != NULL) {
       char* name = getItemName(currRoom->loot);
-      printf("You found %s!\n", name);
+      printf("You found %d * %s!\n", currRoom->loot->count, name);
       bool added = addToInv(player, currRoom->loot);
 
       // Since some strings have been alloc'd, free them

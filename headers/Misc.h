@@ -131,7 +131,12 @@ void deleteSoulWeapon(SoulWeapon* sw);
  */
 void deleteArmor(Armor* armor);
 
-
+/**
+ * Deletes items that only have the description allocated.
+ * Note, even if the type is HPKit*, it does the same for the upgrade materials.
+ * @param item Any other item
+ */
+void deleteOther(HPKit* item);
 
 
 typedef struct Gear {

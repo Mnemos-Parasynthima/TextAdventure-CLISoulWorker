@@ -9,7 +9,7 @@
 #include "cJSON.h"
 
 
-#define FLUSH() int c; while ((c = getchar()) != '\n' && c != EOF);
+#define FLUSH() do { int c; while ((c = getchar()) != '\n' && c != EOF); } while (0);
 
 // A temporary hashmap to store the rooms to later connect them.
 typedef struct Table {                              // 16B
