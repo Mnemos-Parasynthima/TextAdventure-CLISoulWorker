@@ -114,9 +114,13 @@ static bool validMove(Movement* dir, Room* room) {
       *dir = tolower(*dir);
     }
 
-    // Fix
+    // Temporary fix for bug where player inputs not a direction when re-prompted after closed exit
+    //  and it passes all current checks, leading to access to an invalid-nonexisting direction, leading to segfault
+    // This does not look clean or proper code at the moment.
+    // I give up (for now?) in trying to figure this out
+    if (*dir == MOVE_NORTH || *dir == MOVE_EAST || *dir == MOVE_SOUTH || *dir == MOVE_WEST) return true;
 
-    return true;
+    return false;
   }
   
   return false;
