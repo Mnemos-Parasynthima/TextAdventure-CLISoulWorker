@@ -208,6 +208,36 @@ char *getItemName(Item *item) {
   return name;
 }
 
+void displaySoulWeapon(SoulWeapon* sw) {
+  printf("SoulWeapon %s; Lvl %d, Upgrade %d/5; %d/100\n\tATK: %d, ACC: %d, ATK CRIT: %2.3f%%, ATK CRIT DMG: %d\n",
+      sw->name, sw->lvl, sw->upgrades, sw->durability,
+      sw->atk, sw->acc, sw->atk_crit, sw->atk_crit_dmg);
+}
+
+void displayArmor(Armor* armor) {
+  char* type;
+
+  if (armor->type == HELMET) type = "Helmet";
+  else if (armor->type == SHOULDER_GUARD) type = "Shoulder Guard";
+  else if (armor->type == CHESTPLATE) type = "Chestplate";
+  else type = "Boots";
+
+  printf("%s %s; Lvl %d\n\tDEF: %d, ACC: %d\n", 
+      type, armor->name, armor->lvl, armor->def, armor->acc);
+}
+
+void displayHPKit(HPKit* hpKit) {
+  printf("%s\n%s\n", getHPKitName(hpKit), hpKit->desc);
+}
+
+void displayUpgrade(Upgrade* upgrade) {
+  printf("%s\n%s\n", getUpgradeName(upgrade), upgrade->desc);
+}
+
+void displaySlime(Slime* slime) {
+  printf("Slime\n%s\n", slime->desc);
+}
+
 void deleteSoulWeapon(SoulWeapon* sw) {
   free(sw->name);
   free(sw);

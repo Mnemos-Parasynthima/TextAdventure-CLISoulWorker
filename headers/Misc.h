@@ -112,6 +112,41 @@ bool equalItems(Item* item1, Item* item2);
  */
 char* getItemName(Item* item);
 
+
+/**
+ * Maybe no reason to have these functions......
+ */
+
+/**
+ * Displays SoulWeapon data.
+ * @param sw The SoulWeapon to display
+ */
+void displaySoulWeapon(SoulWeapon* sw);
+
+/**
+ * Displays armor data.
+ * @param armor The armor to display
+ */
+void displayArmor(Armor* armor);
+
+/**
+ * Displays HP kit data.
+ * @param hpKit The HP kit to display
+ */
+void displayHPKit(HPKit* hpKit);
+
+/**
+ * Displays upgrade material data.
+ * @param upgrade The upgrade material to display
+ */
+void displayUpgrade(Upgrade* upgrade);
+
+/**
+ * Displays slime data.
+ * @param slime The slime to display
+ */
+void displaySlime(Slime* slime);
+
 /**
  * Deletes the item, freeing the memory.
  * @param item The item to delete

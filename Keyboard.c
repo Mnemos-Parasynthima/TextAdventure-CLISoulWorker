@@ -28,6 +28,7 @@ typedef enum {
   INV_SELL = 's', // Sell item; s
   INV_INFO = 'i', // View item info; i
   INV_QUIT = 'q', // Exit inventory; q
+  INV_SHOW = 'v', // Show inventory (again): v
   INV_HELP = 'h'
 } Inventory;
 
@@ -126,8 +127,26 @@ static bool validMove(Movement* dir, Room* room) {
   return false;
 }
 
-static bool validInvAction(Inventory* inv) {
-  return (*inv == INV_SELL || *inv == INV_INFO || *inv == INV_HELP || *inv == INV_QUIT);
+static bool validInvAction(Inventory inv) {
+  return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW);
+}
+
+static Item* getItemFromPos() {
+  uchar _item = getchar();
+  FLUSH()
+  uchar itemI = _item - '0';
+
+  Item* item = validItem(itemI);
+  while (item == NULL) {
+    printf("That is not a valid inventory entry!\n Try again! ");
+    _item = getchar();
+    FLUSH()
+    uchar itemI = _item - '0';
+
+    item = validItem(itemI);
+  }
+
+  return item;
 }
 
 static void displayHelp(HELP_T type) {
@@ -194,7 +213,7 @@ bool performAction(Commands action, SoulWorker* player) {
     inv = tolower(inv);
 
     while (inv != INV_QUIT) {
-      while(!validInvAction(&inv)) {
+      while(!validInvAction(inv)) {
         printf("That is not a valid action. Try again! For a list of acceptable actions, type 'h'. ");
 
         inv = getchar();
@@ -204,19 +223,7 @@ bool performAction(Commands action, SoulWorker* player) {
 
       if (inv == INV_SELL) {
         printf("What item? Use a number for its position. ");
-        uchar _item = getchar();
-        FLUSH()
-        uchar itemI = _item - '0';
-
-        Item* item = validItem(itemI);
-        while (item == NULL) {
-          printf("That is not a valid inventory entry!\n Try again! ");
-          _item = getchar();
-          FLUSH()
-          uchar itemI = _item - '0';
-
-          item = validItem(itemI);
-        }
+        Item* item = getItemFromPos();
 
         printf("How many do you want to sell? ");
         uchar _count = getchar();
@@ -232,10 +239,43 @@ bool performAction(Commands action, SoulWorker* player) {
 
         sellItem(item, count);
       } else if (inv == INV_INFO) {
-        printf("View item info\n");
-      } else if (inv == INV_HELP) {
-        displayHelp(INVENTORY);
-      } else if (inv == INV_QUIT) {
+        printf("What item do you want to inspect? Use a number for its position. ");
+        Item* item = getItemFromPos();
+
+        printf("Viewing item info...\n");
+
+        switch (item->type) {
+          case SOULWEAPON_T:
+            SoulWeapon* sw_t = (SoulWeapon*) item->_item;
+            displaySoulWeapon(sw_t);
+            break;
+          case HELMET_T:
+          case SHOULDER_GUARD_T:
+          case CHESTPLATE_T:
+          case BOOTS_T:
+            Armor* armor_t = (Armor*) item->_item;
+            displayArmor(armor_t);
+            break;
+          case HP_KITS_T:
+            HPKit* hp_t = (HPKit*) item->_item;
+            displayHPKit(hp_t);
+            break;
+          case WEAPON_UPGRADE_MATERIALS_T:
+          case ARMOR_UPGRADE_MATERIALS_T:
+            Upgrade* up_t = (Upgrade*) item->_item;
+            displayUpgrade(up_t);
+            break;
+          case SLIME_T:
+            Slime* slime_t = (Slime*) item->_item;
+            displaySlime(slime_t);
+            break;
+          default:
+            printf("NOT AN ITEM\n");
+            break;
+        }
+      } else if (inv == INV_HELP) displayHelp(INVENTORY);
+      else if (inv == INV_SHOW) viewInventory(player);
+      else if (inv == INV_QUIT) {
         printf("Closing inventory\n");
         break;
       }
