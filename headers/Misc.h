@@ -37,6 +37,7 @@ typedef struct Item {      // 14B+2B(PAD) = 16B
   void* _item; // The item                   8B
   item_t type; // The type of the item       4B
   ushort count; // The amount of that item   2B
+  // Maybe in future, store the price as a uchar or ushort????
 } Item;
 
 typedef struct SoulWeapon {      // 21B+3B(PAD) = 24B
@@ -71,7 +72,6 @@ typedef enum {
 } hpkit_t;
 typedef struct HPKit {
   hpkit_t type;
-  // char type[8];
   char* desc;
 } HPKit;
 
@@ -85,7 +85,7 @@ typedef enum {
   ARMOR
 } upgrade_t;
 typedef struct Upgrade {
-  value_t rank; // The rank of the upgradebetter naming
+  value_t rank; // The rank of the upgrade
   upgrade_t type; // Weapon or armor upgrade
   char* desc; // Description
 } Upgrade;
@@ -197,6 +197,8 @@ typedef struct Boss { // 72B
   // Note, the gear is only the drop, boss is not equipped
   // Add skills
 } Boss;
+
+void displayEnemyStats(Enemy* enemy);
 
 /**
  * Deletes the enemy, freeing the memory.
