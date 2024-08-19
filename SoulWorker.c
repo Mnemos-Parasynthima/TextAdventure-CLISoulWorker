@@ -21,11 +21,11 @@ SoulWorker* initSoulWorker(char* name) {
 
   sw->room = NULL;
 
-  sw->gear.sw = NULL;
-  sw->gear.helmet = NULL;
-  sw->gear.guard = NULL;
-  sw->gear.chestplate = NULL;
-  sw->gear.boots = NULL;
+  sw->gear.sw = NO_ITEM;
+  sw->gear.helmet = NO_ITEM;
+  sw->gear.guard = NO_ITEM;
+  sw->gear.chestplate = NO_ITEM;
+  sw->gear.boots = NO_ITEM;
   
 
   for(int i = 0; i < INV_CAP; i++) {
@@ -141,16 +141,19 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
         switch (sw->inv[i].type) {
           case SOULWEAPON_T:
             deleteSoulWeapon((SoulWeapon*) _item);
+            break;
           case HELMET_T:
           case SHOULDER_GUARD_T:
           case CHESTPLATE_T:
           case BOOTS_T:
             deleteArmor((Armor*) _item);
+            break;
           case HP_KITS_T:
           case WEAPON_UPGRADE_MATERIALS_T:
           case ARMOR_UPGRADE_MATERIALS_T:
           case SLIME_T:
             deleteOther((HPKit*) _item);
+            break;
           default:
             break;
         }
@@ -273,7 +276,99 @@ void viewSelf(SoulWorker* sw) {
   viewGear(sw);
 }
 
-void deleteSoulWorker(SoulWorker* sw) {
+void unequipGear(SoulWorker *sw) {
+  Item* gear = (Item*) malloc(sizeof(Item));
+  gear->count = 1;
+  gear->type = SOULWEAPON_T;
+  gear->_item = sw->gear.sw;
+  if(!addToInv(sw, gear)) { free(gear); return; }
+  // If first addToInv does not work, it most likely means that inv is full
+  // So no need to try and add the rest of the gear
+
+  gear->type = HELMET_T;
+  gear->_item = sw->gear.helmet;
+  addToInv(sw, gear);
+
+  gear->type = SHOULDER_GUARD_T;
+  gear->_item = sw->gear.guard;
+  addToInv(sw, gear);
+
+  gear->type = CHESTPLATE_T;
+  gear->_item = sw->gear.chestplate;
+  addToInv(sw, gear);
+
+  gear->type = BOOTS_T;
+  gear->_item = sw->gear.boots;
+  addToInv(sw, gear);
+
+  sw->gear.sw = NO_ITEM;
+  sw->gear.helmet = NO_ITEM;
+  sw->gear.guard = NO_ITEM;
+  sw->gear.chestplate = NO_ITEM;
+  sw->gear.boots = NO_ITEM;
+
+  free(gear);
+  gear = NULL;
+}
+
+void equipGear(SoulWorker *sw, Item *item) {
+  Gear* gear = &(sw->gear);
+  
+  // When equipping a gear piece that already is filled in the player's gear
+  //  ie. equipping a SoulWeapon when there is one already equipped
+  // simply swap the void* between both
+  // But when equipping in a blank slot, transfer/copy the void* pointer from inv
+  //  to gear.*, then "blanking" the inv slot (null out void* and 0 out type and count)
+
+  void* temp = item->_item;
+
+  switch (item->type) {
+    case SOULWEAPON_T:
+      if (gear->sw != NO_ITEM) { // One equipped already, swap
+        item->_item = gear->sw;
+        gear->sw = temp;
+      } else { 
+        gear->sw = (SoulWeapon*) temp; temp = NULL; }
+      break;
+    case HELMET_T:
+      if (gear->helmet != NO_ITEM) {
+        item->_item = gear->helmet;
+        gear->helmet = temp;
+      } else { gear->helmet = (Armor*) temp; temp = NULL; }
+      break;
+    case SHOULDER_GUARD_T:
+      if (gear->guard != NO_ITEM) {
+        item->_item = gear->guard;
+        gear->guard = temp;
+      } else { gear->guard = (Armor*) temp; temp = NULL; }
+      break;
+    case CHESTPLATE_T:
+      if (gear->chestplate != NO_ITEM) {
+        item->_item = gear->chestplate;
+        gear->chestplate = temp;
+      } else { gear->chestplate = (Armor*) temp; temp = NULL; }
+      break;
+    case BOOTS_T:
+      if (gear->boots != NO_ITEM) {
+        item->_item = gear->boots;
+        gear->boots = temp;
+      } else { gear->boots = (Armor*) temp; temp = NULL; }
+      break;
+    default:
+      break;
+  }
+
+  if (temp == NULL) { // NULL only when not swapping, meaning inv slot is to be empty
+    item->_item = NO_ITEM;
+    item->type = NONE;
+    item->count = 0;
+  }
+
+  printf("Equipped!\n");
+}
+
+void deleteSoulWorker(SoulWorker *sw)
+{
   if (sw == NULL) return;
 
   free(sw->name);
@@ -291,16 +386,19 @@ void deleteSoulWorker(SoulWorker* sw) {
     switch (sw->inv[i].type) {
       case SOULWEAPON_T:
         deleteSoulWeapon((SoulWeapon*) _item);
+        break;
       case HELMET_T:
       case SHOULDER_GUARD_T:
       case CHESTPLATE_T:
       case BOOTS_T:
         deleteArmor((Armor*) _item);
+        break;
       case HP_KITS_T:
       case WEAPON_UPGRADE_MATERIALS_T:
       case ARMOR_UPGRADE_MATERIALS_T:
       case SLIME_T:
         deleteOther((HPKit*) _item);
+        break;
       default:
         break;
     }

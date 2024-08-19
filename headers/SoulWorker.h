@@ -61,6 +61,19 @@ void viewInventory(SoulWorker* sw);
 void viewSelf(SoulWorker* sw);
 
 /**
+ * Unequips all the equipped gear.
+ * @param sw The player
+ */
+void unequipGear(SoulWorker* sw);
+
+/**
+ * Equips the provided gear.
+ * @param sw The player
+ * @param item The gear
+ */
+void equipGear(SoulWorker* sw, Item* item);
+
+/**
  * Deletes the structure and frees the memory for the end of the gametime.
  * @param sw The SoulWorker structure to delete and free
  */

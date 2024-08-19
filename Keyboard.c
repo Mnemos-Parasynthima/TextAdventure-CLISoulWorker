@@ -29,6 +29,7 @@ typedef enum {
   INV_INFO = 'i', // View item info; i
   INV_QUIT = 'q', // Exit inventory; q
   INV_SHOW = 'v', // Show inventory (again): v
+  INV_EQUIP = 'g', // Equip gear: g
   INV_HELP = 'h'
 } Inventory;
 
@@ -180,7 +181,7 @@ static bool validMove(Movement* dir, Room* room) {
 }
 
 static bool validInvAction(Inventory inv) {
-  return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW);
+  return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW || inv == INV_EQUIP);
 }
 
 static Item* getItemFromPos() {
@@ -217,7 +218,7 @@ static void displayHelp(HELP_T type) {
     printf("\t Save ('s')\n");
     printf("\t Save and Quit ('q')\n");
     printf("\t View self ('e')\n");
-    printf("\t View gear ('g')\n");
+    printf("\t Unequip all gear ('g')\n");
     printf("\t Help message ('h')\n");
   }
 }
@@ -327,6 +328,13 @@ bool performAction(Commands action, SoulWorker* player) {
             printf("NOT AN ITEM\n");
             break;
         }
+      } else if (inv == INV_EQUIP) {
+        printf("What do you want to equip? Use a numer for its position. ");
+        Item* item = getItemFromPos();
+        
+        if (item->type < SOULWEAPON_T || item->type > BOOTS_T) {
+          printf("That is not an equippable gear!\n");
+        } else equipGear(player, item);
       } else if (inv == INV_HELP) displayHelp(INVENTORY);
       else if (inv == INV_SHOW) viewInventory(player);
       else if (inv == INV_QUIT) {
@@ -343,6 +351,7 @@ bool performAction(Commands action, SoulWorker* player) {
     else if (action == SAVE) saveGame();
     else if (action == QUIT) quitGame();
     else if (action == INFO) viewSelf(player);
+    else if (action == UNEQUIP) unequipGear(player);
     else return false;
 
   return true;
