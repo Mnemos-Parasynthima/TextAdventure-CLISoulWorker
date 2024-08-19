@@ -17,27 +17,27 @@
     "enemy": [
       {
         "name": "Souljunk",
-        "hp": 2,
+        "hp": [2, 3],
         "lvl": 1,
         "stats": {
-          "ATK": 1,
-          "ACC": 1,
-          "ATK_CRIT": 0,
-          "ATK_CRIT_DMG": 0,
-          "DEF": 1
+          "ATK": [1, 2],
+          "ACC": [1, 2],
+          "ATK_CRIT": [0, 1.2],
+          "ATK_CRIT_DMG": [0, 1],
+          "DEF": [0, 2]
         },
         "xpPoints": 1
       },
       {
         "name": "Souljunk",
-        "hp": 3,
+        "hp": [3, 4],
         "lvl": 1,
         "stats": {
-          "ATK": 1,
-          "ACC": 0,
-          "ATK_CRIT": 0,
-          "ATK_CRIT_DMG": 0,
-          "DEF": 1
+          "ATK": [0, 1],
+          "ACC": [0, 2],
+          "ATK_CRIT": [0, 1.5],
+          "ATK_CRIT_DMG": [1, 2],
+          "DEF": [0, 2]
         },
         "xpPoints": 1
       }
@@ -86,15 +86,15 @@
     "enemy": [
       {
         "name": "Kairon",
-        "hp": 30,
-        "lvl": 2,
+        "hp": [30],
+        "lvl": 5,
         "xpPoints": 10,
         "stats": {
-          "ACC": 2,
-          "ATK": 5,
-          "ATK_CRIT": 5,
-          "ATK_CRIT_DMG": 3,
-          "DEF": 4
+          "ACC": [2, 5],
+          "ATK": [5, 8],
+          "ATK_CRIT": [1.5, 3.0],
+          "ATK_CRIT_DMG": [2, 4],
+          "DEF": [3, 5]
         },
         "gear": {
           "sw": {

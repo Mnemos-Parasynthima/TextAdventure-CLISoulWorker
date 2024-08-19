@@ -308,6 +308,39 @@ Item* createItem(cJSON* obj, item_t type) {
   return item;
 }
 
+static float selectFStat(cJSON* arr) {
+  if (cJSON_GetArraySize(arr) == 1) return (cJSON_GetArrayItem(arr, 0))->valuedouble;
+
+  cJSON* lowLimit = cJSON_GetArrayItem(arr, 0);
+  if (lowLimit == NULL) handleError(ERR_DATA, FATAL, "Could not get lower limit!\n");
+
+  cJSON* highLimit = cJSON_GetArrayItem(arr, 1);
+  if (highLimit == NULL) handleError(ERR_DATA, FATAL, "Could not get upper limit!\n");
+
+  float min = lowLimit->valuedouble, max = highLimit->valuedouble;
+  printf("Lower limit: %3.2f; Upper limit: %3.2f\n", min, max);
+
+
+  return min + ((float) rand() / RAND_MAX) * (max - min);
+  // return ((float)rand() / RAND_MAX) % (max - min + 1) + min;
+}
+
+
+
+static uint selectStat(cJSON* arr) {
+  if (cJSON_GetArraySize(arr) == 1) return (cJSON_GetArrayItem(arr, 0))->valueint;
+
+  cJSON* lowLimit = cJSON_GetArrayItem(arr, 0);
+  if (lowLimit == NULL) handleError(ERR_DATA, FATAL, "Could not get lower limit!\n");
+
+  cJSON* highLimit = cJSON_GetArrayItem(arr, 1);
+  if (highLimit == NULL) handleError(ERR_DATA, FATAL, "Could not get upper limit!\n");
+
+  int min = lowLimit->valueint, max = highLimit->valueint;
+
+  return (rand() % (max - min + 1) + min);
+}
+
 /**
  * Randomly selects an item from the table.
  * @param table The table to select from
@@ -352,7 +385,7 @@ Enemy* initEnemy(cJSON* obj) {
 
   cJSON* hp = cJSON_GetObjectItemCaseSensitive(obj, "hp");
   if (hp == NULL) handleError(ERR_DATA, FATAL, errMsg, "hp");
-  enemy->hp = hp->valueint;
+  enemy->hp = selectStat(hp);
 
   cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
   if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
@@ -366,23 +399,23 @@ Enemy* initEnemy(cJSON* obj) {
 
   cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
   if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK");
-  enemy->stats->ATK = atk->valueint;
+  enemy->stats->ATK = (ushort) selectStat(atk);
 
   cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
   if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "DEF");
-  enemy->stats->DEF = def->valueint;
+  enemy->stats->DEF = (ushort) selectStat(def);
 
   cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
   if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "ACC");
-  enemy->stats->ACC = acc->valueint;
+  enemy->stats->ACC = (ushort) selectStat(acc);
 
   cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
   if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT");
-  enemy->stats->ATK_CRIT = atkCrit->valuedouble;
+  enemy->stats->ATK_CRIT = selectFStat(atkCrit);
 
   cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
   if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT DMG");
-  enemy->stats->ATK_CRIT_DMG = critDmg->valueint;
+  enemy->stats->ATK_CRIT_DMG = (ushort) selectStat(critDmg);
 
   return enemy;
 }
@@ -405,7 +438,7 @@ Boss* initBoss(cJSON* obj) {
 
   cJSON* hp = cJSON_GetObjectItemCaseSensitive(obj, "hp");
   if (hp == NULL) handleError(ERR_DATA, FATAL, errMsg, "hp");
-  boss->base.hp = hp->valueint;
+  boss->base.hp = selectStat(hp);
 
   cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
   if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
@@ -418,23 +451,23 @@ Boss* initBoss(cJSON* obj) {
 
   cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
   if (atk == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK");
-  boss->base.stats->ATK = atk->valueint;
+  boss->base.stats->ATK = (ushort) selectStat(atk);
 
   cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
   if (def == NULL) handleError(ERR_DATA, FATAL, errMsg, "DEF");
-  boss->base.stats->DEF = def->valueint;
+  boss->base.stats->DEF = (ushort) selectStat(def);
 
   cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
   if (acc == NULL) handleError(ERR_DATA, FATAL, errMsg, "ACC");
-  boss->base.stats->ACC = acc->valueint;
+  boss->base.stats->ACC = (ushort) selectStat(acc);
 
   cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
   if (atkCrit == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT");
-  boss->base.stats->ATK_CRIT = atkCrit->valuedouble;
+  boss->base.stats->ATK_CRIT = selectFStat(atkCrit);
 
   cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
   if (critDmg == NULL) handleError(ERR_DATA, FATAL, errMsg, "ATK CRIT DMG");
-  boss->base.stats->ATK_CRIT_DMG = critDmg->valueint;
+  boss->base.stats->ATK_CRIT_DMG = (ushort) selectStat(critDmg);
 
 
   cJSON* gear = cJSON_GetObjectItemCaseSensitive(obj, "gear");

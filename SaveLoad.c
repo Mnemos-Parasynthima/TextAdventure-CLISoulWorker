@@ -279,20 +279,35 @@ static bool saveStats(cJSON* parentObj, Stats* data) {
   cJSON* stats = cJSON_CreateObject();
   if (stats == NULL) { createError(parentObj, "stats"); return false; }
 
-  cJSON* atk = cJSON_AddNumberToObject(stats, "ATK", data->ATK);
-  if (atk == NULL) { createError(parentObj, "atk"); return false; }
+  cJSON* atkArr = cJSON_AddArrayToObject(stats, "ATK");
+  if (atkArr == NULL) { createError(parentObj, "atk container"); return false; }
+  cJSON* atk = cJSON_CreateNumber(data->ATK);
+  if (atk == NULL) { createError(parentObj, "atk value"); return false; }
+  if (!cJSON_AddItemToArray(atkArr, atk)) { createError(parentObj, "atk"); return false; }
 
-  cJSON* def = cJSON_AddNumberToObject(stats, "DEF", data->DEF);
-  if (def == NULL) { createError(parentObj, "def"); return false; }
+  cJSON* defArr = cJSON_AddArrayToObject(stats, "DEF");
+  if (defArr == NULL) { createError(parentObj, "def container"); return false; }
+  cJSON* def = cJSON_CreateNumber(data->DEF);
+  if (def == NULL) { createError(parentObj, "def value"); return false; }
+  if (!cJSON_AddItemToArray(defArr, def)) { createError(parentObj, "def"); return false; }
 
-  cJSON* acc = cJSON_AddNumberToObject(stats, "ACC", data->ACC);
-  if (acc == NULL) { createError(parentObj, "acc"); return false; }
+  cJSON* accArr = cJSON_AddArrayToObject(stats, "ACC");
+  if (accArr == NULL) { createError(parentObj, "acc container"); return false; }
+  cJSON* acc = cJSON_CreateNumber(data->ACC);
+  if (acc == NULL) { createError(parentObj, "acc value"); return false; }
+  if (!cJSON_AddItemToArray(accArr, acc)) { createError(parentObj, "acc"); return false; }
 
-  cJSON* critDmg = cJSON_AddNumberToObject(stats, "ATK_CRIT_DMG", data->ATK_CRIT_DMG);
-  if (critDmg == NULL) { createError(parentObj, "critDmg"); return false; }
+  cJSON* critDmgArr = cJSON_AddArrayToObject(stats, "ATK_CRIT_DMG");
+  if (critDmgArr == NULL) { createError(parentObj, "atk crit dmg container"); return false; }
+  cJSON* critDmg = cJSON_CreateNumber(data->ATK_CRIT_DMG);
+  if (critDmg == NULL) { createError(parentObj, "atk crit dmg value"); return false; }
+  if (!cJSON_AddItemToArray(critDmgArr, critDmg)) { createError(parentObj, "atk crit dmg"); return false; }
 
-  cJSON* atkCrit = cJSON_AddNumberToObject(stats, "ATK_CRIT", data->ATK_CRIT);
-  if (atkCrit == NULL) { createError(parentObj, "atkCrit"); return false; }
+  cJSON* atkCritArr = cJSON_AddArrayToObject(stats, "ATK_CRIT");
+  if (atkCritArr == NULL) { createError(parentObj, "atk crit container"); return false; }
+  cJSON* atkCrit = cJSON_CreateNumber(data->ATK_CRIT);
+  if (atkCrit == NULL) { createError(parentObj, "atk crit value"); return false; }
+  if (!cJSON_AddItemToArray(atkCritArr, atkCrit)) { createError(parentObj, "atk crit"); return false; }
 
   return cJSON_AddItemToObject(parentObj, "stats", stats);
 }
@@ -321,8 +336,11 @@ static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   cJSON* xpPoints = cJSON_AddNumberToObject(enemy, "xpPoints", _enemy->enemy->xpPoints);
   if (xpPoints == NULL) { createError(enemy, "enemy xpPoints"); return NULL; }
 
-  cJSON* hp = cJSON_AddNumberToObject(enemy, HP, _enemy->enemy->hp);
-  if (hp == NULL) { createError(enemy, "enemy hp"); return NULL; }
+  cJSON* hpArr = cJSON_AddArrayToObject(enemy, HP);
+  if (hpArr == NULL) { createError(enemy, "enemy hp container"); return NULL; }
+  cJSON* hp = cJSON_CreateNumber(_enemy->enemy->hp);
+  if (hp == NULL) { createError(enemy, "enemy hp value"); return NULL; }
+  if (!cJSON_AddItemToArray(hpArr, hp)) { createError(enemy, "enemy hp"); return NULL; }
 
   cJSON* lvl = cJSON_AddNumberToObject(enemy, LVL, _enemy->enemy->lvl);
   if (lvl == NULL) { createError(enemy, "enemy lvl"); return NULL; }
@@ -635,23 +653,23 @@ static SoulWorker* loadPlayer() {
 
   cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
   if (atk == NULL) handleError(ERR_DATA, FATAL, "No atk stats data found!\n");
-  player->stats->ATK = atk->valueint;
+  player->stats->ATK = (cJSON_GetArrayItem(atk, 0))->valueint;
 
   cJSON* def = cJSON_GetObjectItemCaseSensitive(stats, "DEF");
   if (def == NULL) handleError(ERR_DATA, FATAL, "No def stats data found!\n");
-  player->stats->DEF = def->valueint;
+  player->stats->DEF = (cJSON_GetArrayItem(def, 0))->valueint;
 
   cJSON* acc = cJSON_GetObjectItemCaseSensitive(stats, "ACC");
   if (acc == NULL) handleError(ERR_DATA, FATAL, "No acc stats data found!\n");
-  player->stats->ACC = acc->valueint;
+  player->stats->ACC = (cJSON_GetArrayItem(acc, 0))->valueint;
 
   cJSON* atkCrit = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT");
   if (atkCrit == NULL) handleError(ERR_DATA, FATAL, "No atk_crit stats data found!\n");
-  player->stats->ATK_CRIT = atkCrit->valuedouble;
+  player->stats->ATK_CRIT = (cJSON_GetArrayItem(atkCrit, 0))->valuedouble;
 
   cJSON* critDmg = cJSON_GetObjectItemCaseSensitive(stats, "ATK_CRIT_DMG");
   if (critDmg == NULL) handleError(ERR_DATA, FATAL, "No atk_crit_dmg stats data found!\n");
-  player->stats->ATK_CRIT_DMG = critDmg->valueint;
+  player->stats->ATK_CRIT_DMG = (cJSON_GetArrayItem(critDmg, 0))->valueint;
 
 
   cJSON* gear = cJSON_GetObjectItemCaseSensitive(root, "gear");
