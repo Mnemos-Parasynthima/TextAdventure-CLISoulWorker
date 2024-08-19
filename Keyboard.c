@@ -135,7 +135,12 @@ static void sellItem(Item* item, ushort count) {
 
   uint total = dz * count;
   player->dzenai += total;
-  printf("%d %s has been sold for %d dzenai!\n", count, getItemName(item), total);
+
+  char* itemName = getItemName(item);
+  printf("%d %s has been sold for %d dzenai!\n", count, itemName, total);
+
+  if (item->type >= HP_KITS_T && item->type <= ARMOR_UPGRADE_MATERIALS_T) free(itemName);
+
   removeFromInv(player, item, count);
 }
 
@@ -222,6 +227,8 @@ static void displayHelp(HELP_T type) {
  */
 static void quitGame() {
   saveGame();
+  deleteSoulWorker(player);
+  deleteMaze(maze);
   exit(0);
 }
 

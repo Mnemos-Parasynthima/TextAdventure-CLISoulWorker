@@ -89,11 +89,16 @@ void loop() {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
       printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
       // Fighting mechanics
-      deleteEnemyFromMap(currRoom);
+      displayEnemyStats(currRoom->enemy.enemy);
+
+      deleteEnemyFromMap(currRoom, false);
     }
 
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
       printf("Boss %s encountered!\n", currRoom->enemy.boss->base.name);
+
+      displayEnemyStats(&(currRoom->enemy.boss->base));
+
       printf("It died from surprise! You are so powerful, wow!!\n");
       player->gear.boots = currRoom->enemy.boss->gearDrop.boots;
       player->gear.helmet = currRoom->enemy.boss->gearDrop.helmet;
@@ -101,7 +106,7 @@ void loop() {
       player->gear.chestplate = currRoom->enemy.boss->gearDrop.chestplate;
       player->gear.sw = currRoom->enemy.boss->gearDrop.sw;
 
-      deleteEnemyFromMap(currRoom);
+      deleteEnemyFromMap(currRoom, false);
     }
 
     if (currRoom->loot != NULL) {
@@ -157,6 +162,8 @@ int main(int argc, char const *argv[]) {
     for(;*buff != '\0';buff++) *buff = tolower(*buff);
 
     if (strncmp(in, "yes", 3) == 0) {
+      free(in);
+
       printf("Loading save...\n");
       loadGame();
 
@@ -168,6 +175,8 @@ int main(int argc, char const *argv[]) {
     } else {
       printf("Invalid decision. Starting a new game.\n");
     }
+
+    free(in);
   }
 
   maze = initMaze("./data/maps/map.json");

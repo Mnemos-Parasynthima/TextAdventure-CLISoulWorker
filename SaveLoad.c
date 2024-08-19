@@ -82,28 +82,6 @@ static Room* findRoom(Room* room, char id, DArray* visited) {
   return NULL;
 }
 
-/**
- * Recursively, adds the room to the table.
- * Note: Depending on size of maze, may or may not rework to avoid stack overflow
- * @param room The room to add
- * @param table The table to add to
- */
-static void addAndRecurse(Room* room, Table* table) {
-  if (room != (void*)((long long)NO_EXIT)) {
-    bool inTable = putRoom(table, room, false);
-
-    // Prevent stack overflow by not going to rooms that have been inserted to the table
-    //  although their exits may not be in table
-    //  they'll be check by other paths
-    // NOTE: Need to see behaviour for larger maps!!
-    if (inTable) {
-      for (int i = 0; i < 4; i++) {
-        addAndRecurse(room->exits[i], table);
-      }
-    }
-  }
-}
-
 static bool saveSoulWeapon(cJSON* parentObj, SoulWeapon* data) {
   cJSON* name = cJSON_AddStringToObject(parentObj, NAME, data->name);
   if (name == NULL) { createError(parentObj, "SoulWeapon name"); return false; }
@@ -641,15 +619,14 @@ static SoulWorker* loadPlayer() {
     player->inv[i]._item = item->_item;
     player->inv[i].type = item->type;
     player->inv[i].count = item->count;
+    free(item);
+    item = NULL;
   }
 
   // TODO: Make loadGear and loadStats, use with loading enemies???
 
   cJSON* stats = cJSON_GetObjectItemCaseSensitive(root, "stats");
   if (stats == NULL) handleError(ERR_DATA, FATAL, "No stats data found!\n");
-
-  player->stats = (Stats*) malloc(sizeof(Stats));
-  if (player->stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
   cJSON* atk = cJSON_GetObjectItemCaseSensitive(stats, "ATK");
   if (atk == NULL) handleError(ERR_DATA, FATAL, "No atk stats data found!\n");

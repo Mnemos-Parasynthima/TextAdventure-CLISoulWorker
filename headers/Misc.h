@@ -212,7 +212,7 @@ bool deleteEnemy(Enemy* enemy);
  * @param boss 
  * @return 
  */
-bool deleteBoss(Boss* boss);
+bool deleteBoss(Boss* boss, bool deleteGear);
 
 
 

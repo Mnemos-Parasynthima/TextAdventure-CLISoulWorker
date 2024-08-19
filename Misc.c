@@ -239,18 +239,24 @@ void displaySlime(Slime* slime) {
 }
 
 void deleteSoulWeapon(SoulWeapon* sw) {
+  if (sw == NULL) return;
+
   free(sw->name);
   free(sw);
   sw = NULL;
 }
 
 void deleteArmor(Armor* armor) {
+  if (armor == NULL) return;
+
   free(armor->name);
   free(armor);
   armor = NULL;
 }
 
 void deleteOther(HPKit* item) {
+  if (item == NULL) return;
+
   free(item->desc);
   free(item);
   item = NULL;
@@ -283,7 +289,13 @@ bool deleteItem(Item* item) {
   return true;
 }
 
-bool deleteEnemy(Enemy* enemy) {
+void displayEnemyStats(Enemy* enemy) {
+  printf("%s, LVL %d; HP %d\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n", 
+      enemy->name, enemy->lvl, enemy->hp,
+      enemy->stats->ATK, enemy->stats->DEF, enemy->stats->ACC, enemy->stats->ATK_CRIT_DMG, enemy->stats->ATK_CRIT);
+}
+
+bool deleteEnemy(Enemy *enemy) {
   if (enemy == NULL) return false;
 
   free(enemy->name);
@@ -294,13 +306,21 @@ bool deleteEnemy(Enemy* enemy) {
   return true;
 }
 
-bool deleteBoss(Boss* boss) {
+bool deleteBoss(Boss* boss, bool deleteGear) {
   if (boss == NULL) return false;
 
-  // deleteEnemy(&(boss->base));
   free(boss->base.name);
   free(boss->base.stats);
   // Do not delete the gear. Transfer ownership (copy addresses) to player
+  // Default to not delete the gear so the ownership (addresses) are transferred to player
+  // But when ending the game, do delete the gear if boss is still present
+  if (deleteGear) {
+    deleteSoulWeapon(boss->gearDrop.sw);
+    deleteArmor(boss->gearDrop.helmet);
+    deleteArmor(boss->gearDrop.guard);
+    deleteArmor(boss->gearDrop.chestplate);
+    deleteArmor(boss->gearDrop.boots);
+  }
   free(boss);
   boss = NULL;
 

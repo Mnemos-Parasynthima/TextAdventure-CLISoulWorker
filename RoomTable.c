@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-#include "Setup.h"
+#include "Maze.h"
 #include "Error.h"
 
 #define ROOM_MULT 5 // By how much should room count increase
@@ -60,4 +60,20 @@ void deleteTable(Table* table) {
   free(table->rooms);
   free(table);
   table = NULL;
+}
+
+void addAndRecurse(Room* room, Table* table) {
+  if (room != (void*)((long long)NO_EXIT)) {
+    bool inTable = putRoom(table, room, false);
+
+    // Prevent stack overflow by not going to rooms that have been inserted to the table
+    //  although their exits may not be in table
+    //  they'll be check by other paths
+    // NOTE: Need to see behaviour for larger maps!!
+    if (inTable) {
+      for (int i = 0; i < 4; i++) {
+        addAndRecurse(room->exits[i], table);
+      }
+    }
+  }
 }

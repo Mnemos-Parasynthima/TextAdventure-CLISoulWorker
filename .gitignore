@@ -2,6 +2,7 @@
 *.o
 clisw
 .gdbinit
+*.log
 TODO
 storyboard
 /data/saves/maps/*-ex.json

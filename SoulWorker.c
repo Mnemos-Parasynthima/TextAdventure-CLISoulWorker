@@ -49,9 +49,15 @@ SoulWorker* initSoulWorker(char* name) {
 
 
 bool addToInv(SoulWorker* sw, Item* loot) {
-  // Adding to inventory basically means transfer of pointer possession
-  // Aka room a holds an Item, it will no longer hold the pointer to the object Item
-  // The player will now hold it
+  /**
+   * When rooms are setup and items created, it creates an Item structure for that room
+   * However, when that item is picked up, the malloc'd struct is kept but the Item struct in
+   *  the inventory is filled with its data, especially a copy of the void*. However, that Item struct is never freed.
+   * When the player is deleted, it only frees its built-in Item structs and the structs of its void*
+   *  but never the original malloc'd Item structure, thus having a memory leak.
+   * Doing deleteItem when adding to inventory frees its void*, which is not what is intended.
+   */
+
   Item* item = NULL;
 
   // Look for item
@@ -99,8 +105,6 @@ bool addToInv(SoulWorker* sw, Item* loot) {
   }
 
   return false;
-
-  // Make sure that the prior owner of the loot pointer no longer holds the pointer
 }
 
 bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
@@ -127,6 +131,11 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
       sw->inv[i].count -= count;
 
       if (sw->inv[i].count == 0) {
+        // Not using deleteItem() because Item struct is built-in the inv
+        // not as a pointer
+        // And deleteItem() frees and nulls the Item struct
+        // Need to free and null the actual item itself (void*)
+
         void* _item = sw->inv[i]._item;
 
         switch (sw->inv[i].type) {
@@ -145,7 +154,7 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
           default:
             break;
         }
-        free(_item);
+
         sw->inv[i]._item = NO_ITEM;
         sw->inv[i].count = 0;
         sw->inv[i].type = NONE;
@@ -250,6 +259,12 @@ void viewGear(SoulWorker* sw) {
   printf("\tShoulder Guard: %s\n", shoulderGuardStats);
   printf("\tChestplate: %s\n", chestplateStats);
   printf("\tBoots: %s\n", bootsStats);
+
+  free(weaponStats);
+  free(helmetStats);
+  free(shoulderGuardStats);
+  free(chestplateStats);
+  free(bootsStats);
 }
 
 void deleteSoulWorker(SoulWorker* sw) {
@@ -263,6 +278,28 @@ void deleteSoulWorker(SoulWorker* sw) {
   deleteArmor(sw->gear.guard);
   deleteArmor(sw->gear.chestplate);
   deleteArmor(sw->gear.boots);
+  
+  for (int i = 0; i < INV_CAP; i++) {
+    void* _item = sw->inv[i]._item;
+
+    switch (sw->inv[i].type) {
+      case SOULWEAPON_T:
+        deleteSoulWeapon((SoulWeapon*) _item);
+      case HELMET_T:
+      case SHOULDER_GUARD_T:
+      case CHESTPLATE_T:
+      case BOOTS_T:
+        deleteArmor((Armor*) _item);
+      case HP_KITS_T:
+      case WEAPON_UPGRADE_MATERIALS_T:
+      case ARMOR_UPGRADE_MATERIALS_T:
+      case SLIME_T:
+        deleteOther((HPKit*) _item);
+      default:
+        break;
+    }
+  }
+
   free(sw);
   sw = NULL;
 }

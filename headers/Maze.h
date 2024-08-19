@@ -31,6 +31,13 @@ typedef struct Maze {                      // 9B+7B(PAD) = 16B
   char size; // The number of rooms that the maze has       1B
 } Maze;
 
+// A temporary hashmap to store the rooms for saving, loading, and deleting
+typedef struct Table {                              // 16B
+  Room** rooms; // The array of room pointers           8B
+  int cap; // The current capacity of the table         4B
+  int len; // Number of items that the table contains   4B
+} Table;
+
 /**
  * Deletes the given room, freeing the memory.
  * @param room The room to delete
@@ -38,19 +45,62 @@ typedef struct Maze {                      // 9B+7B(PAD) = 16B
 void deleteRoom(Room* room);
 
 /**
- * Removes an item from the given room. Note, this transfers pointer ownership to player.
- * It does not free memory. Call deleteItem() to properly delete it.
+ * Removes an item from the given room. Note, this only frees the item structure, and not _item.
+ * All data must be copied before removing and the _item pointer must be in the player's hands.
+ * Thus, the contents of _item must be freed by the player.
  * @param room The target room
- * @return The pointer to the item to transfer
  */
-Item* removeItemFromMap(Room* room);
+void removeItemFromMap(Room* room);
 
 /**
  * Deletes an enemy from the given room.
  * @param room The target room
+ * @param deleteGear Whether to delete the boss gear
  * @return True if it was deleted, false otherwise
  */
-bool deleteEnemyFromMap(Room* room);
+bool deleteEnemyFromMap(Room* room, bool deleteGear);
+
+/**
+ * Inititates the temporary map to store the room
+ * @return The Map
+ */
+Table* initTable();
+
+/**
+ * Inserts the given room into the given map
+ * @param table The map
+ * @param room The room to store
+ * @param overwrite Whether to overwrite the room if one exists
+ * @return Whether the room was put
+ */
+bool putRoom(Table* table, Room* room, bool overwrite);
+
+/**
+ * Recursively, adds the room to the table.
+ * Note: Depending on size of maze, may or may not rework to avoid stack overflow
+ * @param room The room to add
+ * @param table The table to add to
+ */
+void addAndRecurse(Room* room, Table* table);
+
+/**
+ * Connects the created rooms to form the maze.
+ * @param table The map containing the rooms
+ * @return The entry room
+ */
+Room* connectRooms(Table* table);
+
+/**
+ * Deletes the temporary map.
+ * @param table The map to delete
+ */
+void deleteTable(Table* table);
+
+/**
+ * Deletes the maze.
+ * @param maze The maze to delete
+ */
+void deleteMaze(Maze* maze);
 
 
 #endif

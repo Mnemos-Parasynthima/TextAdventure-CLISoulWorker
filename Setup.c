@@ -34,6 +34,9 @@ cJSON* readData(const char* filename) {
   char* buffer = readJSON(filename);
 
   cJSON* json = cJSON_Parse(buffer);
+  
+  free(buffer);
+
   if (json == NULL) {
     const char* err = cJSON_GetErrorPtr();
 
@@ -318,13 +321,10 @@ static float selectFStat(cJSON* arr) {
   if (highLimit == NULL) handleError(ERR_DATA, FATAL, "Could not get upper limit!\n");
 
   float min = lowLimit->valuedouble, max = highLimit->valuedouble;
-  printf("Lower limit: %3.2f; Upper limit: %3.2f\n", min, max);
-
 
   return min + ((float) rand() / RAND_MAX) * (max - min);
   // return ((float)rand() / RAND_MAX) % (max - min + 1) + min;
 }
-
 
 
 static uint selectStat(cJSON* arr) {
@@ -375,7 +375,7 @@ Enemy* initEnemy(cJSON* obj) {
 
   cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
   if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
-  enemy->name = (char*) malloc(strlen(name->valuestring));
+  enemy->name = (char*) malloc(strlen(name->valuestring) + 1);
   if (enemy->name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for enemy name!\n");
   strcpy(enemy->name, name->valuestring);
 
@@ -428,7 +428,7 @@ Boss* initBoss(cJSON* obj) {
 
   cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
   if (name == NULL) handleError(ERR_DATA, FATAL, errMsg, "name");
-  boss->base.name = (char*) malloc(strlen(name->valuestring));
+  boss->base.name = (char*) malloc(strlen(name->valuestring) + 1);
   if (boss->base.name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for boss name!\n");
   strcpy(boss->base.name, name->valuestring);
 
@@ -567,15 +567,7 @@ static Room* createRoom(cJSON* _room) {
   return room;
 }
 
-void deleteRoom(Room* room) {
-  if (room->loot != NULL) deleteItem(room->loot->_item);
-  deleteEnemyFromMap(room);
-  free(room->info);
-  free(room);
-
-  room = NULL;
-}
-
+// To move out????
 Room* connectRooms(Table* table) {
   Room *entry, *room;
 
