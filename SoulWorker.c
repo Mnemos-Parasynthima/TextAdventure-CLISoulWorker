@@ -149,6 +149,8 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
         sw->inv[i]._item = NO_ITEM;
         sw->inv[i].count = 0;
         sw->inv[i].type = NONE;
+
+        sw->invCount--;
       }
 
       return true;
