@@ -343,7 +343,6 @@ bool performAction(Commands action, SoulWorker* player) {
     else if (action == SAVE) saveGame();
     else if (action == QUIT) quitGame();
     else if (action == INFO) viewSelf(player);
-    else if (action == GEAR) viewGear(player);
     else return false;
 
   return true;

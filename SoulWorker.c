@@ -195,19 +195,11 @@ void viewInventory(SoulWorker* sw) {
   }
 }
 
-void viewSelf(SoulWorker* sw) {
-  /**
-   * [name], LVL [lvl]; [hp]/[maxHP]\n
-   * XP: [xp]; [dzenai] DZ\n
-   * ATK: [atk]; DEF: [def]; ACC: [acc]; ATK CRIT DMG: [atk_crit_dmg]; ATK CRIT: [atk_crit]\n
-   */
-
-  printf("%s, LVL %d; %d/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n", 
-          sw->name, sw->lvl, sw->hp, sw->maxHP, sw->xp, sw->dzenai,
-          sw->stats->ATK, sw->stats->DEF, sw->stats->ACC, sw->stats->ATK_CRIT_DMG, sw->stats->ATK_CRIT);
-}
-
-void viewGear(SoulWorker* sw) {
+/**
+ * Displays the equipped gear (armor and weapon) of the player.
+ * @param sw The player
+ */
+static void viewGear(SoulWorker* sw) {
   SoulWeapon* swp = sw->gear.sw;
   Armor* helmet = sw->gear.helmet;
   Armor* guard = sw->gear.guard;
@@ -254,17 +246,31 @@ void viewGear(SoulWorker* sw) {
   if (boots == NO_ITEM) sprintf(bootsStats, "Unequipped");
   else sprintf(bootsStats, "%s; LVL: %d, ACC: %d, DEF: %d", boots->name, boots->lvl, boots->acc, boots->def);
 
-  printf("\tSoulWeapon: %s\n", weaponStats);
-  printf("\tHelmet: %s\n", helmetStats);
-  printf("\tShoulder Guard: %s\n", shoulderGuardStats);
-  printf("\tChestplate: %s\n", chestplateStats);
-  printf("\tBoots: %s\n", bootsStats);
+  printf("SoulWeapon: %s\n", weaponStats);
+  printf("Helmet: %s\n", helmetStats);
+  printf("Shoulder Guard: %s\n", shoulderGuardStats);
+  printf("Chestplate: %s\n", chestplateStats);
+  printf("Boots: %s\n", bootsStats);
 
   free(weaponStats);
   free(helmetStats);
   free(shoulderGuardStats);
   free(chestplateStats);
   free(bootsStats);
+}
+
+void viewSelf(SoulWorker* sw) {
+  /**
+   * [name], LVL [lvl]; [hp]/[maxHP]\n
+   * XP: [xp]; [dzenai] DZ\n
+   * ATK: [atk]; DEF: [def]; ACC: [acc]; ATK CRIT DMG: [atk_crit_dmg]; ATK CRIT: [atk_crit]\n
+   */
+
+  printf("%s, LVL %d; %d/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
+          sw->name, sw->lvl, sw->hp, sw->maxHP, sw->xp, sw->dzenai,
+          sw->stats->ATK, sw->stats->DEF, sw->stats->ACC, sw->stats->ATK_CRIT_DMG, sw->stats->ATK_CRIT);
+          
+  viewGear(sw);
 }
 
 void deleteSoulWorker(SoulWorker* sw) {

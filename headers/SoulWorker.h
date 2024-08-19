@@ -55,16 +55,10 @@ bool removeFromInv(SoulWorker* sw, Item* loot, ushort count);
 void viewInventory(SoulWorker* sw);
 
 /**
- * Displays player info.
+ * Displays player info, including the equipped gear.
  * @param sw The player
  */
 void viewSelf(SoulWorker* sw);
-
-/**
- * Displays the equipped gear (armor and weapon) of the player.
- * @param sw The player
- */
-void viewGear(SoulWorker* sw);
 
 /**
  * Deletes the structure and frees the memory for the end of the gametime.

@@ -13,7 +13,6 @@ typedef enum {
   SAVE = 's',
   QUIT = 'q',
   INFO = 'e',
-  GEAR = 'g',
   HEAL = 'a'
 } Commands;
 
