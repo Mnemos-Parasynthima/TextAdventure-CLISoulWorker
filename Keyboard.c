@@ -56,29 +56,76 @@ static bool validExit(Movement dir, Room* room) {
   return true;
 }
 
+static uint getPrice(uchar lvl, item_t type) {
+  /**
+   * Pricing Model
+   * Each gear piece has a certain weight relative to each other.
+   * For a given piece, there is a possible range of prices, dependent on its level (taking into account the weight)
+   * At gametime (not runtime), it will select a random price from the range
+   * The range will increase as the level increases.
+   * For example, at level 1, a soulweapon can cost between 23 and 28 while a helmet can cost between 19 and 21.
+   * Then at level 2, a soulweapon can cost between 25 and 31 while a helmet can cost between 21 and 23.
+   * Then at gametime, the lvl 1 SW can cost 25 and the helmet can cost 19
+   *   while the lvl 2 SW can still cost 25 and the helmet can cost 23.
+   * However, at levels 15, 30, 45, 60, 75, and 100, which are reserved for legendary gear
+   *   the price will be constant at 1.
+   * There's a chance the legenary status/rarity will be included alongside the gear piece,
+   *   but for now, it is as is.
+   */
+
+  // TODO: Play around with numbers and formula
+
+  double weight;
+  uint minPrice, maxPrice, price;
+
+  switch (type) {
+    case SOULWEAPON_T: weight = 1.0; break;
+    case HELMET_T: weight = 0.6; break;
+    case SHOULDER_GUARD_T: weight = 0.4; break;
+    case CHESTPLATE_T: weight = 0.7; break;
+    case BOOTS_T: weight = 0.5; break;
+    default: break;
+  }
+
+  uint baseMinPrice = 20 + lvl * 2;
+  uint baseMaxPrice = 25 + lvl * 3;
+  minPrice = (uint) (baseMinPrice * weight);
+  maxPrice = (uint) (baseMaxPrice * weight);
+
+  price = minPrice + rand() % (maxPrice - minPrice + 1);
+
+  return price;
+}
 
 static void sellItem(Item* item, ushort count) {
-  // count is handled by caller
-
   uint dz = 0;
 
   switch (item->type) {
     case SOULWEAPON_T:
+      SoulWeapon* sw = (SoulWeapon*) item->_item;
+      if (((sw->lvl % 15 == 0) && sw->lvl < 90) || sw->lvl == 100) dz = 1; // Legendary (boss dropped) only 1 dz
+      else dz = getPrice(sw->lvl, SOULWEAPON_T);
+      break;
     case HELMET_T:
     case SHOULDER_GUARD_T:
     case CHESTPLATE_T:
     case BOOTS_T:
-      // Make dz be a range depending on lvl
-      dz = 30;
+      Armor* armor = (Armor*) item->_item;
+      if (((armor->lvl % 15 == 0) && armor->lvl < 90) || armor->lvl == 100) dz = 1; // Legendary (boss dropped) only 1 dz
+      else dz = getPrice(armor->lvl, item->type);
       break;
     case HP_KITS_T:
-      // Make dz depend on type
-      dz = 50;
+      HPKit* hpKit = (HPKit*) item->_item;
+      if (hpKit->type == DEKA) dz = 45;
+      else if (hpKit->type == MEGA) dz = 55;
+      else dz = 75;
       break;
     case WEAPON_UPGRADE_MATERIALS_T:
     case ARMOR_UPGRADE_MATERIALS_T:
-      // Make dz depend on rank
-      dz = 300;
+      Upgrade* upgrade = (Upgrade*) item->_item;
+      if (upgrade->rank == B) dz = 205;
+      else if (upgrade->rank == A) dz = 315;
+      else dz = 500;
       break;
     case SLIME_T:
       dz = 100;
