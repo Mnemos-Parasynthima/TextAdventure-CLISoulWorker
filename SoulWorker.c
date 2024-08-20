@@ -302,27 +302,37 @@ void viewSelf(SoulWorker* sw) {
 void unequipGear(SoulWorker *sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
-  gear->type = SOULWEAPON_T;
-  gear->_item = sw->gear.sw;
-  if(!addToInv(sw, gear)) { free(gear); return; }
-  // If first addToInv does not work, it most likely means that inv is full
-  // So no need to try and add the rest of the gear
 
-  gear->type = HELMET_T;
-  gear->_item = sw->gear.helmet;
-  addToInv(sw, gear);
+  // Do not try unequipping when gear already unequipped
+  if (sw->gear.sw != NO_ITEM) {
+    gear->type = SOULWEAPON_T;
+    gear->_item = sw->gear.sw;
+    if(!addToInv(sw, gear)) { free(gear); return; }
+  }
 
-  gear->type = SHOULDER_GUARD_T;
-  gear->_item = sw->gear.guard;
-  addToInv(sw, gear);
+  if (sw->gear.helmet != NO_ITEM) {
+    gear->type = HELMET_T;
+    gear->_item = sw->gear.helmet;
+    if(!addToInv(sw, gear)) { free(gear); return; }
+  }
 
-  gear->type = CHESTPLATE_T;
-  gear->_item = sw->gear.chestplate;
-  addToInv(sw, gear);
+  if (sw->gear.guard != NO_ITEM) {
+    gear->type = SHOULDER_GUARD_T;
+    gear->_item = sw->gear.guard;
+    if(!addToInv(sw, gear)) { free(gear); return; }
+  }
 
-  gear->type = BOOTS_T;
-  gear->_item = sw->gear.boots;
-  addToInv(sw, gear);
+  if (sw->gear.chestplate != NO_ITEM) {
+    gear->type = CHESTPLATE_T;
+    gear->_item = sw->gear.chestplate;
+    if(!addToInv(sw, gear)) { free(gear); return; }
+  }
+
+  if (sw->gear.boots != NO_ITEM) {
+    gear->type = BOOTS_T;
+    gear->_item = sw->gear.boots;
+    if(!addToInv(sw, gear)) { free(gear); return; }
+  }
 
   sw->gear.sw = NO_ITEM;
   sw->gear.helmet = NO_ITEM;
