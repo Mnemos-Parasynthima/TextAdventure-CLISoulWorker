@@ -395,6 +395,7 @@ void equipGear(SoulWorker *sw, Item *item) {
     item->_item = NO_ITEM;
     item->type = NONE;
     item->count = 0;
+    sw->invCount--;
   }
 
   printf("Equipped!\n");

@@ -329,12 +329,15 @@ bool performAction(Commands action, SoulWorker* player) {
             break;
         }
       } else if (inv == INV_EQUIP) {
-        printf("What do you want to equip? Use a numer for its position. ");
-        Item* item = getItemFromPos();
-        
-        if (item->type < SOULWEAPON_T || item->type > BOOTS_T) {
-          printf("That is not an equippable gear!\n");
-        } else equipGear(player, item);
+        if (player->invCount == 0) printf("There are no items to equip!\n");
+        else {
+          printf("What do you want to equip? Use a numer for its position. ");
+          Item* item = getItemFromPos();
+          
+          if (item->type < SOULWEAPON_T || item->type > BOOTS_T) {
+            printf("That is not an equippable gear!\n");
+          } else equipGear(player, item);
+        }
       } else if (inv == INV_HELP) displayHelp(INVENTORY);
       else if (inv == INV_SHOW) viewInventory(player);
       else if (inv == INV_QUIT) {
