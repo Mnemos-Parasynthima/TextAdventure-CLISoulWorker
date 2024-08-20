@@ -76,6 +76,10 @@ bool addToInv(SoulWorker* sw, Item* loot) {
       return false;
     }
 
+    // Gear are non-stackable
+    // However, because each gear is different, it will get caught by the first equalItems check
+    // So it then is guaranteed that the gear is different, thus it is handle by the item == NULL block
+
     // Enough space, add it
     for (int i = 0; i < INV_CAP; i++) {
       // Finding first slot with no item
@@ -87,20 +91,39 @@ bool addToInv(SoulWorker* sw, Item* loot) {
 
         printf("Item has been added to the inventory!\n");
         return true;
+      } else if (equalItems(&(sw->inv[i]), loot)) { // Updating existing item
+        sw->inv[i].count++;
+
+        printf("Item count has been increased!");
+        return true;
+
+        /**
+         * The item in the map does not get removed. When an existing item is picked up,
+         * only the inv item count is increased, then the Item structure if freed, but not its void* one
+         * leading to a memory leak.
+         * Thus, Item._item must be freed in this case
+         */
+        switch (sw->inv[i].type) {
+          case SOULWEAPON_T:
+            deleteSoulWeapon((SoulWeapon*) sw->inv[i]._item);
+            break;
+          case HELMET_T:
+          case SHOULDER_GUARD_T:
+          case CHESTPLATE_T:
+          case BOOTS_T:
+            deleteArmor((Armor*) sw->inv[i]._item);
+            break;
+          case HP_KITS_T:
+          case WEAPON_UPGRADE_MATERIALS_T:
+          case ARMOR_UPGRADE_MATERIALS_T:
+          case SLIME_T:
+            deleteOther((HPKit*) sw->inv[i]._item);
+            break;
+          default:
+            break;
+        }
+        sw->inv[i]._item = NO_ITEM;
       }
-    }
-  }
-
-  // Gear are non-stackable
-  // However, because each gear is different, it will get caught by the first equalItems check
-  // So it then is guaranteed that the gear is different, thus it is handle by the item == NULL block
-
-  for (int i = 0; i < INV_CAP; i++) {
-    if (equalItems(&(sw->inv[i]), loot)) {
-      sw->inv[i].count++;
-
-      printf("Item count has been increased!");
-      return true;
     }
   }
 
