@@ -15,6 +15,7 @@ set(SOURCES
     SaveLoad.c
     itoa.s
     DArray.c
+    Misc.c
 )
 
 include_directories(headers)
