@@ -38,6 +38,13 @@ typedef struct Table {                              // 16B
   int len; // Number of items that the table contains   4B
 } Table;
 
+
+/**
+ * Displays
+ * @param maze 
+ */
+void showMap(Maze* maze);
+
 /**
  * Deletes the given room, freeing the memory.
  * @param room The room to delete

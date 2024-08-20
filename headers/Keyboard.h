@@ -14,7 +14,7 @@ typedef enum {
   QUIT = 'q',
   INFO = 'e',
   UNEQUIP = 'g',
-  HEAL = 'a'
+  MAP = 'p'
 } Commands;
 
 /**
