@@ -6,6 +6,10 @@
 #define ANSI_COLOR_YELLOW  "\x1b[33m"
 #define ANSI_RESET         "\x1b[0m"
 
+#ifndef _STR_
+#define str char*
+#endif
+
 // The type of error encountered
 typedef enum {
   ERR_DATA, // Data format error (improper map/save format)
@@ -25,7 +29,7 @@ typedef enum {
  * @param sev The severity of the error
  * @param fmsg The message to print
  */
-void handleError(errType err, sevType sev, const char* fmsg, ...);
+void handleError(errType err, sevType sev, const str fmsg, ...);
 
 
 #endif

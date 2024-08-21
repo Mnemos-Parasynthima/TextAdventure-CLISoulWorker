@@ -62,7 +62,7 @@ static void introStory() {
 
   if (intro == NULL) handleError(ERR_IO, FATAL, "Could not open story!\n");
 
-  char* line = NULL;
+  str line = NULL;
   size_t n = 0;
 
   printf("\n");
@@ -88,13 +88,7 @@ void loop() {
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
-      battleEnemy();
-
-      printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
-      // Fighting mechanics
-      displayEnemyStats(currRoom->enemy.enemy);
-
-      deleteEnemyFromMap(currRoom, false);
+      battleEnemy(currRoom->enemy.enemy);
     }
 
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
@@ -122,7 +116,7 @@ void loop() {
     }
 
     if (currRoom->loot != NULL) {
-      char* name = getItemName(currRoom->loot);
+      str name = getItemName(currRoom->loot);
       printf("You found %d * %s!\n", currRoom->loot->count, name);
       bool added = addToInv(player, currRoom->loot);
 
@@ -167,10 +161,10 @@ int main(int argc, char const *argv[]) {
 
     // char buff[5];
     // fgets(buff, sizeof(buff), stdin);
-    char* buff = (char*) malloc(5); // max is 3 for "yes", plus newline, plus null
+    str buff = (char*) malloc(5); // max is 3 for "yes", plus newline, plus null
     fgets(buff, 5, stdin);
 
-    char* in = buff; // better name
+    str in = buff; // better name
     for(;*buff != '\0';buff++) *buff = tolower(*buff);
 
     if (strncmp(in, "yes", 3) == 0) {
@@ -195,7 +189,7 @@ int main(int argc, char const *argv[]) {
 
   printf("Enter your name: ");
 
-  char* name = NULL;
+  str name = NULL;
   size_t n = 0;
   ssize_t nameLen = getline(&name, &n, stdin);
   *(name + nameLen - 1) = '\0';

@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "Misc.h"
-// #include "SoulWorker.h"
+
 
 #define NO_EXIT 0xFEEDFAED
 
@@ -16,26 +16,26 @@ typedef union EnemyU {
 // A structure representing a room within a maze. Has connections to other possible rooms.
 typedef struct Room {                                       // 58B+6B(PAD) = 64B
   struct Room* exits[4]; // The possible exits that a room can have          32B
-  char* info; // The description of the room.                                 8B
+  str info; // The description of the room.                                   8B
   // At initialization, the pointers will be the room ids in hex (-1 -> 0xFEEDFAED; 0 -> 0x0; 1 -> 0x1; ...; 10 -> 0xa; etc..)
   EnemyU enemy; // The possible enemy that the room can have                  8B
   Item* loot;// The possible loot item that the room can have                 8B
   bool hasBoss; // Whether the room holds a normal enemy or a boss            1B
-  char id; // The room id, note: it is not a string, just a number of 1 byte  1B
+  byte id; // The room id, note: it is not a string, just a number of 1 byte  1B
 } Room;
 
 // A structure representing a single maze with an entry.
 typedef struct Maze {                      // 9B+7B(PAD) = 16B
   Room* entry; // The entrance of the maze                  8B  
   // char* name; // The name of the maze [Unused for now]   8B
-  char size; // The number of rooms that the maze has       1B
+  byte size; // The number of rooms that the maze has       1B
 } Maze;
 
 // A temporary hashmap to store the rooms for saving, loading, and deleting
 typedef struct Table {                              // 16B
   Room** rooms; // The array of room pointers           8B
-  int cap; // The current capacity of the table         4B
-  int len; // Number of items that the table contains   4B
+  uint cap; // The current capacity of the table        4B
+  uint len; // Number of items that the table contains  4B
 } Table;
 
 

@@ -3,7 +3,8 @@
 #include "DArray.h"
 #include "Error.h"
 
-DArray* initDArray(char size) {
+
+DArray* initDArray(byte size) {
   DArray* arr = (DArray*) malloc(sizeof(DArray));
   if (arr == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the dynamic array structure!\n");
 
@@ -17,7 +18,7 @@ DArray* initDArray(char size) {
   return arr;
 }
 
-void dArrayAdd(DArray* arr, char id) {
+void dArrayAdd(DArray* arr, byte id) {
   if (arr == NULL) return;
 
   for (int i = 0; i < arr->size; i++) {
@@ -28,7 +29,7 @@ void dArrayAdd(DArray* arr, char id) {
   }
 }
 
-bool dArrayExists(DArray* arr, char id) {
+bool dArrayExists(DArray* arr, byte id) {
   if (arr == NULL) return false;
 
   for (int i = 0; i < arr->size; i++) {

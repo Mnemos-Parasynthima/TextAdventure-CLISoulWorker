@@ -7,7 +7,7 @@
 
 #define NO_ITEM NULL
 
-SoulWorker* initSoulWorker(char* name) {
+SoulWorker* initSoulWorker(str name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
   if (sw == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player!\n");  
 
@@ -202,7 +202,7 @@ void viewInventory(SoulWorker* sw) {
 
     for (int i = 0; i < INV_CAP; i++) {
       if (sw->inv[i]._item != NO_ITEM) {
-        char* name = getItemName(&(sw->inv[i]));
+        str name = getItemName(&(sw->inv[i]));
 
         printf("%d: %s * %d\n", i+1, name, sw->inv[i].count);
 
@@ -248,12 +248,12 @@ static void viewGear(SoulWorker* sw) {
   // If no gear piece equipped, only get space for "Unequipped\0"
   // Otherwise, space for name and its stats
   //                                                            [name] + rest + [lvl] + [acc] + [def] + \0
-  helmetStats = (char*)malloc((helmet == NO_ITEM) ? 11 : (helmetNameLen + 21 + 3 + 5 + 3 + 1));
-  shoulderGuardStats = (char*)malloc((guard == NO_ITEM) ? 11 : (shoulderGuardNameLen + 21 + 3 + 5 + 3 + 1));
-  chestplateStats = (char*)malloc((chestplate == NO_ITEM) ? 11 : (chestplateNameLen + 21 + 3 + 5 + 3 + 1));
-  bootsStats = (char*)malloc((boots == NO_ITEM) ? 11 : (bootsNameLen + 21 + 3 + 5 + 3 + 1));
+  helmetStats = (str)malloc((helmet == NO_ITEM) ? 11 : (helmetNameLen + 21 + 3 + 5 + 3 + 1));
+  shoulderGuardStats = (str)malloc((guard == NO_ITEM) ? 11 : (shoulderGuardNameLen + 21 + 3 + 5 + 3 + 1));
+  chestplateStats = (str)malloc((chestplate == NO_ITEM) ? 11 : (chestplateNameLen + 21 + 3 + 5 + 3 + 1));
+  bootsStats = (str)malloc((boots == NO_ITEM) ? 11 : (bootsNameLen + 21 + 3 + 5 + 3 + 1));
 
-  weaponStats = (char*)malloc((swp == NO_ITEM) ? 11 : (weaponNameLen + 75 + 5 + 5 + 6 + 5 + 3 + 3 + 3 + 1));
+  weaponStats = (str)malloc((swp == NO_ITEM) ? 11 : (weaponNameLen + 75 + 5 + 5 + 6 + 5 + 3 + 3 + 3 + 1));
   // atk_crit: ###.##
 
   if (swp == NO_ITEM) sprintf(weaponStats, "Unequipped");
@@ -363,7 +363,7 @@ void unequipGear(SoulWorker *sw) {
   gear = NULL;
 }
 
-void equipGear(SoulWorker *sw, Item *item) {
+void equipGear(SoulWorker* sw, Item* item) {
   Gear* gear = &(sw->gear);
   Stats* stats = sw->stats;
   
@@ -455,8 +455,7 @@ void equipGear(SoulWorker *sw, Item *item) {
   printf("Equipped!\n");
 }
 
-void deleteSoulWorker(SoulWorker *sw)
-{
+void deleteSoulWorker(SoulWorker* sw) {
   if (sw == NULL) return;
 
   free(sw->name);

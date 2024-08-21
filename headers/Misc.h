@@ -9,6 +9,12 @@
 #define uchar unsigned char
 #define uint unsigned int
 
+#ifndef _STR_
+#define str char*
+#endif
+#ifndef _BYTE_
+#define byte unsigned char
+#endif
 
 typedef struct Stats {                         // 12B
   ushort ATK; // The attack damage                 2B
@@ -41,7 +47,7 @@ typedef struct Item {      // 14B+2B(PAD) = 16B
 } Item;
 
 typedef struct SoulWeapon {      // 21B+3B(PAD) = 24B
-  char* name; // The name of the weapon            8B
+  str name; // The name of the weapon              8B
   ushort atk; // The attack stat                   2B
   ushort acc; // The accuracy stat                 2B
   float atk_crit; // The attack crit percent       4B
@@ -58,7 +64,7 @@ typedef enum {
   BOOTS
 } armor_t;
 typedef struct Armor { //                16B
-  char* name; // The armor name           8B
+  str name; // The armor name             8B
   armor_t type; // The type of armor      4B
   ushort acc; // The accuracy it provides 2B
   uchar def; // The defense stat          1B
@@ -110,7 +116,7 @@ bool equalItems(Item* item1, Item* item2);
  * @param item The item
  * @return The name
  */
-char* getItemName(Item* item);
+str getItemName(Item* item);
 
 
 /**
@@ -184,7 +190,7 @@ typedef struct Gear {
 
 
 typedef struct Enemy { // 25B+(7B) = 32B
-  char* name; //                      8B
+  str name; //                        8B
   uint xpPoints; //                   4B
   uint hp; //                         4B
   uchar lvl; //                       1B
@@ -193,7 +199,7 @@ typedef struct Enemy { // 25B+(7B) = 32B
 
 typedef struct Boss { // 72B
   Enemy base; //         32B
-  Gear gearDrop; //     40B
+  Gear gearDrop; //      40B
   // Note, the gear is only the drop, boss is not equipped
   // Add skills
 } Boss;

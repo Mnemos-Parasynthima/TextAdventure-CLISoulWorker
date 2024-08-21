@@ -24,7 +24,7 @@ Table* initTable() {
 }
 
 bool putRoom(Table* table, Room* room, bool overwrite) {
-  char id = room->id;
+  byte id = room->id;
 
   Room* _room = table->rooms[(int)id];
 
@@ -37,7 +37,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
       table->cap += ROOM_MULT;
     }
 
-    table->rooms[(int)id] = room;
+    table->rooms[(int) id] = room;
     table->len++;
 
     return true;
@@ -46,7 +46,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
     // Note that even though the rooms may have the same id, their contents (loot table, enemy table, etc) may be different.
     deleteRoom(room);
 
-    table->rooms[(int)id] = _room;
+    table->rooms[(int) id] = _room;
 
     return true;
   }
@@ -63,7 +63,7 @@ void deleteTable(Table* table) {
 }
 
 void addAndRecurse(Room* room, Table* table) {
-  if (room != (void*)((long long)NO_EXIT)) {
+  if (room != (void*) ((long long) NO_EXIT)) {
     bool inTable = putRoom(table, room, false);
 
     // Prevent stack overflow by not going to rooms that have been inserted to the table

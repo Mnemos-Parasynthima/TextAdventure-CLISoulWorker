@@ -107,12 +107,12 @@ bool equalItems(Item* item1, Item* item2) {
  * @param hpKit The HP kit to get the name
  * @return The name
  */
-static char* getHPKitName(HPKit* hpKit) {
+static str getHPKitName(HPKit* hpKit) {
   // "**** HP Kit"
-  char* name = (char*) malloc(12);
+  str name = (str) malloc(12);
   if (name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for HP Kit name!\n");
 
-  char* type;
+  str type;
   switch (hpKit->type) {
     case DEKA:
       type = "Deka";
@@ -138,12 +138,12 @@ static char* getHPKitName(HPKit* hpKit) {
  * @param upgrade The upgrade material
  * @return The name
  */
-static char* getUpgradeName(Upgrade* upgrade) {
+static str getUpgradeName(Upgrade* upgrade) {
   // "* Weapon|Armor Upgrade Material"  
-  char* name = (char*) malloc(26);
+  str name = (str) malloc(26);
   if (name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade material name!\n");
 
-  char* type;
+  str type;
   switch (upgrade->type) {
     case WEAPON:
       type = "Weapon";
@@ -161,8 +161,8 @@ static char* getUpgradeName(Upgrade* upgrade) {
   return name;
 }
 
-char *getItemName(Item *item) {
-  char* name;
+str getItemName(Item* item) {
+  str name;
 
   switch (item->type) {
     case SOULWEAPON_T:
@@ -215,7 +215,7 @@ void displaySoulWeapon(SoulWeapon* sw) {
 }
 
 void displayArmor(Armor* armor) {
-  char* type;
+  str type;
 
   if (armor->type == HELMET) type = "Helmet";
   else if (armor->type == SHOULDER_GUARD) type = "Shoulder Guard";

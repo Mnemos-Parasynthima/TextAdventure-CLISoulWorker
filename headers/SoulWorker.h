@@ -11,7 +11,7 @@
 
 // The player model.
 typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
-  char* name; // The name of the player                     8B
+  str name; // The name of the player                     8B
   Room* room; // The current room that the player is in     8B
   uint xp; // The current XP                                4B
   uint lvl; // The current level                            4B
@@ -29,7 +29,7 @@ typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
  * @param name The name of the player
  * @return The SoulWorker player model
  */
-SoulWorker* initSoulWorker(char* name);
+SoulWorker* initSoulWorker(str name);
 
 /**
  * Adds a given loot item to a player.

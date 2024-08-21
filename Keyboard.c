@@ -13,7 +13,6 @@
     (c) == 's' ? 2 : \
     3)
 
-#define FLUSH_
 
 
 typedef enum {
@@ -57,7 +56,7 @@ static bool validExit(Movement dir, Room* room) {
   return true;
 }
 
-static uint getPrice(uchar lvl, item_t type) {
+static uint getPrice(byte lvl, item_t type) {
   /**
    * Pricing Model
    * Each gear piece has a certain weight relative to each other.
@@ -137,7 +136,7 @@ static void sellItem(Item* item, ushort count) {
   uint total = dz * count;
   player->dzenai += total;
 
-  char* itemName = getItemName(item);
+  str itemName = getItemName(item);
   printf("%d %s has been sold for %d dzenai!\n", count, itemName, total);
 
   if (item->type >= HP_KITS_T && item->type <= ARMOR_UPGRADE_MATERIALS_T) free(itemName);
@@ -145,7 +144,7 @@ static void sellItem(Item* item, ushort count) {
   removeFromInv(player, item, count);
 }
 
-static Item* validItem(uchar itemI) {
+static Item* validItem(byte itemI) {
   if (itemI < 1 || itemI > INV_CAP) return NULL;
   if (player->inv[itemI-1]._item == NULL) return NULL;
 

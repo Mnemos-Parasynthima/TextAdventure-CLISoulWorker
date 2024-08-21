@@ -7,7 +7,7 @@
 #include "Error.h"
 
 
-void removeItemFromMap(Room *room) {
+void removeItemFromMap(Room* room) {
   if (room != NULL && room->loot != NULL) {
     free(room->loot);
     room->loot = NULL;
@@ -20,7 +20,7 @@ void removeItemFromMap(Room *room) {
   return;
 }
 
-bool deleteEnemyFromMap(Room *room, bool deleteGear) {
+bool deleteEnemyFromMap(Room* room, bool deleteGear) {
   if (room == NULL ||  room->enemy.enemy == NULL || room->enemy.boss == NULL) return false;
 
   bool del;
@@ -41,7 +41,7 @@ bool deleteEnemyFromMap(Room *room, bool deleteGear) {
 }
 
 static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visited, uint gridSize) {
-  if (room == NO_EXIT || visited[y][x]) return;
+  if (room == ((void*) ((long long) NO_EXIT)) || visited[y][x]) return;
 
   visited[y][x] = 1;
 
@@ -51,25 +51,25 @@ static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visite
   else if (room->id == 0) grid[y][x] = '@';
   else grid[y][x] = '#';
 
-  if (room->exits[0] != NO_EXIT && y > 1) {
+  if (room->exits[0] != ((void*) ((long long) NO_EXIT)) && y > 1) {
     grid[y-1][x] = '|';  // Path to the north
     placeRoomOnGrid(room->exits[0], grid, x, y-2, visited, gridSize);
   }
-  if (room->exits[1] != NO_EXIT && x < gridSize-2) {
+  if (room->exits[1] != ((void*) ((long long) NO_EXIT)) && x < gridSize-2) {
     grid[y][x+1] = '-';
     placeRoomOnGrid(room->exits[1], grid, x+2, y, visited, gridSize);
   }
-  if (room->exits[2] != NO_EXIT && y < gridSize-2) {
+  if (room->exits[2] != ((void*) ((long long) NO_EXIT)) && y < gridSize-2) {
     grid[y+1][x] = '|';
     placeRoomOnGrid(room->exits[2], grid, x, y+2, visited, gridSize);
   }
-  if (room->exits[3] != NO_EXIT && x > 1) {
+  if (room->exits[3] != ((void*) ((long long) NO_EXIT)) && x > 1) {
     grid[y][x-1] = '-';
     placeRoomOnGrid(room->exits[3], grid, x-2, y, visited, gridSize);
   }
 }
 
-void showMap(Maze *maze) {
+void showMap(Maze* maze) {
   uint gridSize = (int)(sqrt(maze->size) * 4);
   if (gridSize < 5) gridSize = 5;
 
@@ -94,8 +94,7 @@ void showMap(Maze *maze) {
   }
 }
 
-void deleteRoom(Room *room)
-{
+void deleteRoom(Room* room) {
   if (room->loot != NULL) deleteItem(room->loot);
   deleteEnemyFromMap(room, true);
   free(room->info);
