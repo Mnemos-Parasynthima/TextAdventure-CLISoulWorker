@@ -11,7 +11,6 @@
 #include "SoulWorker.h"
 
 
-
 extern SoulWorker* player;
 // extern Maze* maze;
 extern uchar from;

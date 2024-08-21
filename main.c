@@ -7,13 +7,6 @@
 #include <ctype.h>
 #include <time.h>
 
-// #ifdef _WIN64
-// #include "unistd.h" // For compiling in Windows MSVC
-// #include <windows.h> // Using sleep(). Note, this sleep takes in ms
-// #else
-// #include <unistd.h> // Note, the sleep takes in sec
-// #endif
-
 #include "Error.h"
 #include "Keyboard.h"
 #include "SaveLoad.h"
@@ -23,18 +16,6 @@
 SoulWorker* player;
 Maze* maze;
 
-
-/**
- * Wrapper around sleep function for Windows and Linux.
- * @param ms Amount of milliseconds to sleep for
- */
-// void ssleep(int ms) {
-//   #ifdef _WIN64
-//     Sleep(ms);
-//   #else
-//     usleep(ms * 1000);
-//   #endif
-// }
 
 /**
  * Detects whether there is a saved game so the player can resume.

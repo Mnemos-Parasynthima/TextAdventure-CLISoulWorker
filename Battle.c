@@ -1,9 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
-
-
 #include "Battle.h"
+
 
 typedef enum {
   NORTH = 'n',
@@ -11,6 +10,15 @@ typedef enum {
   SOUTH = 's',
   WEST = 'w'
 } DIRECTION;
+
+
+void ssleep(int ms) {
+  #ifdef _WIN64
+    Sleep(ms);
+  #else
+    usleep(ms * 1000);
+  #endif
+}
 
 
 static void returnRoom() {
@@ -39,6 +47,7 @@ static void returnRoom() {
   player->room = player->room->exits[idx];
 }
 
+
 static ushort getTotalDmg(ushort attackerDmg, ushort targetDef) {
   ushort baseDamage = attackerDmg - (targetDef / 2);
 
@@ -46,6 +55,7 @@ static ushort getTotalDmg(ushort attackerDmg, ushort targetDef) {
 
   return baseDamage;
 }
+
 
 static void fight(Enemy* enemy) {
   while (true) {
@@ -61,14 +71,6 @@ static void fight(Enemy* enemy) {
 
     ssleep(100);
   }
-}
-
-void ssleep(int ms) {
-  #ifdef _WIN64
-    Sleep(ms);
-  #else
-    usleep(ms * 1000);
-  #endif
 }
 
 void battleEnemy(Enemy* enemy) {
