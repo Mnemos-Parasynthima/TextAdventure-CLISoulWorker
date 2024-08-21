@@ -17,7 +17,7 @@
     "enemy": [
       {
         "name": "Souljunk",
-        "hp": [2, 3],
+        "hp": [5, 8],
         "lvl": 1,
         "stats": {
           "ATK": [1, 2],

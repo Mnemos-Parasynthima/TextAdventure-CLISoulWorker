@@ -12,7 +12,7 @@
 
 
 extern SoulWorker* player;
-// extern Maze* maze;
+extern Maze* maze;
 extern uchar from;
 
 void battleEnemy(Enemy* enemy);

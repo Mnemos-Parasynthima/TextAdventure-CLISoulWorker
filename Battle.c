@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdbool.h>
 #include <ctype.h>
 
 #include "Battle.h"
@@ -49,33 +50,50 @@ static void returnRoom() {
 
 
 static ushort getTotalDmg(ushort attackerDmg, ushort targetDef) {
-  ushort baseDamage = attackerDmg - (targetDef / 2);
+  short baseDamage = attackerDmg - (targetDef / 2);
 
   if (baseDamage < 1) baseDamage = 1;
 
-  return baseDamage;
+  return (ushort) baseDamage;
 }
 
 
 static void fight(Enemy* enemy) {
+  ushort playerAtk, enemyAtk;
+
+  bool defeat = false; // Player defeat
+
   while (true) {
-    ushort playerAtk = getTotalDmg(player->stats->ATK, enemy->stats->DEF);
+    playerAtk = getTotalDmg(player->stats->ATK, enemy->stats->DEF);
     printf("%s attacks for %d dmg!\n", player->name, playerAtk);
+
+    if (playerAtk >= enemy->hp) { printf("%s defeated!\n", enemy->name); break; }
+
     enemy->hp -= playerAtk;
 
-    ssleep(100);
+    ssleep(500);
 
-    ushort enemyAtk = getTotalDmg(enemy->stats->ATK, player->stats->DEF);
+    enemyAtk = getTotalDmg(enemy->stats->ATK, player->stats->DEF);
     printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
+
+    if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
+
     player->hp -= enemyAtk;
 
-    ssleep(100);
+    ssleep(500);
+  }
+
+  if (defeat) {
+    printf("Respawning to entrance...\n");
+    player->room = maze->entry;
+    player->hp = player->maxHP;
+  } else {
+    player->xp += enemy->xpPoints;
+    deleteEnemyFromMap(player->room, false);
   }
 }
 
 void battleEnemy(Enemy* enemy) {
-  // deleteEnemyFromMap(currRoom, false);  
-
   printf("You encountered %s!\n", enemy->name);
   displayEnemyStats(enemy);
   printf("Do you want to fight or retreat? [f|r] ");

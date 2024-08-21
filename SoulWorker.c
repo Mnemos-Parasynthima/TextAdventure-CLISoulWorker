@@ -12,12 +12,12 @@ SoulWorker* initSoulWorker(str name) {
   if (sw == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player!\n");  
 
   sw->name = name;
-  sw->hp = 100;
+  sw->hp = 5;
   sw->xp = 0;
-  sw->lvl = 0;
+  sw->lvl = 1;
   sw->invCount = 0;
   sw->dzenai = 0;
-  sw->maxHP = 100;
+  sw->maxHP = 1;
 
   sw->room = NULL;
 
@@ -37,11 +37,11 @@ SoulWorker* initSoulWorker(str name) {
   Stats* stats = (Stats*) malloc(sizeof(Stats));
   if (stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
-  stats->ACC = 100;
-  stats->ATK = 100;
-  stats->ATK_CRIT = 5.0;
-  stats->ATK_CRIT_DMG = 10;
-  stats->DEF = 100;
+  stats->ACC = 0;
+  stats->ATK = 1;
+  stats->ATK_CRIT = 0.0;
+  stats->ATK_CRIT_DMG = 0;
+  stats->DEF = 1;
   sw->stats = stats;
 
   return sw;
