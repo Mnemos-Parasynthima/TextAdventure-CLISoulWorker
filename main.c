@@ -20,6 +20,7 @@
 #include "Error.h"
 #include "Keyboard.h"
 #include "SaveLoad.h"
+#include "Battle.h"
 
 
 SoulWorker* player;
@@ -87,6 +88,8 @@ void loop() {
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
+      battleEnemy();
+
       printf("You found an enemy! It's a %s!\n", currRoom->enemy.enemy->name);
       // Fighting mechanics
       displayEnemyStats(currRoom->enemy.enemy);
@@ -142,7 +145,7 @@ void loop() {
     choice = tolower(choice);
     FLUSH()
 
-    while(!performAction(choice, player)) {
+    while(!performAction(choice)) {
       printf("That is not an action. Try again! For a list of acceptable actions, type 'h'!\n");
       choice = getchar();
       choice = tolower(choice);

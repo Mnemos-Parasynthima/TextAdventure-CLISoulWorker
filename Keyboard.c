@@ -233,7 +233,7 @@ static void quitGame() {
   exit(0);
 }
 
-bool performAction(Commands action, SoulWorker* player) {
+bool performAction(Commands action) {
   if (action == WALK) {
     printf("What direction do you want to move? ");
     Movement dir = getchar();

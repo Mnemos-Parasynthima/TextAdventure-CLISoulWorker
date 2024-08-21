@@ -22,7 +22,7 @@ typedef enum {
  * @param action The action to check
  * @return True if a valid action, false otherwise
  */
-bool performAction(Commands action, SoulWorker* player);
+bool performAction(Commands action);
 
 
 #endif
