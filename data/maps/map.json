@@ -16,7 +16,7 @@
     "hasBoss": 0,
     "enemy": [
       {
-        "name": "Souljunk",
+        "name": "Souljunk a",
         "hp": [5, 8],
         "lvl": 1,
         "stats": {
@@ -29,12 +29,12 @@
         "xpPoints": 1
       },
       {
-        "name": "Souljunk",
+        "name": "Souljunk b",
         "hp": [3, 4],
         "lvl": 1,
         "stats": {
           "ATK": [0, 1],
-          "ACC": [0, 2],
+          "ACC": [1, 2],
           "ATK_CRIT": [0, 1.5],
           "ATK_CRIT_DMG": [1, 2],
           "DEF": [0, 2]

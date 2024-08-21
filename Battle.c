@@ -49,10 +49,20 @@ static void returnRoom() {
 }
 
 
-static ushort getTotalDmg(ushort attackerDmg, ushort targetDef) {
-  short baseDamage = attackerDmg - (targetDef / 2);
+static ushort getTotalDmg(Stats* attacker, Stats* target) {
+  float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
+  printf("hitroll: %3.2f\n", hitRoll);
+  if (hitRoll > attacker->ACC) return 0;
 
+  short baseDamage = 1 + (attacker->ATK - target->DEF);
+  printf("baseDamage: %d\n", baseDamage);
   if (baseDamage < 1) baseDamage = 1;
+
+  float critRoll = (float) rand() / RAND_MAX;
+  printf("critroll: %3.2f\n", critRoll);
+  if (critRoll <= attacker->ATK_CRIT) {
+    baseDamage += ((ushort) baseDamage * attacker->ATK_CRIT_DMG) / 100;
+  }
 
   return (ushort) baseDamage;
 }
@@ -64,7 +74,7 @@ static void fight(Enemy* enemy) {
   bool defeat = false; // Player defeat
 
   while (true) {
-    playerAtk = getTotalDmg(player->stats->ATK, enemy->stats->DEF);
+    playerAtk = getTotalDmg(player->stats, enemy->stats);
     printf("%s attacks for %d dmg!\n", player->name, playerAtk);
 
     if (playerAtk >= enemy->hp) { printf("%s defeated!\n", enemy->name); break; }
@@ -73,7 +83,7 @@ static void fight(Enemy* enemy) {
 
     ssleep(500);
 
-    enemyAtk = getTotalDmg(enemy->stats->ATK, player->stats->DEF);
+    enemyAtk = getTotalDmg(enemy->stats, player->stats);
     printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
 
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
