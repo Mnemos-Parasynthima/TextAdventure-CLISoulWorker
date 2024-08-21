@@ -303,35 +303,54 @@ void unequipGear(SoulWorker *sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
 
+  Stats* stats = sw->stats;
+
   // Do not try unequipping when gear already unequipped
   if (sw->gear.sw != NO_ITEM) {
     gear->type = SOULWEAPON_T;
     gear->_item = sw->gear.sw;
     if(!addToInv(sw, gear)) { free(gear); return; }
+
+    stats->ATK -= sw->gear.sw->atk;
+    stats->ACC -= sw->gear.sw->acc;
+    stats->ATK_CRIT -= sw->gear.sw->atk_crit;
+    stats->ATK_CRIT_DMG -= sw->gear.sw->atk_crit_dmg;
   }
 
   if (sw->gear.helmet != NO_ITEM) {
     gear->type = HELMET_T;
     gear->_item = sw->gear.helmet;
     if(!addToInv(sw, gear)) { free(gear); return; }
+
+    stats->ACC -= sw->gear.helmet->acc;
+    stats->DEF -= sw->gear.helmet->def;
   }
 
   if (sw->gear.guard != NO_ITEM) {
     gear->type = SHOULDER_GUARD_T;
     gear->_item = sw->gear.guard;
     if(!addToInv(sw, gear)) { free(gear); return; }
+
+    stats->ACC -= sw->gear.guard->acc;
+    stats->DEF -= sw->gear.guard->def;
   }
 
   if (sw->gear.chestplate != NO_ITEM) {
     gear->type = CHESTPLATE_T;
     gear->_item = sw->gear.chestplate;
     if(!addToInv(sw, gear)) { free(gear); return; }
+
+    stats->ACC -= sw->gear.chestplate->acc;
+    stats->DEF -= sw->gear.chestplate->def;
   }
 
   if (sw->gear.boots != NO_ITEM) {
     gear->type = BOOTS_T;
     gear->_item = sw->gear.boots;
     if(!addToInv(sw, gear)) { free(gear); return; }
+
+    stats->ACC -= sw->gear.boots->acc;
+    stats->DEF -= sw->gear.boots->def;
   }
 
   sw->gear.sw = NO_ITEM;
@@ -346,6 +365,7 @@ void unequipGear(SoulWorker *sw) {
 
 void equipGear(SoulWorker *sw, Item *item) {
   Gear* gear = &(sw->gear);
+  Stats* stats = sw->stats;
   
   // When equipping a gear piece that already is filled in the player's gear
   //  ie. equipping a SoulWeapon when there is one already equipped
@@ -353,39 +373,73 @@ void equipGear(SoulWorker *sw, Item *item) {
   // But when equipping in a blank slot, transfer/copy the void* pointer from inv
   //  to gear.*, then "blanking" the inv slot (null out void* and 0 out type and count)
 
-  void* temp = item->_item;
+  void* temp = item->_item; // Hold the requested gear piece to equip
 
   switch (item->type) {
     case SOULWEAPON_T:
       if (gear->sw != NO_ITEM) { // One equipped already, swap
-        item->_item = gear->sw;
-        gear->sw = temp;
-      } else { 
-        gear->sw = (SoulWeapon*) temp; temp = NULL; }
+        // Remove current soulweapon effects
+        stats->ATK -= gear->sw->atk;
+        stats->ACC -= gear->sw->acc;
+        stats->ATK_CRIT -= gear->sw->atk_crit;
+        stats->ATK_CRIT_DMG -= gear->sw->atk_crit_dmg;
+
+        item->_item = gear->sw; // Inv item slot will now hold equipped soulweapon
+        gear->sw = temp; // Soulweapon gear slot will now hold requested inv item soulweapon
+      } else { gear->sw = (SoulWeapon*) temp; temp = NULL; }
+
+      stats->ATK += gear->sw->atk;
+      stats->ACC += gear->sw->acc;
+      stats->ATK_CRIT += gear->sw->atk_crit;
+      stats->ATK_CRIT_DMG += gear->sw->atk_crit_dmg;
       break;
     case HELMET_T:
       if (gear->helmet != NO_ITEM) {
         item->_item = gear->helmet;
         gear->helmet = temp;
+
+        stats->ACC -= gear->helmet->acc;
+        stats->DEF -= gear->helmet->def;
       } else { gear->helmet = (Armor*) temp; temp = NULL; }
+
+      stats->ACC += gear->helmet->acc;
+      stats->DEF += gear->helmet->def;
       break;
     case SHOULDER_GUARD_T:
       if (gear->guard != NO_ITEM) {
         item->_item = gear->guard;
         gear->guard = temp;
+
+        stats->ACC -= gear->helmet->acc;
+        stats->DEF -= gear->helmet->def;
       } else { gear->guard = (Armor*) temp; temp = NULL; }
+
+      stats->ACC += gear->helmet->acc;
+      stats->DEF += gear->helmet->def;
       break;
     case CHESTPLATE_T:
       if (gear->chestplate != NO_ITEM) {
         item->_item = gear->chestplate;
         gear->chestplate = temp;
+
+        stats->ACC -= gear->helmet->acc;
+        stats->DEF -= gear->helmet->def;
       } else { gear->chestplate = (Armor*) temp; temp = NULL; }
+
+      stats->ACC += gear->helmet->acc;
+      stats->DEF += gear->helmet->def;
       break;
     case BOOTS_T:
       if (gear->boots != NO_ITEM) {
         item->_item = gear->boots;
         gear->boots = temp;
+
+        stats->ACC -= gear->helmet->acc;
+        stats->DEF -= gear->helmet->def;
       } else { gear->boots = (Armor*) temp; temp = NULL; }
+
+      stats->ACC += gear->helmet->acc;
+      stats->DEF += gear->helmet->def;
       break;
     default:
       break;

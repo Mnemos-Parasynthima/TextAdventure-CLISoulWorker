@@ -99,12 +99,21 @@ void loop() {
 
       displayEnemyStats(&(currRoom->enemy.boss->base));
 
+      Gear* gearDrop = &(currRoom->enemy.boss->gearDrop);
+
       printf("It died from surprise! You are so powerful, wow!!\n");
-      player->gear.boots = currRoom->enemy.boss->gearDrop.boots;
-      player->gear.helmet = currRoom->enemy.boss->gearDrop.helmet;
-      player->gear.guard = currRoom->enemy.boss->gearDrop.guard;
-      player->gear.chestplate = currRoom->enemy.boss->gearDrop.chestplate;
-      player->gear.sw = currRoom->enemy.boss->gearDrop.sw;
+      player->gear.boots = gearDrop->boots;
+      player->gear.helmet = gearDrop->helmet;
+      player->gear.guard = gearDrop->guard;
+      player->gear.chestplate = gearDrop->chestplate;
+      player->gear.sw = gearDrop->sw;
+
+      // Temp
+      player->stats->ATK += gearDrop->sw->atk;
+      player->stats->ACC += (gearDrop->sw->acc + gearDrop->helmet->acc + gearDrop->guard->acc + gearDrop->chestplate->acc + gearDrop->boots->acc);
+      player->stats->ATK_CRIT += gearDrop->sw->atk_crit;
+      player->stats->ATK_CRIT_DMG += gearDrop->sw->atk_crit_dmg;
+      player->stats->DEF += (gearDrop->helmet->def + gearDrop->guard->def + gearDrop->chestplate->def + gearDrop->boots->def);
 
       deleteEnemyFromMap(currRoom, false);
     }
