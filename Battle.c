@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <ctype.h>
 
+
+
 #include "Battle.h"
 
 typedef enum {
@@ -51,23 +53,23 @@ static void fight(Enemy* enemy) {
     printf("%s attacks for %d dmg!\n", player->name, playerAtk);
     enemy->hp -= playerAtk;
 
-    // ssleep(100);
+    ssleep(100);
 
     ushort enemyAtk = getTotalDmg(enemy->stats->ATK, player->stats->DEF);
     printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
     player->hp -= enemyAtk;
 
-    // ssleep(100);
+    ssleep(100);
   }
 }
 
-// void ssleep(int ms) {
-//   #ifdef _WIN64
-//     Sleep(ms);
-//   #else
-//     usleep(ms * 1000);
-//   #endif
-// }
+void ssleep(int ms) {
+  #ifdef _WIN64
+    Sleep(ms);
+  #else
+    usleep(ms * 1000);
+  #endif
+}
 
 void battleEnemy(Enemy* enemy) {
   // deleteEnemyFromMap(currRoom, false);  
