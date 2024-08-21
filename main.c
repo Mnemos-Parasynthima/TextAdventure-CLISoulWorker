@@ -14,9 +14,6 @@
 #include <unistd.h> // Note, the sleep takes in sec
 #endif
 
-#include "SoulWorker.h"
-#include "Setup.h"
-#include "Maze.h"
 #include "Error.h"
 #include "Keyboard.h"
 #include "SaveLoad.h"
@@ -88,7 +85,7 @@ void loop() {
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
-      battleEnemy(currRoom->enemy.enemy);
+      // battleEnemy(currRoom->enemy.enemy);
     }
 
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {

@@ -22,7 +22,6 @@ typedef enum {
   MOVE_WEST = 'w'
 } Movement;
 
-
 typedef enum {
   INV_SELL = 's', // Sell item; s
   INV_INFO = 'i', // View item info; i
@@ -37,6 +36,10 @@ typedef enum {
   ACTIONS,
   INVENTORY
 } HELP_T;
+
+
+uchar from; // Find much better naming. Basically, where the player headed to upon proper direction
+
 
 /**
  * Valides the given exit direction. That is, whether the direction points to a closed exit.
@@ -248,6 +251,8 @@ bool performAction(Commands action) {
 
       if (dir == 'h') displayHelp(MOVEMENT);
     }
+
+    from = (uchar) dir;
 
     printf("Entering room...\n");
 

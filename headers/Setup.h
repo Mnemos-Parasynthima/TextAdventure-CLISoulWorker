@@ -5,7 +5,6 @@
 #include <stdbool.h>
 
 #include "Maze.h"
-
 #include "cJSON.h"
 
 

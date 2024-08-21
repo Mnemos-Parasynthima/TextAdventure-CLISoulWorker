@@ -1,5 +1,5 @@
-#ifndef _MAZE_
-#define _MAZE_
+#ifndef _MAZE_H
+#define _MAZE_H
 
 #include <stdbool.h>
 

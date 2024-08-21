@@ -3,10 +3,12 @@ CFLAGS = -Wall
 
 INCLUDES = -I. -Iheaders
 
-SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c Keyboard.c SaveLoad.c itoa.s DArray.c Misc.c
+SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c Keyboard.c \
+		SaveLoad.c itoa.s DArray.c Misc.c Battle.c
 
-HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h headers/Error.h  \
-		headers/Keyboard.h headers/SaveLoad.h headers/LoadJSON.h headers/DArray.h headers/Misc.h
+HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h headers/Error.h \
+		headers/Keyboard.h headers/SaveLoad.h headers/LoadJSON.h headers/DArray.h headers/Misc.h \
+		headers/Battle.h
 
 OBJS = $(SRCS:.c=.o)
 OBJS := $(OBJS:.s=.o)

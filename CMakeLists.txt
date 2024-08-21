@@ -16,6 +16,7 @@ set(SOURCES
     itoa.s
     DArray.c
     Misc.c
+    Battle.c
 )
 
 include_directories(headers)
