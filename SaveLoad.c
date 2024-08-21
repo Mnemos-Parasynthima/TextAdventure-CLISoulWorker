@@ -346,6 +346,8 @@ static str createMapState() {
   addAndRecurse(room, table);
   room = NULL;
 
+  if (table->len != maze->size) { handleError(ERR_DATA, WARNING, "Table size does not equal maze size!\n"); return NULL; }
+
   // The table SHOULD have all of the rooms
   // Time to create the JSON object
   cJSON* mapObj = cJSON_CreateObject();

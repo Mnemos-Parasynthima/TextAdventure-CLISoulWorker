@@ -3,8 +3,8 @@
 
   "0": {
     "isEntry": 1,
-    "info": "You are at the entry of the N-102 lab.",
-    "exits": [1, 3, 4, -1],
+    "info": "At the entry of the N-102 lab.",
+    "exits": [1, 3, 5, -1],
     "hasBoss": 0,
     "enemy": [],
     "loot": []
@@ -16,30 +16,17 @@
     "hasBoss": 0,
     "enemy": [
       {
-        "name": "Souljunk a",
-        "hp": [5, 8],
+        "name": "SoulJunk A",
+        "hp": [5,6],
         "lvl": 1,
         "stats": {
-          "ATK": [1, 2],
-          "ACC": [1, 2],
-          "ATK_CRIT": [0, 1.2],
-          "ATK_CRIT_DMG": [0, 1],
-          "DEF": [0, 2]
+          "ATK": [1,2],
+          "ACC": [1,2],
+          "ATK_CRIT": [0.1, 0.15],
+          "ATK_CRIT_DMG": [1,2],
+          "DEF": [1,1]
         },
-        "xpPoints": 1
-      },
-      {
-        "name": "Souljunk b",
-        "hp": [3, 4],
-        "lvl": 1,
-        "stats": {
-          "ATK": [0, 1],
-          "ACC": [1, 2],
-          "ATK_CRIT": [0, 1.5],
-          "ATK_CRIT_DMG": [1, 2],
-          "DEF": [0, 2]
-        },
-        "xpPoints": 1
+        "xpPoints": 5
       }
     ],
     "loot": []
@@ -53,19 +40,37 @@
     "loot": [
       {
         "count": 5,
-        "type": 7,
-        "item": {
-          "description": "Weapon Upgrade Material.",
-          "rank": 66,
-          "type": 0
-        }
-      },
-      {
-        "count": 2,
         "type": 6,
         "item": {
-          "description": "Deka HP Kit heals 30.",
-          "type": 0
+          "type": 0,
+          "description": "Heals for 15."
+        }
+      },{
+        "count": 1,
+        "type": 1,
+        "item": {
+          "name": "SoulWeapon A",
+          "atk": 3,
+          "acc": 2,
+          "atk_crit": 0.2,
+          "atk_crit_dmg": 3,
+          "lvl": 1,
+          "upgrades": 0,
+          "durability": 100
+        }
+      },{
+        "count": 3,
+        "type": 7,
+        "item": {
+          "rank": 66,
+          "type": 0,
+          "description": "Used for upgrading low-leveled SoulWeapons."
+        }
+      },{
+        "count": 20,
+        "type": 9,
+        "item": {
+          "description": "Slime. Sold for 100 DZ."
         }
       }
     ]
@@ -73,69 +78,216 @@
   "3": {
     "isEntry": 0,
     "info": "Some desc3.",
-    "exits": [2, -1, -1, 0],
+    "exits": [2, 4, -1, 0],
     "hasBoss": 0,
     "enemy": [],
     "loot": []
   },
   "4": {
     "isEntry": 0,
-    "info": "End of maze for now.",
-    "exits": [0, -1, -1, -1],
+    "info": "Some desc4.",
+    "exits": [-1, -1, -1, 3],
+    "hasBoss": 0,
+    "enemy": [
+      {
+        "name": "SoulJunk B",
+        "hp": [6,7],
+        "lvl": 2,
+        "stats": {
+          "ATK": [2,3],
+          "ACC": [1,1],
+          "ATK_CRIT": [0.0,0.05],
+          "ATK_CRIT_DMG": [0,1],
+          "DEF": [1,1]
+        },
+        "xpPoints": 6
+      },{
+        "name": "SoulJunk B",
+        "hp": [7,8],
+        "lvl": 2,
+        "stats": {
+          "ATK": [2,3],
+          "ACC": [1,3],
+          "ATK_CRIT": [0.4,0.45],
+          "ATK_CRIT_DMG": [2,2],
+          "DEF": [1,1]
+        },
+        "xpPoints": 6
+      }
+    ],
+    "loot": []
+  },
+  "5": {
+    "isEntry": 0,
+    "info": "Some desc5.",
+    "exits": [0, -1, -1, 6],
+    "hasBoss": 0,
+    "enemy": [],
+    "loot": []
+  },
+  "6": {
+    "isEntry": 0,
+    "info": "Some desc6.",
+    "exits": [7, 5, 9, -1],
+    "hasBoss": 0,
+    "enemy": [
+      {
+        "name": "SoulJunk C",
+        "hp": [7,9],
+        "lvl": 3,
+        "stats": {
+          "ATK": [3,4],
+          "ACC": [2,3],
+          "ATK_CRIT": [0.5,0.6],
+          "ATK_CRIT_DMG": [1,2],
+          "DEF": [1,2]
+        },
+        "xpPoints": 5
+      },{
+        "name": "SoulJunk C",
+        "hp": [6,7],
+        "lvl": 3,
+        "stats": {
+          "ATK": [2,4],
+          "ACC": [2,3],
+          "ATK_CRIT": [0.45,0.55],
+          "ATK_CRIT_DMG": [2,2],
+          "DEF": [1,2]
+        },
+        "xpPoints": 6
+      }
+    ],
+    "loot": [
+      {
+        "count": 1,
+        "type": 1,
+        "item": {
+          "name": "SoulWeapon B",
+          "atk": 5,
+          "acc": 3,
+          "atk_crit": 0.25,
+          "atk_crit_dmg": 4,
+          "lvl": 2,
+          "upgrades": 0,
+          "durability": 100
+        }
+      },{
+        "count": 1,
+        "type": 4,
+        "item": {
+          "name": "Chestplate A",
+          "type": 2,
+          "acc": 3,
+          "def": 5,
+          "lvl": 2
+        }
+      }
+    ]
+  },
+  "7": {
+    "isEntry": 0,
+    "info": "Some desc7.",
+    "exits": [-1, -1, 6, 8],
+    "hasBoss": 0,
+    "enemy": [],
+    "loot": []
+  },
+  "8": {
+    "isEntry": 0,
+    "info": "Some desc8.",
+    "exits": [-1, 7, -1, -1],
+    "hasBoss": 0,
+    "enemy": [],
+    "loot": [
+      {
+        "count": 3,
+        "type": 8,
+        "item": {
+          "rank": 66,
+          "type": 1,
+          "description": "Used for upgrading low-leveled Armor."
+        }
+      },{
+        "count": 5,
+        "type": 6,
+        "item": {
+          "type": 0,
+          "description": "Heals for 15."
+        }
+      },{
+        "count": 1,
+        "type": 1,
+        "item": {
+          "name": "SoulWeapon C",
+          "atk": 8,
+          "acc": 2,
+          "atk_crit": 0.5,
+          "atk_crit_dmg": 4,
+          "lvl": 3,
+          "upgrades": 0,
+          "durability": 100
+        }
+      }
+    ]
+  },
+  "9": {
+    "isEntry": 0,
+    "info": "Boss Room.",
+    "exits": [6, -1, -1, -1],
     "hasBoss": 1,
     "enemy": [
       {
-        "name": "Kairon",
-        "hp": [30],
+        "name": "Big Eye",
+        "hp": [10],
         "lvl": 5,
-        "xpPoints": 10,
         "stats": {
-          "ACC": [2, 5],
-          "ATK": [5, 8],
-          "ATK_CRIT": [1.5, 3.0],
-          "ATK_CRIT_DMG": [2, 4],
-          "DEF": [3, 5]
+          "ATK": [5,7],
+          "ACC": [3,4],
+          "ATK_CRIT": [0.5,0.7],
+          "ATK_CRIT_DMG": [4,5],
+          "DEF": [5,6]
         },
         "gear": {
           "sw": {
-            "acc": 10,
+            "name": "SoulWeapon 5",
+            "lvl": 5,
             "atk": 10,
-            "atk_crit": 7.5,
-            "atk_crit_dmg": 10,
-            "durability": 100,
-            "lvl": 2,
-            "name": "Kat",
-            "upgrades": 0
+            "acc": 10,
+            "atk_crit": 1.0,
+            "atk_crit_dmg": 5,
+            "upgrades": 0,
+            "durability": 100
           },
           "helmet": {
-            "acc": 2,
-            "def": 5,
-            "lvl": 2,
-            "name": "Hel",
-            "type": 0
+            "name": "Helmet 5",
+            "lvl": 5,
+            "type": 0,
+            "acc": 1,
+            "def": 2
           },
           "guard": {
-            "acc": 0,
-            "def": 3,
-            "lvl": 2,
-            "name": "Gua",
-            "type": 1
+            "name": "Shoulder Guard 5",
+            "lvl": 5,
+            "type": 1,
+            "acc": 1,
+            "def": 1
           },
           "chestplate": {
+            "name": "Chestplate 5",
+            "lvl": 5,
+            "type": 2,
             "acc": 1,
-            "def": 5,
-            "lvl": 2,
-            "name": "Che",
-            "type": 2
+            "def": 3
           },
           "boots": {
+            "name": "Boots 5",
+            "lvl": 5,
+            "type": 3,
             "acc": 0,
-            "def": 1,
-            "lvl": 2,
-            "name": "Bo",
-            "type": 3
+            "def": 2
           }
-        }
+        },
+        "xpPoints": 10
       }
     ],
     "loot": []

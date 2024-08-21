@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "Maze.h"
 #include "Error.h"
@@ -24,31 +25,35 @@ Table* initTable() {
 }
 
 bool putRoom(Table* table, Room* room, bool overwrite) {
-  byte id = room->id;
+  // Once the length matches the capacity, increase the capacity
+  // Note that there might not be a reason to increase the size, if there are only current [cap] rooms in the maze
+  //   which it will increase the size no matter what (will add or no longer will add).
+  // However, it is only 40 bytes extra, plus some space and time overhead, and it will all get freed anyway
+  if (table->len == table->cap) {
+    table->rooms = (Room**) realloc(table->rooms, (table->cap+ROOM_MULT)*sizeof(Room*));
+    if (table->rooms == NULL) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
+    void* startingPoint = (table->rooms) + (table->len);
+    memset(startingPoint, 0x0, ROOM_MULT*sizeof(Room*));
 
+    table->cap += ROOM_MULT;
+  }
+
+  byte id = room->id;
   Room* _room = table->rooms[(int)id];
 
-  if (_room == NULL) {
-    if (id >= table->cap) { // Adding this item will increase the current array/size of the table
-      // Increase the array by five more pointers
-      table->rooms = (Room**) realloc(table->rooms, ROOM_MULT*sizeof(Room*));
-      if (table->rooms == NULL) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
-
-      table->cap += ROOM_MULT;
-    }
-
+  if (_room == NULL) { // Room does not exist, add it
     table->rooms[(int) id] = room;
     table->len++;
 
     return true;
   } else if (overwrite) {
-    // A room with the same id already exists. Use the new room and delete the overwritten roon.
+    // A room with the same id already exists. Do not replace.
     // Note that even though the rooms may have the same id, their contents (loot table, enemy table, etc) may be different.
+    // This only happens when initializing the maze and there are two rooms in the json file with the same id (maybe be unlikely)
+    // Current behaviour is just to not add it and keep the room
+
     deleteRoom(room);
-
-    table->rooms[(int) id] = _room;
-
-    return true;
+    return false;
   }
 
   return false;

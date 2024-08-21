@@ -269,16 +269,19 @@ bool deleteItem(Item* item) {
   switch (item->type) {
     case SOULWEAPON_T:
       deleteSoulWeapon((SoulWeapon*) item->_item);
+      break;
     case HELMET_T:
     case SHOULDER_GUARD_T:
     case CHESTPLATE_T:
     case BOOTS_T:
       deleteArmor((Armor*) item->_item);
+      break;
     case HP_KITS_T:
     case WEAPON_UPGRADE_MATERIALS_T:
     case ARMOR_UPGRADE_MATERIALS_T:
     case SLIME_T:
       deleteOther((HPKit*)item->_item);
+      break;
     default:
       break;
   }

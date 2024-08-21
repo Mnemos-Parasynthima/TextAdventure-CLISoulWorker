@@ -31,10 +31,10 @@ void handleError(errType err, sevType sev, const str fmsg, ...) {
   formatMessage(fmsg, args);
 
   if (sev == FATAL) {
-    fprintf(stdout, ANSI_COLOR_RED "%s %s" ANSI_RESET, errnames[err], buffer);
+    fprintf(stdout, ANSI_COLOR_RED "%s: %s" ANSI_RESET, errnames[err], buffer);
     // TODO: write/log errors to files in future
     exit(-1);
   }
 
-  fprintf(stdout, ANSI_COLOR_YELLOW "%s %s" ANSI_RESET, errnames[err], buffer);
+  fprintf(stdout, ANSI_COLOR_YELLOW "%s: %s" ANSI_RESET, errnames[err], buffer);
 }

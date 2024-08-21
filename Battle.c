@@ -72,6 +72,7 @@ static void fight(Enemy* enemy) {
   ushort playerAtk, enemyAtk;
 
   bool defeat = false; // Player defeat
+  uint enemyMaxHP = enemy->hp;
 
   while (true) {
     playerAtk = getTotalDmg(player->stats, enemy->stats);
@@ -94,6 +95,7 @@ static void fight(Enemy* enemy) {
   }
 
   if (defeat) {
+    enemy->hp = enemyMaxHP;
     printf("Respawning to entrance...\n");
     player->room = maze->entry;
     player->hp = player->maxHP;
