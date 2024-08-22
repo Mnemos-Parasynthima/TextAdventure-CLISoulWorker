@@ -23,11 +23,11 @@ typedef enum {
 } Movement;
 
 typedef enum {
-  INV_SELL = 's', // Sell item; s
-  INV_INFO = 'i', // View item info; i
-  INV_QUIT = 'q', // Exit inventory; q
-  INV_SHOW = 'v', // Show inventory (again): v
-  INV_EQUIP = 'g', // Equip gear: g
+  INV_SELL = 's', // Sell item
+  INV_INFO = 'i', // View item info
+  INV_QUIT = 'q', // Exit inventory
+  INV_SHOW = 'v', // Show inventory (again)
+  INV_EQUIP = 'e', // Equip gear
   INV_HELP = 'h'
 } Inventory;
 
@@ -212,6 +212,7 @@ static void displayHelp(HELP_T type) {
     printf("\t Sell item ('s')\n");
     printf("\t View item info ('i')\n");
     printf("\t Close inventory ('q')\n");
+    printf("\t Equip gear ('e')\n");
     printf("\t Help message ('h')\n");
   } else { // type == ACTIONS
     printf("Possible actions are:\n");
