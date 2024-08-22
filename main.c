@@ -67,6 +67,9 @@ void loop() {
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
       battleEnemy(currRoom->enemy.enemy);
+      // Update currRoom in case player respawned at entrance
+      // Prevent from getting the loot, if one exists
+      currRoom = player->room;
     }
 
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
