@@ -299,6 +299,8 @@ void viewSelf(SoulWorker* sw) {
   viewGear(sw);
 }
 
+// TODO: Extract the updating of stats
+
 void unequipGear(SoulWorker *sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
@@ -410,36 +412,36 @@ void equipGear(SoulWorker* sw, Item* item) {
         item->_item = gear->guard;
         gear->guard = temp;
 
-        stats->ACC -= gear->helmet->acc;
-        stats->DEF -= gear->helmet->def;
+        stats->ACC -= gear->guard->acc;
+        stats->DEF -= gear->guard->def;
       } else { gear->guard = (Armor*) temp; temp = NULL; }
 
-      stats->ACC += gear->helmet->acc;
-      stats->DEF += gear->helmet->def;
+      stats->ACC += gear->guard->acc;
+      stats->DEF += gear->guard->def;
       break;
     case CHESTPLATE_T:
       if (gear->chestplate != NO_ITEM) {
         item->_item = gear->chestplate;
         gear->chestplate = temp;
 
-        stats->ACC -= gear->helmet->acc;
-        stats->DEF -= gear->helmet->def;
+        stats->ACC -= gear->chestplate->acc;
+        stats->DEF -= gear->chestplate->def;
       } else { gear->chestplate = (Armor*) temp; temp = NULL; }
 
-      stats->ACC += gear->helmet->acc;
-      stats->DEF += gear->helmet->def;
+      stats->ACC += gear->chestplate->acc;
+      stats->DEF += gear->chestplate->def;
       break;
     case BOOTS_T:
       if (gear->boots != NO_ITEM) {
         item->_item = gear->boots;
         gear->boots = temp;
 
-        stats->ACC -= gear->helmet->acc;
-        stats->DEF -= gear->helmet->def;
+        stats->ACC -= gear->boots->acc;
+        stats->DEF -= gear->boots->def;
       } else { gear->boots = (Armor*) temp; temp = NULL; }
 
-      stats->ACC += gear->helmet->acc;
-      stats->DEF += gear->helmet->def;
+      stats->ACC += gear->boots->acc;
+      stats->DEF += gear->boots->def;
       break;
     default:
       break;
