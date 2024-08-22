@@ -142,7 +142,7 @@ int main(int argc, char const *argv[]) {
 
     // char buff[5];
     // fgets(buff, sizeof(buff), stdin);
-    str buff = (char*) malloc(5); // max is 3 for "yes", plus newline, plus null
+    str buff = (str) malloc(5); // max is 3 for "yes", plus newline, plus null
     fgets(buff, 5, stdin);
 
     str in = buff; // better name

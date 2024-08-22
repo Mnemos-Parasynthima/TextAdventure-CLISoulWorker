@@ -40,36 +40,39 @@ bool deleteEnemyFromMap(Room* room, bool deleteGear) {
   return del;
 }
 
-static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visited, uint gridSize) {
+static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visited, uint gridSize, Room* playerRoom) {
   if (room == ((void*) ((long long) NO_EXIT)) || visited[y][x]) return;
 
   visited[y][x] = 1;
 
-  if (room->loot != NULL) grid[y][x] = '$';
-  else if (room->hasBoss) grid[y][x] = '!';
+  if (room->hasBoss) grid[y][x] = '!';
   else if (room->enemy.enemy != NULL) grid[y][x] = '%';
+  else if (room->loot != NULL) grid[y][x] = '$';
   else if (room->id == 0) grid[y][x] = '@';
   else grid[y][x] = '#';
 
+  if (room == playerRoom) grid[y][x] = 'o';
+
+
   if (room->exits[0] != ((void*) ((long long) NO_EXIT)) && y > 1) {
-    grid[y-1][x] = '|';  // Path to the north
-    placeRoomOnGrid(room->exits[0], grid, x, y-2, visited, gridSize);
+    grid[y-1][x] = '|';
+    placeRoomOnGrid(room->exits[0], grid, x, y-2, visited, gridSize, playerRoom);
   }
   if (room->exits[1] != ((void*) ((long long) NO_EXIT)) && x < gridSize-2) {
     grid[y][x+1] = '-';
-    placeRoomOnGrid(room->exits[1], grid, x+2, y, visited, gridSize);
+    placeRoomOnGrid(room->exits[1], grid, x+2, y, visited, gridSize, playerRoom);
   }
   if (room->exits[2] != ((void*) ((long long) NO_EXIT)) && y < gridSize-2) {
     grid[y+1][x] = '|';
-    placeRoomOnGrid(room->exits[2], grid, x, y+2, visited, gridSize);
+    placeRoomOnGrid(room->exits[2], grid, x, y+2, visited, gridSize, playerRoom);
   }
   if (room->exits[3] != ((void*) ((long long) NO_EXIT)) && x > 1) {
     grid[y][x-1] = '-';
-    placeRoomOnGrid(room->exits[3], grid, x-2, y, visited, gridSize);
+    placeRoomOnGrid(room->exits[3], grid, x-2, y, visited, gridSize, playerRoom);
   }
 }
 
-void showMap(Maze* maze) {
+void showMap(Maze* maze, Room* playerRoom) {
   uint gridSize = (int)(sqrt(maze->size) * 4);
   if (gridSize < 5) gridSize = 5;
 
@@ -84,7 +87,7 @@ void showMap(Maze* maze) {
     memset(visited[i], false, gridSize * sizeof(bool));
   }
   
-  placeRoomOnGrid(maze->entry, grid, gridSize/2, gridSize/2, visited, gridSize);
+  placeRoomOnGrid(maze->entry, grid, gridSize/2, gridSize/2, visited, gridSize, playerRoom);
   
   for (int i = 0; i < gridSize; i++) {
     for (int j = 0; j < gridSize; j++) {

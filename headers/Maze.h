@@ -43,7 +43,7 @@ typedef struct Table {                              // 16B
  * Displays
  * @param maze 
  */
-void showMap(Maze* maze);
+void showMap(Maze* maze, Room* playerRoom);
 
 /**
  * Deletes the given room, freeing the memory.

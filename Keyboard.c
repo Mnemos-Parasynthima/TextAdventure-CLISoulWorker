@@ -359,7 +359,7 @@ bool performAction(Commands action) {
     else if (action == QUIT) quitGame();
     else if (action == INFO) viewSelf(player);
     else if (action == UNEQUIP) unequipGear(player);
-    else if (action == MAP) showMap(maze);
+    else if (action == MAP) showMap(maze, player->room);
     else return false;
 
   return true;
