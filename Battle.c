@@ -51,15 +51,15 @@ static void returnRoom() {
 
 static ushort getTotalDmg(Stats* attacker, Stats* target) {
   float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
-  printf("hitroll: %3.2f\n", hitRoll);
+  // printf("hitroll: %3.2f\n", hitRoll);
   if (hitRoll > attacker->ACC) return 0;
 
   short baseDamage = 1 + (attacker->ATK - target->DEF);
-  printf("baseDamage: %d\n", baseDamage);
+  // printf("baseDamage: %d\n", baseDamage);
   if (baseDamage < 1) baseDamage = 1;
 
   float critRoll = (float) rand() / RAND_MAX;
-  printf("critroll: %3.2f\n", critRoll);
+  // printf("critroll: %3.2f\n", critRoll);
   if (critRoll <= attacker->ATK_CRIT) {
     baseDamage += ((ushort) baseDamage * attacker->ATK_CRIT_DMG) / 100;
   }
@@ -76,20 +76,24 @@ static void fight(Enemy* enemy) {
 
   while (true) {
     playerAtk = getTotalDmg(player->stats, enemy->stats);
-    printf("%s attacks for %d dmg!\n", player->name, playerAtk);
+    // printf("%s attacks for %d dmg!\n", player->name, playerAtk);
 
     if (playerAtk >= enemy->hp) { printf("%s defeated!\n", enemy->name); break; }
 
     enemy->hp -= playerAtk;
 
+    // printf("%s: %d/%d\n", enemy->name, enemy->hp, enemyMaxHP);
+
     ssleep(500);
 
     enemyAtk = getTotalDmg(enemy->stats, player->stats);
-    printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
+    // printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
 
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
 
     player->hp -= enemyAtk;
+
+    // printf("%s: %d/%d\n", player->name, player->hp, player->maxHP);
 
     ssleep(500);
   }
@@ -100,7 +104,7 @@ static void fight(Enemy* enemy) {
     player->room = maze->entry;
     player->hp = player->maxHP;
   } else {
-    player->xp += enemy->xpPoints;
+    updateXP(player, enemy->xpPoints);
     deleteEnemyFromMap(player->room, false);
   }
 }

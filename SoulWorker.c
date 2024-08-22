@@ -37,8 +37,8 @@ SoulWorker* initSoulWorker(str name) {
   Stats* stats = (Stats*) malloc(sizeof(Stats));
   if (stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
-  stats->ATK = 1;
-  stats->DEF = 1;
+  stats->ATK = 2;
+  stats->DEF = 2;
   stats->ACC = 1;
   stats->ATK_CRIT_DMG = 1;
   stats->ATK_CRIT = 0.1;
@@ -292,67 +292,65 @@ void viewSelf(SoulWorker* sw) {
    * ATK: [atk]; DEF: [def]; ACC: [acc]; ATK CRIT DMG: [atk_crit_dmg]; ATK CRIT: [atk_crit]\n
    */
 
+  Gear* gear = &(sw->gear);
+
+  // Maybe something nicer looking or better??
+  uint totalAtk = sw->stats->ATK + ((gear->sw != NO_ITEM) ? gear->sw->atk : 0);
+  uint totalDef = sw->stats->DEF + ((gear->helmet != NO_ITEM) ? gear->helmet->def : 0) + 
+                                   ((gear->guard != NO_ITEM) ? gear->guard->def : 0) + 
+                                   ((gear->chestplate != NO_ITEM) ? gear->chestplate->def : 0) +
+                                   ((gear->boots != NO_ITEM) ? gear->boots->def : 0);
+  uint totalAcc = sw->stats->ACC + ((gear->sw != NO_ITEM) ? gear->sw->acc : 0) +                                   
+                                   ((gear->helmet != NO_ITEM) ? gear->helmet->acc : 0) + 
+                                   ((gear->guard != NO_ITEM) ? gear->guard->acc : 0) + 
+                                   ((gear->chestplate != NO_ITEM) ? gear->chestplate->acc : 0) +
+                                   ((gear->boots != NO_ITEM) ? gear->boots->acc : 0);
+  uint totalCritDmg = sw->stats->ATK_CRIT_DMG + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit_dmg : 0);
+  float totalCrit = sw->stats->ATK_CRIT + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit : 0);
+
   printf("%s, LVL %d; %d/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
           sw->name, sw->lvl, sw->hp, sw->maxHP, sw->xp, sw->dzenai,
-          sw->stats->ATK, sw->stats->DEF, sw->stats->ACC, sw->stats->ATK_CRIT_DMG, sw->stats->ATK_CRIT);
+          totalAtk, totalDef, totalAcc, totalCritDmg, totalCrit);
           
   viewGear(sw);
 }
 
-// TODO: Extract the updating of stats
+// Keep player and equipped gear stats seperate (for leveling sake)
+//  but when displaying stats, include all stats (combine)
 
 void unequipGear(SoulWorker *sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
-
-  Stats* stats = sw->stats;
 
   // Do not try unequipping when gear already unequipped
   if (sw->gear.sw != NO_ITEM) {
     gear->type = SOULWEAPON_T;
     gear->_item = sw->gear.sw;
     if(!addToInv(sw, gear)) { free(gear); return; }
-
-    stats->ATK -= sw->gear.sw->atk;
-    stats->ACC -= sw->gear.sw->acc;
-    stats->ATK_CRIT -= sw->gear.sw->atk_crit;
-    stats->ATK_CRIT_DMG -= sw->gear.sw->atk_crit_dmg;
   }
 
   if (sw->gear.helmet != NO_ITEM) {
     gear->type = HELMET_T;
     gear->_item = sw->gear.helmet;
     if(!addToInv(sw, gear)) { free(gear); return; }
-
-    stats->ACC -= sw->gear.helmet->acc;
-    stats->DEF -= sw->gear.helmet->def;
   }
 
   if (sw->gear.guard != NO_ITEM) {
     gear->type = SHOULDER_GUARD_T;
     gear->_item = sw->gear.guard;
     if(!addToInv(sw, gear)) { free(gear); return; }
-
-    stats->ACC -= sw->gear.guard->acc;
-    stats->DEF -= sw->gear.guard->def;
   }
 
   if (sw->gear.chestplate != NO_ITEM) {
     gear->type = CHESTPLATE_T;
     gear->_item = sw->gear.chestplate;
     if(!addToInv(sw, gear)) { free(gear); return; }
-
-    stats->ACC -= sw->gear.chestplate->acc;
-    stats->DEF -= sw->gear.chestplate->def;
   }
 
   if (sw->gear.boots != NO_ITEM) {
     gear->type = BOOTS_T;
     gear->_item = sw->gear.boots;
     if(!addToInv(sw, gear)) { free(gear); return; }
-
-    stats->ACC -= sw->gear.boots->acc;
-    stats->DEF -= sw->gear.boots->def;
   }
 
   sw->gear.sw = NO_ITEM;
@@ -367,7 +365,6 @@ void unequipGear(SoulWorker *sw) {
 
 void equipGear(SoulWorker* sw, Item* item) {
   Gear* gear = &(sw->gear);
-  Stats* stats = sw->stats;
   
   // When equipping a gear piece that already is filled in the player's gear
   //  ie. equipping a SoulWeapon when there is one already equipped
@@ -380,68 +377,33 @@ void equipGear(SoulWorker* sw, Item* item) {
   switch (item->type) {
     case SOULWEAPON_T:
       if (gear->sw != NO_ITEM) { // One equipped already, swap
-        // Remove current soulweapon effects
-        stats->ATK -= gear->sw->atk;
-        stats->ACC -= gear->sw->acc;
-        stats->ATK_CRIT -= gear->sw->atk_crit;
-        stats->ATK_CRIT_DMG -= gear->sw->atk_crit_dmg;
-
         item->_item = gear->sw; // Inv item slot will now hold equipped soulweapon
         gear->sw = temp; // Soulweapon gear slot will now hold requested inv item soulweapon
       } else { gear->sw = (SoulWeapon*) temp; temp = NULL; }
-
-      stats->ATK += gear->sw->atk;
-      stats->ACC += gear->sw->acc;
-      stats->ATK_CRIT += gear->sw->atk_crit;
-      stats->ATK_CRIT_DMG += gear->sw->atk_crit_dmg;
       break;
     case HELMET_T:
       if (gear->helmet != NO_ITEM) {
         item->_item = gear->helmet;
         gear->helmet = temp;
-
-        stats->ACC -= gear->helmet->acc;
-        stats->DEF -= gear->helmet->def;
       } else { gear->helmet = (Armor*) temp; temp = NULL; }
-
-      stats->ACC += gear->helmet->acc;
-      stats->DEF += gear->helmet->def;
       break;
     case SHOULDER_GUARD_T:
       if (gear->guard != NO_ITEM) {
         item->_item = gear->guard;
         gear->guard = temp;
-
-        stats->ACC -= gear->guard->acc;
-        stats->DEF -= gear->guard->def;
       } else { gear->guard = (Armor*) temp; temp = NULL; }
-
-      stats->ACC += gear->guard->acc;
-      stats->DEF += gear->guard->def;
       break;
     case CHESTPLATE_T:
       if (gear->chestplate != NO_ITEM) {
         item->_item = gear->chestplate;
         gear->chestplate = temp;
-
-        stats->ACC -= gear->chestplate->acc;
-        stats->DEF -= gear->chestplate->def;
       } else { gear->chestplate = (Armor*) temp; temp = NULL; }
-
-      stats->ACC += gear->chestplate->acc;
-      stats->DEF += gear->chestplate->def;
       break;
     case BOOTS_T:
       if (gear->boots != NO_ITEM) {
         item->_item = gear->boots;
         gear->boots = temp;
-
-        stats->ACC -= gear->boots->acc;
-        stats->DEF -= gear->boots->def;
       } else { gear->boots = (Armor*) temp; temp = NULL; }
-
-      stats->ACC += gear->boots->acc;
-      stats->DEF += gear->boots->def;
       break;
     default:
       break;
@@ -456,6 +418,76 @@ void equipGear(SoulWorker* sw, Item* item) {
 
   printf("Equipped!\n");
 }
+
+/**
+ * Formula for how much xp is required for the given level.
+ * @param lvl The level
+ * @return XP required for the level
+ */
+static uint xpRequired(uint lvl) {
+  uint xpReq;
+
+  uint A = 50; // Acceleration of XP req growth
+  uint B = 0; // Base XP req increment
+  uint C = 0; // Min XP req'd at level 1
+
+  xpReq = A * (lvl * lvl) + B + lvl + C;
+
+  return xpReq;
+}
+
+/**
+ * Levels up the player, increasing the stats as necessary.
+ * @param sw The player
+ */
+static void levelUp(SoulWorker* sw) {
+  // TODO: play around with numbers and formula
+
+  sw->lvl++;
+
+  uint baseHPGain = 10;
+  sw->maxHP = sw->hp = sw->hp + baseHPGain + (sw->lvl * 2);
+
+  float growthFactor = 1.01 + 0.01 * (1.0 / sw->lvl);
+
+  Stats* stats = sw->stats;
+
+  stats->ATK += stats->ATK * growthFactor * (1 + (1) / 100.0);
+  stats->ACC += stats->ACC * growthFactor * (1 + (1) / 100.0);
+  stats->ATK_CRIT += stats->ATK_CRIT * growthFactor; // * (1 + (rand() % 1) / 100.0);
+  stats->ATK_CRIT_DMG += stats->ATK_CRIT_DMG * growthFactor * (1 + (rand() % 1) / 100.0);
+  stats->DEF += stats->DEF * growthFactor * (1 + (1) / 100.0);
+}
+
+void updateXP(SoulWorker* sw, uint xp) {
+  uint xpLeftover = xp;
+
+  bool leveledUp = false;
+
+  // Keep leveling up until the acquired xp is no longer sufficient
+  while (true) {
+    sw->xp += xpLeftover;
+
+    uint xpReqd = xpRequired((sw->lvl) + 1);
+    // printf("XP required for next level (%d): %d\n", (sw->lvl)+1, xpReqd);
+
+    // Current XP passes XP req'd for next level, time to increase level
+    if (sw->xp >= xpReqd) {
+      levelUp(sw);
+      leveledUp = true;
+
+      xpLeftover = sw->xp - xpReqd;
+      // printf("XP leftover from level up: %d\n", xpLeftover);
+      sw->xp = 0;
+      // sw->xp = xpLeftover;
+    } else {
+      break;
+    }
+  }
+
+  if (leveledUp) printf("Leveled up to LVL %d!\n", sw->lvl);
+}
+
 
 void deleteSoulWorker(SoulWorker* sw) {
   if (sw == NULL) return;

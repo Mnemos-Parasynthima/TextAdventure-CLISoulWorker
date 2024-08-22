@@ -74,6 +74,13 @@ void unequipGear(SoulWorker* sw);
 void equipGear(SoulWorker* sw, Item* item);
 
 /**
+ * Updates the player's XP, increase the level if necessary.
+ * @param sw The player
+ * @param xp The amount to increase XP by
+ */
+void updateXP(SoulWorker* sw, uint xp);
+
+/**
  * Deletes the structure and frees the memory for the end of the gametime.
  * @param sw The SoulWorker structure to delete and free
  */
