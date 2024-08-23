@@ -15,7 +15,18 @@ extern SoulWorker* player;
 extern Maze* maze;
 extern uchar from;
 
+
+/**
+ * Auto battle the enemy
+ * @param enemy The enemy encountered
+ */
 void battleEnemy(Enemy* enemy);
+
+/**
+ * Battle the boss
+ * @param boss The boss encountered
+ */
+void bossBattle(Boss* boss);
 
 /**
  * Wrapper around sleep function for Windows and Linux.

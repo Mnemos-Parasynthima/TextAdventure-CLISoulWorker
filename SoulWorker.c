@@ -89,7 +89,7 @@ bool addToInv(SoulWorker* sw, Item* loot) {
         sw->inv[i].type = loot->type;
         sw->invCount++;
 
-        printf("Item has been added to the inventory!\n");
+        // printf("Item has been added to the inventory!\n"); // Change message based on scenario (print on scenario scope)
         return true;
       } else if (equalItems(&(sw->inv[i]), loot)) { // Updating existing item
         sw->inv[i].count++;
