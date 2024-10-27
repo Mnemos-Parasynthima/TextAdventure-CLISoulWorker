@@ -14,6 +14,10 @@ OBJS = $(SRCS:.c=.o)
 OBJS := $(OBJS:.s=.o)
 
 TARGET = clisw
+PACKAGE_DIR = CLISW
+PACKAGE_NAME = $(TARGET)_build.zip
+INSTALLER = clisw-installer
+LAUNCHER = clisw-launcher
 
 all: $(TARGET)
 
@@ -29,7 +33,32 @@ $(TARGET): $(OBJS)
 debug: CFLAGS += -g -O0
 debug: $(TARGET)
 
+launcher:
+	$(CC) $(CFLAGS) launcher.c -o $(LAUNCHER)
+
+installer:
+	$(CC) $(CFLAGS) installer.c -o $(INSTALLER)
+
 clean:
 	rm -f $(OBJS) $(TARGET)
+	rm -rf $(PACKAGE_DIR)
+	rm -f $(PACKAGE_NAME)
+	rm -f $(LAUNCHER)
+	rm -f $(INSTALLER)
 
-.PHONY: all debug clean
+	rm -rf CLISW_GAME
+
+package: all installer launcher
+	mkdir -p $(PACKAGE_DIR)
+	cp $(TARGET) $(PACKAGE_DIR)/
+	cp $(LAUNCHER) $(PACKAGE_DIR)/
+	cp version $(PACKAGE_DIR)/
+	mkdir -p $(PACKAGE_DIR)/data/maps
+	mkdir -p $(PACKAGE_DIR)/data/saves/maps
+	
+	rsync -av --include='map*.json' --exclude='*' data/maps/ $(PACKAGE_DIR)/data/maps/
+	rsync -av --include='saves/' --include='saves/maps/' --exclude='*' data/saves/ $(PACKAGE_DIR)/data/saves/
+
+	zip -r $(PACKAGE_NAME) $(PACKAGE_DIR)
+
+.PHONY: all debug clean package
