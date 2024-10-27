@@ -3,14 +3,22 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
-
-#include <dirent.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
-
 #include <errno.h>
+
+#ifdef _WIN64
+  #include "./headers/dirent.h"
+  #include "./headers/getopt.h"
+  #include <direct.h> // replace sys/stat
+  #include <process.h> // replace sys/wait
+#else
+  #include <dirent.h>
+  #include <unistd.h>
+  #include <sys/types.h>
+  #include <sys/stat.h>
+#include <sys/wait.h>
+#endif
+
+
 
 #define BAD_EXIT 0xff // -1
 #define INSTALLER "clisw-installer"
@@ -38,6 +46,23 @@ enum OPTS {
  * @return True if game is latest, false otherwise
  */
 bool checkLatest() {
+  const char* versionScript;
+
+#ifdef _WIN64
+  char* scriptContents[] = {
+    // "for /f "tokens=*" %%i in ('curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt') do set LATEST_VERSION=%%i",
+    "set /p LATEST_VERION=alpha"
+    "set /p CURRENT_VERSION=<version",
+    "echo Checking version...",
+    "if "%LATEST_VERSION%" neq "%CURRENT_VERSION%" (",
+    "  exit /b 64",
+    ") else (",
+    "  exit /b 128",
+    ")"
+  };
+
+  versionScript = "check.bat";
+#else
   char* scriptContents[] = {
     "#!/bin/bash\n",
     "LATEST_VERSION='alpha-3.0.0'\n",
@@ -51,7 +76,10 @@ bool checkLatest() {
     "fi"
   };
 
-  FILE* tmp = fopen("check.sh", "w");
+  versionScript = "check.sh";
+#endif
+
+  FILE* tmp = fopen(versionScript, "w");
   if (!tmp) {
     printf("Could not create temp check file!\n");
     exit(BAD_EXIT);
@@ -63,33 +91,47 @@ bool checkLatest() {
 
   fclose(tmp);
 
+  int status, exitStatus;
+
+#ifdef _WIN64
+  status = _spawnlp(_P_WAIT, versionScript, versionScript, NULL);
+
+  if (status == -1) {
+    perror("ERROR");
+    printf("Could not execute version checker!\n");
+    exit(BAD_EXIT);
+  }
+
+  exitStatus = status;
+#else
   system("chmod +x check.sh");
 
   pid_t pid = fork();
-  int status = 0;
+  status = 0;
 
   if (pid == -1) {}
 
   if (!pid) { // child
-    if (execl("check.sh", "check.sh", (char*) NULL) == -1) {
+    if (execl(versionScript, versionScript, (char*) NULL) == -1) {
       perror("ERROR");
       printf("Could not execute version checker!\n");
       exit(BAD_EXIT);
     }
+  }
+
+  wait(&status);
+  exitStatus = WEXITSTATUS(status);
+#endif
+
+  int code = exitStatus >> 6; 
+
+  if (code == 1) {// versions do not match
+    return false;
+  } else if (code == 2) { // versions match
+    return true;
   } else {
-    wait(&status);
-
-    int exitStatus = WEXITSTATUS(status);
-    int code = exitStatus >> 6; 
-
-    if (code == 1) {// versions do not match
-      return false;
-    } else if (code == 2) { // versions match
-      return true;
-    } else {
-      printf("Version checker terminated abnormally!\n");
-      exit(-1);
-    }
+    printf("Version checker terminated abnormally!\n");
+    exit(-1);
   }
   
   return false;
@@ -111,7 +153,14 @@ void runInstaller(enum OPTS opt) {
   if (opt == FIX) args[1] = "-f";
   else args[1] = "-u";
 
-  if (execv(INSTALLER, args) == -1) {
+  int ret;
+#ifdef _WIN64
+  ret = _spawnv(_P_OVERLAY, INSTALLER, args);
+#else
+  ret = execv(INSTALLER, args);
+#endif
+
+  if (ret == -1) {
     perror("ERROR");
     printf("Could not execute installer!\n");
     exit(BAD_EXIT);
@@ -217,7 +266,14 @@ int main(int argc, char const* argv[]) {
 
   printf("Verification done. Game starting...\n");
 
-  if (execl(GAME, GAME, "-l", NULL) == -1) {
+  int ret;
+#ifdef _WIN64
+  ret = _spawnv(_P_OVERLAY, GAME, GAME, "-l", NULL);
+#else
+  ret = execl(GAME, GAME, "-l", NULL);
+#endif
+
+  if (ret == -1) {
     printf("COULD NOT EXECUTE CLISW, ABORTING\n");
     exit(-1);
   }

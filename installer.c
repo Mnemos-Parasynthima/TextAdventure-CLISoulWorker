@@ -2,10 +2,15 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <ctype.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include <errno.h>
 
+#ifdef _WIN64
+  #include "./headers/getopt.h"
+  #include <direct.h> // replace sys/stat for use of mkdir flags
+#else
+  #include <unistd.h>
+  #include <sys/stat.h>
+#endif
 
 #define GAME_DIR "CLISW_GAME"
 #define PACKAGE "clisw_build.zip"
@@ -48,7 +53,7 @@ enum OPTS parseArgs(int argc, char const *argv[]) {
 
     char res = tolower(getchar());
     int c; while ((c = getchar()) != '\n' && c != EOF);
-    
+
     if (res == 'y') opt = FIX;
     else {
       printf("Do you want to update the game? [y|n] ");

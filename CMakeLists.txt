@@ -17,6 +17,7 @@ set(SOURCES
     DArray.c
     Misc.c
     Battle.c
+    getopt.c
 )
 
 include_directories(headers)
