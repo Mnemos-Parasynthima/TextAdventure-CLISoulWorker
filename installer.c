@@ -9,12 +9,16 @@
   #include <direct.h> // replace sys/stat for use of mkdir flags
 #else
   #include <unistd.h>
+  #include <sys/types.h>
   #include <sys/stat.h>
 #endif
 
-#define GAME_DIR "CLISW_GAME"
 #define PACKAGE "clisw_build.zip"
 #define PACKAGE_SIZE 15
+
+#define GAME_DIR "CLISW_GAME"
+#define SAVES_DIR "data/saves"
+#define SAVES_MAPS_DIR "data/saves/maps"
 
 
 enum OPTS {
@@ -128,26 +132,18 @@ int main(int argc, char const *argv[]) {
   // unzip the contents
   int zipCmdSize;
   char* zipCmd = NULL;
+
   if (opt == FIX || opt == UPDATE) { // update is temp for now
     // overwrite everything except for the save files
     printf("Fixing|Updating game...\n");
-  
-#ifdef _WIN64
-    zipCmdSize = 39 + PACKAGE_SIZE;
-    zipCmd = "tar -xf %s -exclude='CLISW/data/saves/*'";
-#else
-    zipCmdSize = 29 + PACKAGE_SIZE;
-    zipCmd = "unzip %s -x CLISW/data/saves/*";
-#endif
-
-    // note, it will overwrite launcher
-    // in the case that the installer was called by 
   } else if (opt == UPDATE) {
     // for updating the game, there is a chance the save format is updated
     // so updating save format (??????)
   } else {
     // fresh install
     printf("Installing game...\n");
+  }
+
 #ifdef _WIN64
     zipCmdSize = 9 + PACKAGE_SIZE;
     zipCmd = "tar -xf %s";
@@ -155,7 +151,7 @@ int main(int argc, char const *argv[]) {
     zipCmdSize = 7 + PACKAGE_SIZE;
     zipCmd = "unzip %s";
 #endif
-  }
+
   char* cmd = (char*) malloc(sizeof(char) * zipCmdSize);
   snprintf(cmd, zipCmdSize, zipCmd, PACKAGE);
 
@@ -188,6 +184,41 @@ int main(int argc, char const *argv[]) {
     printf("Could not move data out and delete. Exiting...\n");
     exit(-1);
   }
+
+  // Now that everything is installed and `data` is created, create the save and saved maps directories
+
+#ifdef __linux__
+  mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+#endif
+
+  printf("Creating saves directory...\n");
+#ifdef _WIN64
+    ret = _mkdir(SAVES_DIR);
+#else
+    ret = mkdir(SAVES_DIR, flags);
+#endif
+
+    if (ret == -1) {
+      if (errno != EEXIST) {
+        perror("ERROR");
+        printf("Cannot create directory. Exiting...\n");
+        exit(-1);
+      }
+    }
+
+  printf("Creating saved maps directory...\n");
+#ifdef _WIN64
+    ret = _mkdir(SAVES_MAPS_DIR);
+#else
+    ret = mkdir(SAVES_MAPS_DIR, flags);
+#endif
+    if (ret == -1) {
+      if (errno != EEXIST) {
+        perror("ERROR");
+        printf("Cannot create directory. Exiting...\n");
+        exit(-1);
+      }
+    }
 
   free(cmd);
 
