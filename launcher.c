@@ -21,11 +21,18 @@
 
 
 #define BAD_EXIT 0xff // -1
-#define INSTALLER "clisw-installer"
-#define LAUNCHER "clisw-launcher"
-#define GAME "clisw"
-#define INSTALLER_DIR ".."
 
+#ifdef _WIN64
+  #define INSTALLER "clisw-installer.exe"
+  #define LAUNCHER "clisw-launcher.exe"
+  #define GAME "clisw.exe"
+#else
+  #define INSTALLER "clisw-installer"
+  #define LAUNCHER "clisw-launcher"
+  #define GAME "clisw"
+#endif
+
+#define INSTALLER_DIR ".."
 #define DATA_DIR "data"
 #define MAPS_DIR "data/maps"
 #define SAVES_DIR "data/saves"
@@ -47,22 +54,28 @@ enum OPTS {
  */
 bool checkLatest() {
   const char* versionScript;
+  int scriptLen;
 
 #ifdef _WIN64
+  scriptLen = 11;
   char* scriptContents[] = {
     // "for /f "tokens=*" %%i in ('curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt') do set LATEST_VERSION=%%i",
-    "set /p LATEST_VERION=alpha"
-    "set /p CURRENT_VERSION=<version",
-    "echo Checking version...",
-    "if "%LATEST_VERSION%" neq "%CURRENT_VERSION%" (",
-    "  exit /b 64",
-    ") else (",
-    "  exit /b 128",
+    "@echo off\n",
+    "set LATEST_VERSION=alpha-3.0.0\n"
+    "set /p CURRENT_VERSION=<version\n",
+    "echo Checking version...\n",
+    "echo Current version is %CURRENT_VERSION%\n",
+    "echo Latest version is %LATEST_VERSION%\n",
+    "if '%LATEST_VERSION%' neq '%CURRENT_VERSION%' (\n",
+    "  exit /b 64\n",
+    ") else (\n",
+    "  exit /b 128\n",
     ")"
   };
 
   versionScript = "check.bat";
 #else
+  scriptLen = 9;
   char* scriptContents[] = {
     "#!/bin/bash\n",
     "LATEST_VERSION='alpha-3.0.0'\n",
@@ -85,7 +98,7 @@ bool checkLatest() {
     exit(BAD_EXIT);
   }
 
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < scriptLen; i++) {
     fwrite(scriptContents[i], sizeof(char), strlen(scriptContents[i]), tmp);
   }
 
@@ -142,7 +155,14 @@ bool checkLatest() {
  * @param opt The option for the installer
  */
 void runInstaller(enum OPTS opt) {
-  if (chdir(INSTALLER_DIR) == -1) {
+  int ret;
+#ifdef _WIN64
+  ret = _chdir(INSTALLER_DIR);
+#else
+  ret = chdir(INSTALLER_DIR);
+#endif
+
+  if (ret == -1) {
     perror("ERROR");
     printf("Cannot change into directory. Exiting...\n");
     exit(-1);
@@ -153,14 +173,14 @@ void runInstaller(enum OPTS opt) {
   if (opt == FIX) args[1] = "-f";
   else args[1] = "-u";
 
-  int ret;
+  int execRet;
 #ifdef _WIN64
-  ret = _spawnv(_P_OVERLAY, INSTALLER, args);
+  execRet = _spawnv(_P_OVERLAY, INSTALLER, args);
 #else
-  ret = execv(INSTALLER, args);
+  execRet = execv(INSTALLER, args);
 #endif
 
-  if (ret == -1) {
+  if (execRet == -1) {
     perror("ERROR");
     printf("Could not execute installer!\n");
     exit(BAD_EXIT);
@@ -229,18 +249,36 @@ int main(int argc, char const* argv[]) {
   }
   closedir(maps);
 
+  int ret;
+
+#ifdef __linux__
+  mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+#endif
+
   DIR* saves = opendir(SAVES_DIR);
   if (!saves) {
     printf("Could not find save data! Creating saves...\n");
 
-    if (mkdir(SAVES_DIR, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == -1) {
+#ifdef _WIN64
+    ret = _mkdir(SAVES_DIR);
+#else
+    ret = mkdir(SAVES_DIR, flags);
+#endif
+
+    if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
         printf("Cannot create directory. Exiting...\n");
         exit(-1);
       }
     }
-    if (mkdir(SAVES_MAPS_DIR, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == -1) {
+
+#ifdef _WIN64
+    ret = _mkdir(SAVES_MAPS_DIR);
+#else
+    ret = mkdir(SAVES_MAPS_DIR, flags);
+#endif
+    if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
         printf("Cannot create directory. Exiting...\n");
@@ -254,7 +292,12 @@ int main(int argc, char const* argv[]) {
   if (!savesMaps) {
     printf("Could not find save map data! Creating save maps...\n");
 
-    if (mkdir(SAVES_MAPS_DIR, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH) == -1) {
+#ifdef _WIN64
+    ret = _mkdir(SAVES_MAPS_DIR);
+#else
+    ret = mkdir(SAVES_MAPS_DIR, flags);
+#endif
+    if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
         printf("Cannot create directory. Exiting...\n");
@@ -266,17 +309,28 @@ int main(int argc, char const* argv[]) {
 
   printf("Verification done. Game starting...\n");
 
-  int ret;
+  int execRet;
 #ifdef _WIN64
-  ret = _spawnv(_P_OVERLAY, GAME, GAME, "-l", NULL);
-#else
-  ret = execl(GAME, GAME, "-l", NULL);
-#endif
+  STARTUPINFO si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
 
-  if (ret == -1) {
-    printf("COULD NOT EXECUTE CLISW, ABORTING\n");
+  execRet = (int) CreateProcess(GAME, "-l", NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+  if (!execRet) {
+    printf("COULD NOT EXECUTE CLISW.EXE, ABORTING\n");
     exit(-1);
   }
 
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+#else
+  execRet = execl(GAME, GAME, "-l", NULL);
+  if (execRet == -1) {
+    printf("COULD NOT EXECUTE CLISW, ABORTING\n");
+    exit(-1);
+  }
+#endif
   return 0;
 }

@@ -119,7 +119,7 @@ int main(int argc, char const *argv[]) {
   if (argc != 2) exit(1); // running without launcher, exit silently
 
   // if ran in cmd, check it was done by the launcher
-  char* arg = argv[1];
+  const char* arg = argv[1];
   if (strncmp(arg, "-l", 2) != 0) {
     exit(1);
   }
