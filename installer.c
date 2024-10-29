@@ -21,11 +21,25 @@
 #define SAVES_MAPS_DIR "data/saves/maps"
 
 
+
 enum OPTS {
   FIX,
   UPDATE,
+  INSTALL,
   NONE
 };
+
+/**
+ * Wrapper around sleep function for Windows and Linux.
+ * @param ms Amount of milliseconds to sleep for
+ */
+void ssleep(int ms) {
+  #ifdef _WIN64
+    Sleep(ms);
+  #else
+    usleep(ms * 1000);
+  #endif
+}
 
 /**
  * Parses the arguments.
@@ -37,18 +51,22 @@ enum OPTS parseArgs(int argc, char const *argv[]) {
   int c;
   enum OPTS opt = NONE;
 
-  while ((c = getopt(argc, (char * const*) argv, "f")) != -1) {
+  while ((c = getopt(argc, (char * const*) argv, "fui")) != -1) {
     switch (c) {
       case 'f':
         opt = FIX;
         break;
       case 'u':
         opt = UPDATE;
+        break;
+      case 'i':
+        opt = INSTALL;
+        break;
       default:
 #ifdef _WIN64
-        printf("usage: clisw-installer.exe [-f|-u]");
+        printf("usage: clisw-installer.exe [-f|-u|-i]\n");
 #else
-        printf("usage: clisw-installer [-f|-u]");
+        printf("usage: clisw-installer [-f|-u|-i]\n");
 #endif
         break;
     }
@@ -133,16 +151,12 @@ int main(int argc, char const *argv[]) {
   int zipCmdSize;
   char* zipCmd = NULL;
 
-  if (opt == FIX || opt == UPDATE) { // update is temp for now
-    // overwrite everything except for the save files
-    printf("Fixing|Updating game...\n");
-  } else if (opt == UPDATE) {
+  if (opt == FIX) printf("Fixing game...\n"); // overwrite everything except for the save files
+  else if (opt == UPDATE) {
     // for updating the game, there is a chance the save format is updated
     // so updating save format (??????)
-  } else {
-    // fresh install
-    printf("Installing game...\n");
-  }
+    printf("Updating game...\n");
+  } else printf("Installing game...\n"); // fresh install
 
 #ifdef _WIN64
     zipCmdSize = 9 + PACKAGE_SIZE;
@@ -170,8 +184,8 @@ int main(int argc, char const *argv[]) {
   endCmdLen = 40;
   endCmd = "robocopy CLISW . /move /e && del /q \"%s\"";
 #else
-  endCmdLen = 40;
-  endCmd = "mv CLISW/* ./ && rm -rf CLISW && rm -f %s";
+  endCmdLen = 45;
+  endCmd = "rsync -a CLISW/ ./ && rm -rf CLISW && rm -f %s";
 #endif
 
   cmd = realloc(cmd, endCmdLen + PACKAGE_SIZE);
@@ -179,19 +193,22 @@ int main(int argc, char const *argv[]) {
   snprintf(cmd, endCmdLen + PACKAGE_SIZE, endCmd, PACKAGE);
 
   sysret = system(cmd);
+  free(cmd);
   if (sysret == -1) {
     perror("ERROR FOR MOVE AND REMOVE");
     printf("Could not move data out and delete. Exiting...\n");
     exit(-1);
   }
 
-  // Now that everything is installed and `data` is created, create the save and saved maps directories
-
+  // Now that everything is installed and `data` is created, create the save and saved maps directories, only when fresh install
+  // when wanting to update, keep saves intact
+  // when wanting to fix files (aka no file(s) found), keep saves intact
+  if (opt == INSTALL) {
 #ifdef __linux__
-  mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
+    mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
 #endif
 
-  printf("Creating saves directory...\n");
+    printf("Creating saves directory...\n");
 #ifdef _WIN64
     ret = _mkdir(SAVES_DIR);
 #else
@@ -206,7 +223,7 @@ int main(int argc, char const *argv[]) {
       }
     }
 
-  printf("Creating saved maps directory...\n");
+    printf("Creating saved maps directory...\n");
 #ifdef _WIN64
     ret = _mkdir(SAVES_MAPS_DIR);
 #else
@@ -220,9 +237,9 @@ int main(int argc, char const *argv[]) {
       }
     }
 
-  free(cmd);
-
-  printf("Installing complete!\n");
+    printf("Installing complete!\n");
+  } else if (opt == FIX) printf("Fix complete!\n");
+  else printf("Update complete!\n");
 
   return 0;
 }

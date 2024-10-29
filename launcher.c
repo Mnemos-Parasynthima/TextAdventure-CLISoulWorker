@@ -49,6 +49,18 @@ enum OPTS {
 };
 
 /**
+ * Wrapper around sleep function for Windows and Linux.
+ * @param ms Amount of milliseconds to sleep for
+ */
+void ssleep(int ms) {
+  #ifdef _WIN64
+    Sleep(ms);
+  #else
+    usleep(ms * 1000);
+  #endif
+}
+
+/**
  * Creates a bash script that cross-checks the current version with the hosted verion, indicating whether to update or not.
  * @return True if game is latest, false otherwise
  */
@@ -61,7 +73,7 @@ bool checkLatest() {
   char* scriptContents[] = {
     // "for /f "tokens=*" %%i in ('curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt') do set LATEST_VERSION=%%i",
     "@echo off\n",
-    "set LATEST_VERSION=alpha-3.0.0\n"
+    "set LATEST_VERSION=alpha-3.0.0\n",
     "set /p CURRENT_VERSION=<version\n",
     "echo Checking version...\n",
     "echo Current version is %CURRENT_VERSION%\n",
@@ -155,6 +167,9 @@ bool checkLatest() {
  * @param opt The option for the installer
  */
 void runInstaller(enum OPTS opt) {
+  printf("Changing to directory...\n");
+  ssleep(1000);
+
   int ret;
 #ifdef _WIN64
   ret = _chdir(INSTALLER_DIR);
@@ -199,6 +214,7 @@ int main(int argc, char const* argv[]) {
   }
   fclose(versionFile);
 
+  ssleep(1000);
   
   bool latest = checkLatest();
   if (!latest) {
@@ -216,6 +232,7 @@ int main(int argc, char const* argv[]) {
   // will not update, now verify file integrity
   // for future, do it in a better way
   printf("Verifying files and data...\n");
+  ssleep(1000);
 
   FILE* game = fopen(GAME, "r");
   if (!game) {
@@ -268,7 +285,7 @@ int main(int argc, char const* argv[]) {
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
-        printf("Cannot create directory. Exiting...\n");
+        printf("Cannot create saves directory. Exiting...\n");
         exit(-1);
       }
     }
@@ -281,7 +298,7 @@ int main(int argc, char const* argv[]) {
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
-        printf("Cannot create directory. Exiting...\n");
+        printf("Cannot create save maps directory. Exiting...\n");
         exit(-1);
       }
     }
@@ -300,7 +317,7 @@ int main(int argc, char const* argv[]) {
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
-        printf("Cannot create directory. Exiting...\n");
+        printf("Cannot create save maps directory. Exiting...\n");
         exit(-1);
       }
     }
@@ -308,8 +325,10 @@ int main(int argc, char const* argv[]) {
   closedir(savesMaps);
 
   printf("Verification done. Game starting...\n");
+  ssleep(1000);
 
   int execRet;
+  const char* launcherFlag = "-l";
 #ifdef _WIN64
   STARTUPINFO si;
   PROCESS_INFORMATION pi;
@@ -317,7 +336,9 @@ int main(int argc, char const* argv[]) {
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
 
-  execRet = (int) CreateProcess(GAME, "-l", NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+  char* argvIn[13] = {0};
+  snprintf(argv, 13, "%s %s", GAME, launcherFlag);
+  execRet = (int) CreateProcess(GAME, argvIn, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
   if (!execRet) {
     printf("COULD NOT EXECUTE CLISW.EXE, ABORTING\n");
     exit(-1);
@@ -326,7 +347,7 @@ int main(int argc, char const* argv[]) {
   CloseHandle(pi.hProcess);
   CloseHandle(pi.hThread);
 #else
-  execRet = execl(GAME, GAME, "-l", NULL);
+  execRet = execl(GAME, GAME, launcherFlag, NULL);
   if (execRet == -1) {
     printf("COULD NOT EXECUTE CLISW, ABORTING\n");
     exit(-1);
