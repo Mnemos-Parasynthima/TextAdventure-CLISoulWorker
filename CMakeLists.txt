@@ -47,9 +47,7 @@ add_custom_target(package
     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:clisw-launcher> ${PACKAGE_DIR}/
     COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_SOURCE_DIR}/version ${PACKAGE_DIR}/
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}/data/maps
-    COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}/data/saves/maps
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/maps ${PACKAGE_DIR}/data/maps
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/saves ${PACKAGE_DIR}/data/saves
 
     # Use external command for zipping
     COMMAND ${CMAKE_COMMAND} -E tar "cf" "${PACKAGE_NAME}" --format=zip ${PACKAGE_DIR}
