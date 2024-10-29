@@ -33,7 +33,7 @@ enum OPTS {
  * Wrapper around sleep function for Windows and Linux.
  * @param ms Amount of milliseconds to sleep for
  */
-void ssleep(int ms) {
+static void ssleep(int ms) {
   #ifdef _WIN64
     Sleep(ms);
   #else
@@ -47,7 +47,7 @@ void ssleep(int ms) {
  * @param argv 
  * @return 
  */
-enum OPTS parseArgs(int argc, char const *argv[]) {
+static enum OPTS parseArgs(int argc, char const* argv[]) {
   int c;
   enum OPTS opt = NONE;
 
@@ -98,7 +98,7 @@ enum OPTS parseArgs(int argc, char const *argv[]) {
 }
 
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const* argv[]) {
   enum OPTS opt = parseArgs(argc, argv);
 
   printf("Creating game directory...\n");
@@ -172,6 +172,11 @@ int main(int argc, char const *argv[]) {
 #endif
 
   char* cmd = (char*) malloc(sizeof(char) * zipCmdSize);
+  if (!cmd) {
+    printf("COULD NOT ALLOCATE MEMORY!\n");
+    exit(-1);
+  }
+
   snprintf(cmd, zipCmdSize, zipCmd, PACKAGE);
 
   sysret = system(cmd);
@@ -194,7 +199,11 @@ int main(int argc, char const *argv[]) {
   endCmd = "rsync -a CLISW/ ./ && rm -rf CLISW && rm -f %s";
 #endif
 
-  cmd = realloc(cmd, endCmdLen + PACKAGE_SIZE);
+  cmd = realloc(cmd, endCmdLen + PACKAGE_SIZE); // possible mem leak???
+  if (!cmd) {
+    printf("COULD NOT ALLOCATE MEMORY!\n");
+    exit(-1);
+  }
 
   snprintf(cmd, endCmdLen + PACKAGE_SIZE, endCmd, PACKAGE);
 
@@ -225,7 +234,7 @@ int main(int argc, char const *argv[]) {
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
-        printf("Cannot create directory. Exiting...\n");
+        printf("Cannot create saves directory. Exiting...\n");
         exit(-1);
       }
     }
@@ -240,7 +249,7 @@ int main(int argc, char const *argv[]) {
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
-        printf("Cannot create directory. Exiting...\n");
+        printf("Cannot create save maps directory. Exiting...\n");
         exit(-1);
       }
     }

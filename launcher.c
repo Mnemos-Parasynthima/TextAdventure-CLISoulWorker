@@ -52,7 +52,7 @@ enum OPTS {
  * Wrapper around sleep function for Windows and Linux.
  * @param ms Amount of milliseconds to sleep for
  */
-void ssleep(int ms) {
+static void ssleep(int ms) {
   #ifdef _WIN64
     Sleep(ms);
   #else
@@ -64,7 +64,7 @@ void ssleep(int ms) {
  * Creates a bash script that cross-checks the current version with the hosted verion, indicating whether to update or not.
  * @return True if game is latest, false otherwise
  */
-bool checkLatest() {
+static bool checkLatest() {
   const char* versionScript;
   int scriptLen;
 
@@ -134,7 +134,11 @@ bool checkLatest() {
   pid_t pid = fork();
   status = 0;
 
-  if (pid == -1) {}
+  if (pid == -1) {
+    perror("ERROR");
+    printf("Could not fork!\n");
+    exit(BAD_EXIT);
+  }
 
   if (!pid) { // child
     if (execl(versionScript, versionScript, (char*) NULL) == -1) {
@@ -150,11 +154,9 @@ bool checkLatest() {
 
   int code = exitStatus >> 6; 
 
-  if (code == 1) {// versions do not match
-    return false;
-  } else if (code == 2) { // versions match
-    return true;
-  } else {
+  if (code == 1) return false; // versions do not match
+  else if (code == 2) return true; // versions match
+  else {
     printf("Version checker terminated abnormally!\n");
     exit(-1);
   }
@@ -166,8 +168,8 @@ bool checkLatest() {
  * Runs the installer based on the passed options.
  * @param opt The option for the installer
  */
-void runInstaller(enum OPTS opt) {
-  printf("Changing to directory...\n");
+static void runInstaller(enum OPTS opt) {
+  printf("Changing to installer directory...\n");
   ssleep(1000);
 
   int ret;
@@ -179,7 +181,7 @@ void runInstaller(enum OPTS opt) {
 
   if (ret == -1) {
     perror("ERROR");
-    printf("Cannot change into directory. Exiting...\n");
+    printf("Cannot change into installer directory. Exiting...\n");
     exit(-1);
   }
 
@@ -224,9 +226,7 @@ int main(int argc, char const* argv[]) {
     if (response == 'y') {
       runInstaller(UPDATE);
       UNREACHABLE()
-    } else {
-      printf("Will not update. It is highly recommended to update for latest features and fixes!\n");
-    }
+    } else printf("Will not update. It is highly recommended to update for latest features and fixes!\n");
   }
 
   // will not update, now verify file integrity
