@@ -86,6 +86,7 @@ enum OPTS parseArgs(int argc, char const *argv[]) {
 
       res = tolower(getchar());
       if (res == 'y') opt = UPDATE;
+      else opt = INSTALL;
     }
   } 
   
