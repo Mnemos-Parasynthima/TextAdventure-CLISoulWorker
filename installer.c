@@ -101,6 +101,7 @@ int main(int argc, char const *argv[]) {
   enum OPTS opt = parseArgs(argc, argv);
 
   printf("Creating game directory...\n");
+  ssleep(1000);
   int ret, sysret;
 
 #ifdef _WIN64
@@ -117,6 +118,7 @@ int main(int argc, char const *argv[]) {
   }
 
   printf("Changing to game directory...\n");
+  ssleep(1000);
 #ifdef _WIN64
   ret = _chdir(GAME_DIR);
 #else
@@ -130,6 +132,7 @@ int main(int argc, char const *argv[]) {
 
   // download (cp for now)
   printf("Copying zip file...\n");
+  ssleep(1000);
 
   char* cpCmd;
 #ifdef _WIN64
@@ -157,6 +160,7 @@ int main(int argc, char const *argv[]) {
     // so updating save format (??????)
     printf("Updating game...\n");
   } else printf("Installing game...\n"); // fresh install
+  ssleep(1000);
 
 #ifdef _WIN64
     zipCmdSize = 9 + PACKAGE_SIZE;
@@ -182,6 +186,7 @@ int main(int argc, char const *argv[]) {
   // NOTE: CLISW is the directory made at zip time
 #ifdef _WIN64
   endCmdLen = 40;
+  // del somehow not deleting zip file, future me issue
   endCmd = "robocopy CLISW . /move /e && del /q \"%s\"";
 #else
   endCmdLen = 45;
@@ -209,6 +214,7 @@ int main(int argc, char const *argv[]) {
 #endif
 
     printf("Creating saves directory...\n");
+    ssleep(1000);
 #ifdef _WIN64
     ret = _mkdir(SAVES_DIR);
 #else
@@ -224,6 +230,7 @@ int main(int argc, char const *argv[]) {
     }
 
     printf("Creating saved maps directory...\n");
+    ssleep(1000);
 #ifdef _WIN64
     ret = _mkdir(SAVES_MAPS_DIR);
 #else
@@ -240,6 +247,7 @@ int main(int argc, char const *argv[]) {
     printf("Installing complete!\n");
   } else if (opt == FIX) printf("Fix complete!\n");
   else printf("Update complete!\n");
+  ssleep(1000);
 
   return 0;
 }

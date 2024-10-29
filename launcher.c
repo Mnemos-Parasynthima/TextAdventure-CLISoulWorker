@@ -337,7 +337,7 @@ int main(int argc, char const* argv[]) {
   ZeroMemory(&pi, sizeof(pi));
 
   char* argvIn[13] = {0};
-  snprintf(argv, 13, "%s %s", GAME, launcherFlag);
+  snprintf(argvIn, 13, "%s %s", GAME, launcherFlag);
   execRet = (int) CreateProcess(GAME, argvIn, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
   if (!execRet) {
     printf("COULD NOT EXECUTE CLISW.EXE, ABORTING\n");
