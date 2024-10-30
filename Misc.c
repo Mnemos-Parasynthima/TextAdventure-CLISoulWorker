@@ -298,7 +298,42 @@ void displayEnemyStats(Enemy* enemy) {
       enemy->stats->ATK, enemy->stats->DEF, enemy->stats->ACC, enemy->stats->ATK_CRIT_DMG, enemy->stats->ATK_CRIT);
 }
 
-bool deleteEnemy(Enemy *enemy) {
+void initSkill(Skill *skill, str name, str desc, byte lvl, byte cooldown, ushort effect1, float effect2, effect_t active1, effect_t active2) {
+  skill->name = name;
+  skill->description = desc;
+  skill->lvl = lvl;
+  skill->cooldown = cooldown;
+
+  switch (active1) {
+    case ATK:
+      skill->effect1.atk = effect1;
+    case ATK_CRIT_DMG:
+      skill->effect1.atk_crit_dmg = effect1;
+      break;
+    default:
+      break;
+  }
+
+  switch (active2) {
+    case DEF:
+      skill->effect2.def = effect2;
+      break;
+    case ACC:
+      skill->effect2.acc = effect2;
+      break;
+    case ATK_CRIT:
+      skill->effect2.atk_crit = effect2;
+      break;
+    default:
+      break;
+  }
+
+  skill->activeEffect1 = active1;
+  skill->activeEffect2 = active2;
+}
+
+bool deleteEnemy(Enemy *enemy)
+{
   if (enemy == NULL) return false;
 
   free(enemy->name);

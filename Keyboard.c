@@ -28,13 +28,24 @@ typedef enum {
   INV_QUIT = 'q', // Exit inventory
   INV_SHOW = 'v', // Show inventory (again)
   INV_EQUIP = 'e', // Equip gear
-  INV_HELP = 'h'
+  INV_HELP = 'h' // Available options for inv menu
 } Inventory;
 
 typedef enum {
-  MOVEMENT,
-  ACTIONS,
-  INVENTORY
+  SKILL_INFO = 'i', // View specific skill info
+  SKILL_SHOW = 'k', // Show all skills (again)
+  SKILL_UNLOCK = 'n', // Unlock a skill
+  SKILL_SET = 's', // Set a skill to the skill slots
+  SKILL_UPGRADE = 'u', // Upgrade a skill
+  SKILL_QUIT = 'q', // Exit skill page
+  SKILL_HELP = 'h' // Available options for skill menu
+} Skills;
+
+typedef enum {
+  MOVEMENT_H,
+  ACTIONS_H,
+  INVENTORY_H,
+  SKILLS_H
 } HELP_T;
 
 
@@ -182,6 +193,11 @@ static bool validMove(Movement* dir, Room* room) {
   return false;
 }
 
+static bool validSkillAction(Skills opt) {
+  return (opt == SKILL_INFO || opt == SKILL_SHOW || opt == SKILL_UNLOCK || 
+      opt == SKILL_SET || opt == SKILL_UPGRADE || opt == SKILL_QUIT || opt == SKILL_HELP);
+}
+
 static bool validInvAction(Inventory inv) {
   return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW || inv == INV_EQUIP);
 }
@@ -205,18 +221,29 @@ static Item* getItemFromPos() {
 }
 
 static void displayHelp(HELP_T type) {
-  if (type == MOVEMENT) {
+  if (type == MOVEMENT_H) {
     printf("Directions are north ('n'), east ('e'), south ('s'), and west ('w').");
-  } else if (type == INVENTORY) {
+  } else if (type == INVENTORY_H) {
     printf("Possible actions are:\n");
     printf("\t Sell item ('s')\n");
     printf("\t View item info ('i')\n");
     printf("\t Close inventory ('q')\n");
+    printf("\t View inventory ('v')\n");
     printf("\t Equip gear ('e')\n");
+    printf("\t Help message ('h')\n");
+  } else if (type == SKILLS_H) {
+    printf("Possible actions are:\n");
+    printf("\t View skill info ('i')\n");
+    printf("\t View skills ('k')\n");
+    printf("\t Unlock skill ('n')\n");
+    printf("\t Set skill ('s')\n");
+    printf("\t Upgrade skill ('u')\n");
+    printf("\t Close skill menu ('q')\n");
     printf("\t Help message ('h')\n");
   } else { // type == ACTIONS
     printf("Possible actions are:\n");
     printf("\t Open Inventory ('i')\n");
+    printf("\t Open Skill Menu ('k')\n");
     printf("\t Move ('m')\n");
     printf("\t Save ('s')\n");
     printf("\t Save and Quit ('q')\n");
@@ -250,7 +277,7 @@ bool performAction(Commands action) {
       FLUSH()
       dir = tolower(dir);
 
-      if (dir == 'h') displayHelp(MOVEMENT);
+      if (dir == 'h') displayHelp(MOVEMENT_H);
     }
 
     from = (uchar) dir;
@@ -343,7 +370,7 @@ bool performAction(Commands action) {
             printf("That is not an equippable gear!\n");
           } else equipGear(player, item);
         }
-      } else if (inv == INV_HELP) displayHelp(INVENTORY);
+      } else if (inv == INV_HELP) displayHelp(INVENTORY_H);
       else if (inv == INV_SHOW) viewInventory(player);
       else if (inv == INV_QUIT) {
         printf("Closing inventory\n");
@@ -355,7 +382,44 @@ bool performAction(Commands action) {
       FLUSH()
       inv = tolower(inv);
     } 
-  } else if (action == HELP) displayHelp(ACTIONS);
+  } else if (action == OPEN_SKILLS) {
+    viewSkills(player);
+
+    printf("Skill Menu: What do you want to do? ");
+    Skills action = getchar();
+    FLUSH()
+    action = tolower(action);
+
+    while (action != SKILL_QUIT) {
+      while (!validSkillAction(action)) {
+        printf("That is not a valid action. Try again! For a list of acceptable actions, type 'h'. ");
+
+        action = getchar();
+        FLUSH()
+      }
+
+      if (action == SKILL_SET) {
+        printf("Setting skill!\n");
+      } else if (action == SKILL_INFO) {
+        printf("Viewing skill!\n");
+      } else if (action == SKILL_UNLOCK) {
+        printf("Unlocking skill!\n");
+      } else if (action == SKILL_UPGRADE) {
+        printf("Upgrading skill!\n");
+      } else if (action == SKILL_HELP) displayHelp(SKILLS_H);
+      else if (action == SKILL_SHOW) viewSkills(player);
+      else if (action == SKILL_QUIT) {
+        printf("Closing skill menu\n");
+        break;
+      }
+
+
+      printf("Skills: What do you want to do? ");
+      action = getchar();
+      FLUSH()
+      action = tolower(action);
+    }
+  } else if (action == HELP) displayHelp(ACTIONS_H);
     else if (action == SAVE) saveGame();
     else if (action == QUIT) quitGame();
     else if (action == INFO) viewSelf(player);

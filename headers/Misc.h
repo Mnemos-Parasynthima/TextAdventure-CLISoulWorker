@@ -52,9 +52,9 @@ typedef struct SoulWeapon {      // 21B+3B(PAD) = 24B
   ushort acc; // The accuracy stat                 2B
   float atk_crit; // The attack crit percent       4B
   ushort atk_crit_dmg; // The attack crit damage   2B
-  uchar lvl; // The weapon level                   1B
-  uchar upgrades; // Upgrades done                 1B
-  uchar durability; // Weapon durability           1B
+  byte lvl; // The weapon level                    1B
+  byte upgrades; // Upgrades done                  1B
+  byte durability; // Weapon durability            1B
 } SoulWeapon;
 
 typedef enum {
@@ -67,8 +67,8 @@ typedef struct Armor { //                16B
   str name; // The armor name             8B
   armor_t type; // The type of armor      4B
   ushort acc; // The accuracy it provides 2B
-  uchar def; // The defense stat          1B
-  uchar lvl; // The armor level           1B
+  byte def; // The defense stat           1B
+  byte lvl; // The armor level            1B
 } Armor;
 
 typedef enum {
@@ -189,22 +189,70 @@ typedef struct Gear {
 } Gear;
 
 
-typedef struct Enemy { // 25B+(7B) = 32B
-  str name; //                        8B
-  uint xpPoints; //                   4B
-  uint hp; //                         4B
-  uchar lvl; //                       1B
-  Stats* stats; //                    8B
+typedef enum {
+  ATK,
+  ATK_CRIT_DMG,
+  DEF,
+  ACC,
+  ATK_CRIT
+} effect_t;
+
+typedef struct Skill { //  32B
+  str name; //              8B
+  str description; //       8B
+  byte lvl; //              1B
+  byte cooldown; //         1B
+  union { //                2B
+    ushort atk; // 2B
+    ushort atk_crit_dmg; // 2B
+  } effect1;
+  union { //                4B
+    ushort def; // 2B
+    ushort acc; // 2B
+    float atk_crit; // 4B
+  } effect2;
+  effect_t activeEffect1; // 4B
+  effect_t activeEffect2; // 4B
+} Skill;
+
+typedef struct Enemy { // 25B+7B(PAD) = 32B
+  str name; //                           8B
+  uint xpPoints; //                      4B
+  uint hp; //                            4B
+  uchar lvl; //                          1B
+  Stats* stats; //                       8B
 } Enemy;
 
-typedef struct Boss { // 72B
-  Enemy base; //         32B
-  Gear gearDrop; //      40B
-  // Note, the gear is only the drop, boss is not equipped
-  // Add skills
+#define BOSS_SKILL_COUNT 5
+
+typedef struct Boss { //               232B
+  Enemy base; //                        32B
+  Gear gearDrop; //                     40B
+  Skill skills[BOSS_SKILL_COUNT]; //   160B
 } Boss;
 
+/**
+ * Displays the stats of the enemy.
+ * @param enemy The enemy to display
+ */
 void displayEnemyStats(Enemy* enemy);
+
+// TODO: Better way to init skill
+/**
+ * Initiates/fills out the given skill slot.
+ * Note, I DO NOT like how the information is passed.
+ * Future me issue, figure out alt way.
+ * @param skill 
+ * @param name 
+ * @param desc 
+ * @param lvl 
+ * @param cooldown 
+ * @param effect1 
+ * @param effect2 
+ * @param active1 
+ * @param active2 
+ */
+void initSkill(Skill* skill, str name, str desc, byte lvl, byte cooldown, ushort effect1, float effect2, effect_t active1, effect_t active2);
 
 /**
  * Deletes the enemy, freeing the memory.

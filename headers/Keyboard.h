@@ -14,7 +14,8 @@ typedef enum {
   QUIT = 'q',
   INFO = 'e',
   UNEQUIP = 'g',
-  MAP = 'p'
+  MAP = 'p',
+  OPEN_SKILLS = 'k'
 } Commands;
 
 /**

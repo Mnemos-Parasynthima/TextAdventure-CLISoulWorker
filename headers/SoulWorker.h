@@ -4,14 +4,17 @@
 #include <stdbool.h>
 
 #include "Setup.h"
+// #include "Bitmap.h"
 
 
 #define INV_CAP 25
 #define ITEM_MAX 99
+#define EQUIPPED_SKILL_COUNT 5
+#define TOTAL_SKILLS 10
 
 // The player model.
-typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
-  str name; // The name of the player                     8B
+typedef struct SoulWorker {             // 494B+2B(PAD) = 496B
+  str name; // The name of the player                       8B
   Room* room; // The current room that the player is in     8B
   uint xp; // The current XP                                4B
   uint lvl; // The current level                            4B
@@ -20,9 +23,19 @@ typedef struct SoulWorker {             // 486B+2B(PAD) = 488B
   uint dzenai; // The currency                              4B
   Gear gear; //                                            40B
   Stats* stats; //                                          8B
+  struct SkillTree* skills; //                              8B
   ushort invCount; // Current items in the inventory        2B
   Item inv[INV_CAP]; // The player's inventory  25B*16B = 400B
 } SoulWorker;
+
+// The player skill tree
+typedef struct SkillTree {             // 366B+2B(PAD) = 368B
+  Skill* equippedSkills[EQUIPPED_SKILL_COUNT];  // 8B*5 = 40B
+  Skill skills[TOTAL_SKILLS];                // 32B*10 = 320B
+                                                        // 2B
+  ushort skillStatus; // Whether a skill is unlocked or not, is a bitmap; bit-0 is skills[0], bit-n is skills[n] where n is TOTAL_SKILLS
+  uint totalSkillPoints; // How many points the player has 4B
+} SkillTree;
 
 /**
  * Initializes the player model with the given name.
@@ -59,6 +72,20 @@ void viewInventory(SoulWorker* sw);
  * @param sw The player
  */
 void viewSelf(SoulWorker* sw);
+
+/**
+ * Displays player skills, including currently equipped.
+ * @param sw The player
+ */
+void viewSkills(SoulWorker* sw);
+
+/**
+ * Sets the given skill at the provided slot of the player
+ * @param sw The player
+ * @param skill The skill to set
+ * @param slot The slot to set the skill at
+ */
+void setSkill(SoulWorker* sw, Skill* skill, uint slot);
 
 /**
  * Unequips all the equipped gear.

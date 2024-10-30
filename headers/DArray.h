@@ -6,7 +6,7 @@
 
 typedef struct DArray {
   char* ids; // The array containing room ids
-  char size; // The size of the array
+  byte size; // The size of the array
 } DArray;
 
 

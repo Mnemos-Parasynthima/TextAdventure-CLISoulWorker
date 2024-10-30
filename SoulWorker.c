@@ -7,42 +7,50 @@
 
 #define NO_ITEM NULL
 
+static SkillTree* initSkillTree();
+
 SoulWorker* initSoulWorker(str name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
   if (sw == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player!\n");  
 
+  // Set basic stats
   sw->name = name;
-  sw->hp = 5;
+  sw->hp = 20;
   sw->xp = 0;
   sw->lvl = 1;
   sw->invCount = 0;
   sw->dzenai = 0;
-  sw->maxHP = 5;
+  sw->maxHP = 20;
 
   sw->room = NULL;
 
+  // Set gear
   sw->gear.sw = NO_ITEM;
   sw->gear.helmet = NO_ITEM;
   sw->gear.guard = NO_ITEM;
   sw->gear.chestplate = NO_ITEM;
   sw->gear.boots = NO_ITEM;
   
-
+  // Set inv
   for(int i = 0; i < INV_CAP; i++) {
     sw->inv[i]._item = NO_ITEM;
     sw->inv[i].count = 0;
     sw->inv[i].type = NONE;
   }
 
+  // Set adv stats
   Stats* stats = (Stats*) malloc(sizeof(Stats));
   if (stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
-  stats->ATK = 2;
-  stats->DEF = 2;
-  stats->ACC = 1;
-  stats->ATK_CRIT_DMG = 1;
-  stats->ATK_CRIT = 0.1;
+  stats->ATK = 8;
+  stats->DEF = 8;
+  stats->ACC = 2;
+  stats->ATK_CRIT_DMG = 3;
+  stats->ATK_CRIT = 0.7;
   sw->stats = stats;
+
+  // Set skill tree
+  sw->skills = initSkillTree();
 
   return sw;
 }
@@ -50,12 +58,13 @@ SoulWorker* initSoulWorker(str name) {
 
 bool addToInv(SoulWorker* sw, Item* loot) {
   /**
-   * When rooms are setup and items created, it creates an Item structure for that room
-   * However, when that item is picked up, the malloc'd struct is kept but the Item struct in
-   *  the inventory is filled with its data, especially a copy of the void*. However, that Item struct is never freed.
+   * When items are created, it creates an Item structure, keeping it as a ptr
+   * However, when that item is picked up, the malloc'd struct (Item*) is kept but the Item struct in
+   *  the inventory is filled with its data. However, that Item* struct is never freed.
    * When the player is deleted, it only frees its built-in Item structs and the structs of its void*
-   *  but never the original malloc'd Item structure, thus having a memory leak.
-   * Doing deleteItem when adding to inventory frees its void*, which is not what is intended.
+   *  but never the original malloc'd Item* structure, thus having a memory leak if original item is not freed.
+   * Doing deleteItem when adding to inventory frees its void* as well, which is not what is intended.
+   * Most of the time, the original Item* struct will be freed after this call
    */
 
   Item* item = NULL;
@@ -95,13 +104,14 @@ bool addToInv(SoulWorker* sw, Item* loot) {
         sw->inv[i].count++;
 
         printf("Item count has been increased!");
-        return true;
 
         /**
          * The item in the map does not get removed. When an existing item is picked up,
-         * only the inv item count is increased, then the Item structure if freed, but not its void* one
+         * only the inv item count is increased, then the Item structure (*loot) is freed, but not its void* one (_item)
          * leading to a memory leak.
          * Thus, Item._item must be freed in this case
+         * Weapons and armor should not really be here as it should (almost?) never be the case that there is
+         * a duplicate one (leading to this if case) but for good practice, it is freed anyway
          */
         switch (sw->inv[i].type) {
           case SOULWEAPON_T:
@@ -123,6 +133,8 @@ bool addToInv(SoulWorker* sw, Item* loot) {
             break;
         }
         sw->inv[i]._item = NO_ITEM;
+
+        return true;
       }
     }
   }
@@ -315,10 +327,32 @@ void viewSelf(SoulWorker* sw) {
   viewGear(sw);
 }
 
+void viewSkills(SoulWorker* sw) {
+  /**
+   * Skills:
+   * | [name], LVL [lvl]          | [name], LVL [lvl]          | ...
+   * | [description]              | [description]              |
+   * | CD: [cooldown]             | CD: [cooldown]             |
+   * | [activeEffect1]: [effect1] | [activeEffect1]: [effect1] |
+   * | [activeEffect2]: [effect2] | [activeEffect2]: [effect2] |
+   * -------------------------------------------------------------------
+   * [repeat]
+   * ...
+   * Active skills:
+   * | [skill 1] | [skill2] | [skill3] | [skill4] | [skill5] |
+   */
+}
+
 // Keep player and equipped gear stats seperate (for leveling sake)
 //  but when displaying stats, include all stats (combine)
 
-void unequipGear(SoulWorker *sw) {
+void setSkill(SoulWorker *sw, Skill *skill, uint slot) {
+  // Check that the slot and skill is appropriate beforehand
+  // sw->skills->equippedSkills
+}
+
+void unequipGear(SoulWorker *sw)
+{
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
 
@@ -488,6 +522,32 @@ void updateXP(SoulWorker* sw, uint xp) {
   if (leveledUp) printf("Leveled up to LVL %d!\n", sw->lvl);
 }
 
+/**
+ * Initiates the skill tree for the player.
+ * The skills are predetermined. It is only a matter of unlocking.
+ * @return The skill tree
+ */
+static SkillTree* initSkillTree() {
+  SkillTree* skillTree = (SkillTree*) malloc(sizeof(SkillTree));
+  if (skillTree == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for skill tree!\n");
+
+  for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+    skillTree->equippedSkills[i] = NULL;
+  }
+
+  // I think it'll have to be done manually, not a loop
+  initSkill(&skillTree->skills[0], "SKILL 1", "Skill 1 desc", 1, 2, 5, 0, ATK, DEF);
+  initSkill(&skillTree->skills[1], "SKILL 2", "Skill 2 desc", 1, 6, 10, 0.5, ATK, ATK_CRIT);
+  initSkill(&skillTree->skills[2], "SKILL 3", "Skill 3 desc", 1, 3, 5, 2, ATK_CRIT_DMG, DEF);
+  initSkill(&skillTree->skills[3], "SKILL 4", "Skill 4 desc", 1, 4, 5, 3, ATK, ACC);
+  initSkill(&skillTree->skills[4], "SKILL 5", "Skill 5 desc", 1, 1, 1, 1, ATK, DEF);
+  // Not going to bother about the rest for now
+
+  skillTree->skillStatus = 0x00;
+  skillTree->totalSkillPoints = 0;
+
+  return skillTree;
+}
 
 void deleteSoulWorker(SoulWorker* sw) {
   if (sw == NULL) return;

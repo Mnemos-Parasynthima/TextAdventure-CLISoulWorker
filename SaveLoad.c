@@ -523,11 +523,11 @@ static bool savePlayer() {
     if (file == NULL) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; } 
     else {
       int written = fprintf(file, "%s", playerState);
+      fclose(file);
 
       if (written <= 0) { handleError(ERR_IO, WARNING, "Unable to save the player data!\n"); return false; }
     }
 
-    fclose(file);
 
     cJSON_free(playerState);
 
