@@ -304,7 +304,6 @@ bool deleteEnemy(Enemy *enemy) {
   free(enemy->name);
   free(enemy->stats);
   free(enemy);
-  enemy = NULL;
 
   return true;
 }
@@ -325,7 +324,6 @@ bool deleteBoss(Boss* boss, bool deleteGear) {
     deleteArmor(boss->gearDrop.boots);
   }
   free(boss);
-  boss = NULL;
 
   return true;
 }

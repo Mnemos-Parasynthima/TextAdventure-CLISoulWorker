@@ -23,6 +23,9 @@ void ssleep(int ms) {
 }
 
 
+/**
+ * When defeated, find the direction that the player came from and set that as the new room.
+ */
 static void returnRoom() {
   int idx;
 
@@ -49,7 +52,12 @@ static void returnRoom() {
   player->room = player->room->exits[idx];
 }
 
-
+/**
+ * Calculates how much HP lost based on attacker and target stats
+ * @param attacker The stats of the attacker
+ * @param target The stats of the target
+ * @return How much damage taken
+ */
 static ushort getTotalDmg(Stats* attacker, Stats* target) {
   float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
   // printf("hitroll: %3.2f\n", hitRoll);
@@ -68,7 +76,10 @@ static ushort getTotalDmg(Stats* attacker, Stats* target) {
   return (ushort) baseDamage;
 }
 
-
+/**
+ * Runs the auto-battle for the enemy
+ * @param enemy The enemy to fight
+ */
 static void fight(Enemy* enemy) {
   ushort playerAtk, enemyAtk;
 
@@ -169,6 +180,7 @@ void bossBattle(Boss* boss) {
 
   while (true) {
     printf("What are you going to do?\n[1] Basic attack\n: ");
+    // displayAttackOptions();
     uchar attack = getchar();
     FLUSH()
     while (attack != '1') {
@@ -183,7 +195,7 @@ void bossBattle(Boss* boss) {
     if (playerAtk >= boss->base.hp) { printf("%s defeated!\n", boss->base.name); break; }
 
     boss->base.hp -= playerAtk;
-    printf("%d/%d\n", boss->base.hp, bossMaxHP);
+    printf("%s: %d/%d\n", boss->base.name, boss->base.hp, bossMaxHP);
 
     ssleep(500);
 
@@ -193,7 +205,7 @@ void bossBattle(Boss* boss) {
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
 
     player->hp -= enemyAtk;
-    printf("%d/%d\n", player->hp, player->maxHP);
+    printf("%s: %d/%d\n", player->name, player->hp, player->maxHP);
   }
 
   if (defeat) {
@@ -204,31 +216,54 @@ void bossBattle(Boss* boss) {
   } else {
     updateXP(player, boss->base.xpPoints);
 
+    // Need to create Item* in order to use addToInv
     Item* gearItem = (Item*) malloc(sizeof(Item));
     if (gearItem == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for gear item!\n");
 
     gearItem->count = 1;
+    
+    // TODO: Add way to save unpicked gear from boss
+    /** 
+     * In the event that the gear cannot be added to the inv (mainly because no more space in inv)
+     * Need to somehow save it
+     * Future me issue
+     * Maybe by storing pointers somewhere (maybe in the room), and when user passes by the room again
+     * it prompts if to pick up dropped loot.
+     * For now, if no more inv space, just remove the dropped items
+     */
 
     gearItem->type = SOULWEAPON_T;
-    gearItem->_item = (SoulWeapon*) boss->gearDrop.sw;
-    if(addToInv(player, gearItem)) printf("SoulWeapon added!\n");
-    else { printf("Could not add SoulWeapon!\n"); deleteEnemyFromMap(player->room, false); return;}
+    gearItem->_item = (void*) boss->gearDrop.sw;
+    if (addToInv(player, gearItem)) printf("SoulWeapon added!\n");
+    else { printf("Could not add SoulWeapon!\n"); goto end; }
 
     gearItem->type = HELMET_T;
-    gearItem->_item = (Armor*) boss->gearDrop.helmet;
-    addToInv(player, gearItem);
+    gearItem->_item = (void*) boss->gearDrop.helmet;
+    if (addToInv(player, gearItem)) printf("Helmet added!\n");
+    else { printf("Could not add helmet!\n"); goto end; }
 
     gearItem->type = SHOULDER_GUARD_T;
-    gearItem->_item = (Armor*) boss->gearDrop.guard;
-    addToInv(player, gearItem);
+    gearItem->_item = (void*) boss->gearDrop.guard;
+    if (addToInv(player, gearItem)) printf("Shoulder guard added!\n");
+    else { printf("Could not add shoulder guard!\n"); goto end; }
 
     gearItem->type = CHESTPLATE_T;
-    gearItem->_item = (Armor*) boss->gearDrop.chestplate;
-    addToInv(player, gearItem);
+    gearItem->_item = (void*) boss->gearDrop.chestplate;
+    if (addToInv(player, gearItem)) printf("Chestplate added!\n");
+    else { printf("Could not add chestplate!\n"); goto end; }
 
     gearItem->type = BOOTS_T;
-    gearItem->_item = (Armor*) boss->gearDrop.boots;
-    addToInv(player, gearItem);
+    gearItem->_item = (void*) boss->gearDrop.boots;
+    if (addToInv(player, gearItem)) printf("Boots added!\n");
+    else { printf("Could not add boots!\n"); goto end; }
+
+    end:
+    // No longer need gearItem, free it
+    // Do not free gearItem->_item since it points to boss->gearDrop.boots
+    // which the player inv owns the pointer (thus the struct) now
+    // NOTE: see prior big comment
+    free(gearItem);
+    gearItem = NULL;
 
     deleteEnemyFromMap(player->room, false);
   }

@@ -27,14 +27,13 @@ bool deleteEnemyFromMap(Room* room, bool deleteGear) {
 
   if (room->hasBoss) {
     del = deleteBoss(room->enemy.boss, deleteGear);
-    room->enemy.boss = NULL; // For some reason, NULL applied in deleteBoss does not carry over????
+    room->enemy.boss = NULL;
     room->hasBoss = false;
 
     return del;
   }
   
   del = deleteEnemy(room->enemy.enemy);
-  // Same thing, NULL doesn't carry over for some reason
   room->enemy.enemy = NULL;
 
   return del;

@@ -23,7 +23,6 @@ static void formatMessage(const str fmsg, va_list args) {
   vsnprintf(buffer, 150, fmsg, args);
 }
 
-
 void handleError(errType err, sevType sev, const str fmsg, ...) {
   va_list args;
   va_start(args, fmsg);
@@ -32,7 +31,7 @@ void handleError(errType err, sevType sev, const str fmsg, ...) {
 
   if (sev == FATAL) {
     fprintf(stdout, ANSI_COLOR_RED "%s: %s" ANSI_RESET, errnames[err], buffer);
-    // TODO: write/log errors to files in future
+    // TODO: write/log errors to files in future if exiting
     exit(-1);
   }
 
