@@ -81,11 +81,32 @@ void viewSkills(SoulWorker* sw);
 
 /**
  * Sets the given skill at the provided slot of the player
- * @param sw The player
+ * @param sw The player's skill tree
  * @param skill The skill to set
  * @param slot The slot to set the skill at
  */
-void setSkill(SoulWorker* sw, Skill* skill, uint slot);
+void setSkill(SkillTree* skillTree, Skill* skill, uint slot);
+
+/**
+ * Whether the given skill number (its ID) points to an unlocked skill
+ * @param skillTree The player's skill tree
+ * @param skillNum The skill ID to check
+ * @return True if the skill has been unlock, false otherwise
+ */
+bool isSkillUnlocked(SkillTree* skillTree, uint skillNum);
+
+/**
+ * Unlocks the given skill using its ID
+ * @param skillTree The player's skill tree
+ * @param skillNum The ID of the skill to unlock
+ */
+void skillUnlock(SkillTree* skillTree, uint skillNum);
+
+/**
+ * Upgrades the given skill.
+ * @param skill The skill to upgrade
+ */
+void upgradeSkill(Skill* skill);
 
 /**
  * Unequips all the equipped gear.

@@ -6,6 +6,7 @@
 #include "Error.h"
 
 #define NO_ITEM NULL
+#define NO_SKILL NULL
 
 static SkillTree* initSkillTree();
 
@@ -328,10 +329,14 @@ void viewSelf(SoulWorker* sw) {
 }
 
 void viewSkills(SoulWorker* sw) {
+  const int COL_WIDTH = 30;
+  
+  SkillTree* skillTree = sw->skills;
+
   /**
    * Skills:
+   * |            1               |             2              |
    * | [name], LVL [lvl]          | [name], LVL [lvl]          | ...
-   * | [description]              | [description]              |
    * | CD: [cooldown]             | CD: [cooldown]             |
    * | [activeEffect1]: [effect1] | [activeEffect1]: [effect1] |
    * | [activeEffect2]: [effect2] | [activeEffect2]: [effect2] |
@@ -341,14 +346,82 @@ void viewSkills(SoulWorker* sw) {
    * Active skills:
    * | [skill 1] | [skill2] | [skill3] | [skill4] | [skill5] |
    */
+
+  printf("Skills:\n");
+
+
+  for (int i = 0; i < 5; i++) {
+    printf("|%*d%-*s", COL_WIDTH / 2, i + 1, COL_WIDTH / 2 - 1, " ");
+  }
+  printf("|\n");
+
+  for (int i = 0; i < 5; i++) {
+    printf("| %-*s, LVL %d", COL_WIDTH - 8, skillTree->skills[i].name, skillTree->skills[i].lvl);
+  }
+  printf("|\n");
+
+  // Print CD
+  // Print effect 1
+  // Print effect 2
+
+  for (int i = 0; i < 5; i++) {
+    for (int j = 0; j < COL_WIDTH + 1; j++) {
+      printf("-");
+    }
+  }
+  printf("\n");
+
+  printf("Active skills:\n");
+  for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+    if (skillTree->equippedSkills[i] == NULL) {
+
+    } else {
+      printf("| %-*s", COL_WIDTH - 1, skillTree->equippedSkills[i]->name);
+    }
+  }
+  printf("|\n");
+
 }
 
 // Keep player and equipped gear stats seperate (for leveling sake)
 //  but when displaying stats, include all stats (combine)
 
-void setSkill(SoulWorker *sw, Skill *skill, uint slot) {
+void setSkill(SkillTree* skillTree, Skill* skill, uint slot) {
   // Check that the slot and skill is appropriate beforehand
-  // sw->skills->equippedSkills
+
+  // Set skill
+  skillTree->equippedSkills[slot] = skill;
+
+  printf("Skill %s set at slot %d!\n", skill->name, slot);
+}
+
+bool isSkillUnlocked(SkillTree* skillTree, uint skillNum) {
+  ushort skillStatus = skillTree->skillStatus;
+
+  ushort bitmask = 0x1 << (skillNum - 1);
+
+  return (bool) ((skillStatus & bitmask) >> (skillNum - 1));
+}
+
+void skillUnlock(SkillTree* skillTree, uint skillNum) {
+  if (isSkillUnlocked(skillTree, skillNum)) {
+    printf("Skill has already been unlocked!\n");
+    return;
+  }
+
+  // The cost of unlocking a skill
+  skillTree->totalSkillPoints -= 2;
+
+  ushort bitmask = 0x1 << (skillNum - 1);
+
+  skillTree->skillStatus |= bitmask;
+
+  printf("Skill %s is now unlocked!\n", skillTree->skills[skillNum - 1].name);
+
+}
+
+void upgradeSkill(Skill* skill) {
+  
 }
 
 void unequipGear(SoulWorker *sw)
@@ -532,7 +605,7 @@ static SkillTree* initSkillTree() {
   if (skillTree == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for skill tree!\n");
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    skillTree->equippedSkills[i] = NULL;
+    skillTree->equippedSkills[i] = NO_SKILL;
   }
 
   // I think it'll have to be done manually, not a loop
@@ -543,7 +616,7 @@ static SkillTree* initSkillTree() {
   initSkill(&skillTree->skills[4], "SKILL 5", "Skill 5 desc", 1, 1, 1, 1, ATK, DEF);
   // Not going to bother about the rest for now
 
-  skillTree->skillStatus = 0x00;
+  skillTree->skillStatus = 0x0000;
   skillTree->totalSkillPoints = 0;
 
   return skillTree;

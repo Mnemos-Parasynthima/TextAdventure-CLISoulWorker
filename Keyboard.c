@@ -202,6 +202,17 @@ static bool validInvAction(Inventory inv) {
   return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW || inv == INV_EQUIP);
 }
 
+static int validSkillNum(char buffer[3]) {
+  int num = (uint) atoi(buffer);
+
+  if (num > TOTAL_SKILLS || num < 0) {
+    printf("Not a skill number!\n");
+    return -1;
+  }
+
+  return num;
+}
+
 static Item* getItemFromPos() {
   uchar _item = getchar();
   FLUSH()
@@ -399,11 +410,40 @@ bool performAction(Commands action) {
       }
 
       if (action == SKILL_SET) {
-        printf("Setting skill!\n");
+        // Get the skill number to set
+        printf("What skill do you want to set? Use the skill number. ");
+        char buffer[3]; // num can be up to 2 digits + /0
+        if( !fgets(buffer, 3, stdin)) { printf("Could not get input!\n"); break; }
+        // FLUSH()
+
+        int skillNum = validSkillNum(buffer);
+        if (skillNum == -1) break;
+          // Check case that the skill is unlocked
+        if (!isSkillUnlocked(player->skills, skillNum)) { printf("Skill has not been unlocked!\n"); break; }
+
+        // Get the slot to set at
+        printf("Which slot? [1-5] ");
+        char slot = getchar();
+        FLUSH()
+
+        int slotNum = slot - 0x30;
+        if (slotNum <= 0 || slotNum > 5) { printf("Invalid slot!\n"); break; }
+
+        setSkill(player->skills, &player->skills->skills[skillNum], (uint) slotNum);
       } else if (action == SKILL_INFO) {
         printf("Viewing skill!\n");
       } else if (action == SKILL_UNLOCK) {
-        printf("Unlocking skill!\n");
+        // Get the skill number to unlocked
+        printf("What skill do you want to unlock? Use the skill number. ");
+        char buffer[3]; // num can be up to 2 digits + /0
+        if (!fgets(buffer, 3, stdin)) { printf("Could not get input!\n"); break; }
+
+        int skillNum = validSkillNum(buffer);
+        if (skillNum == -1) break;
+        // Check if it's already unlocked
+        if (isSkillUnlocked(player->skills, skillNum)) { printf("Skill has already been unlocked!\n"); break; }
+
+        skillUnlock(player->skills, skillNum);        
       } else if (action == SKILL_UPGRADE) {
         printf("Upgrading skill!\n");
       } else if (action == SKILL_HELP) displayHelp(SKILLS_H);
