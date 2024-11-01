@@ -312,6 +312,74 @@
                     }
                   },
                   "required": ["sw", "helmet", "guard", "chestplate", "boots"]
+                },
+                "skills": {
+                  "description": "The skills of the boss.",
+                  "type": "array",
+                  "minItems": 5,
+                  "maxItems": 5,
+                  "items": [
+                    {
+                      "description": "The skill",
+                      "type": "object",
+                      "minProperties": 8,
+                      "maxProperties": 8,
+                      "properties": {
+                        "name" : {
+                          "description": "The name of the skill.",
+                          "type": "string"
+                        },
+                        "desc": {
+                          "description": "The description of the skill.",
+                          "type": "string"
+                        },
+                        "lvl": {
+                          "description": "The skill level.",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 255
+                        },
+                        "cooldown": {
+                          "description": "The turn cooldown of the skill.",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 255
+                        },
+                        "effect1": {
+                          "description": "The first effect (atk or atk crit dmg).",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 65535
+                        },
+                        "effect2": {
+                          "description": "The second effect (def, acc, or atk crit).",
+                          "type": "number"
+                        },
+                        "activeEffect1": {
+                          "description": "The type of the first effect.",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 1
+                        },
+                        "activeEffect2": {
+                          "description": "The type of the second effect.",
+                          "type": "integer",
+                          "minimum": 2,
+                          "maximum": 4
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "desc",
+                        "lvl",
+                        "cooldown",
+                        "effect1",
+                        "effect2",
+                        "activeEffect1",
+                        "activeEffect2"
+                      ]
+                    }
+                  ]
                 }
               },
               "required": ["name", "xpPoints", "hp", "lvl", "stats"]

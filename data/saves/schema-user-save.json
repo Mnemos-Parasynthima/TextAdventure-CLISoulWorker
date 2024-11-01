@@ -3,8 +3,8 @@
   "title": "Player State Save",
   "description": "The structure of how the player state is saved.",
   "type": "object",
-  "minProperties": 11,
-  "maxProperties": 11,
+  "minProperties": 12,
+  "maxProperties": 12,
   "properties": {
     "name": {
       "description": "The name of the player.",
@@ -309,6 +309,114 @@
         "map",
         "id"
       ]
+    },
+    "skills": {
+      "description": "The skill tree of the player.",
+      "type": "object",
+      "minProperties": 4,
+      "maxProperties": 4,
+      "properties": {
+        "skillStatus": {
+          "description": "Whether the skill is unlocked or not. Is represented as a bitmap.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 65535
+        },
+        "totalSkillPoints": {
+          "description": "How many skill points the player has.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 255
+        },
+        "skills": {
+          "description": "The skill tree of the player.",
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": [
+            {
+              "description": "The skill",
+              "type": "object",
+              "minProperties": 8,
+              "maxProperties": 8,
+              "properties": {
+                "name" : {
+                  "description": "The name of the skill.",
+                  "type": "string"
+                },
+                "desc": {
+                  "description": "The description of the skill.",
+                  "type": "string"
+                },
+                "lvl": {
+                  "description": "The skill level.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "cooldown": {
+                  "description": "The turn cooldown of the skill.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 255
+                },
+                "effect1": {
+                  "description": "The first effect (atk or atk crit dmg).",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 65535
+                },
+                "effect2": {
+                  "description": "The second effect (def, acc, or atk crit).",
+                  "type": "number"
+                },
+                "activeEffect1": {
+                  "description": "The type of the first effect.",
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 1
+                },
+                "activeEffect2": {
+                  "description": "The type of the second effect.",
+                  "type": "integer",
+                  "minimum": 2,
+                  "maximum": 4
+                }
+              },
+              "required": [
+                "name",
+                "desc",
+                "lvl",
+                "cooldown",
+                "effect1",
+                "effect2",
+                "activeEffect1",
+                "activeEffect2"
+              ]
+            }
+          ]
+        },
+        "equippedSkills": {
+          "description": "The equipped skills of the player.",
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "items": [
+            {
+              "description": "The ID of the skill from the skills array.",
+              "type": "integer",
+              "minimum": -1,
+              "maximum": 10
+            }
+          ]
+        }
+      },
+      "required": [
+        "skillStatus",
+        "totalSkillPoints",
+        "skills",
+        "equippedSkills"
+      ]
     }
   },
   "required": [
@@ -322,6 +430,7 @@
     "stats",
     "invCount",
     "inventory",
-    "room"
+    "room",
+    "skills"
   ]
 }
