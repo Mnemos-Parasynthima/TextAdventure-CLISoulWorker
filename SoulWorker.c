@@ -328,10 +328,8 @@ void viewSelf(SoulWorker* sw) {
   viewGear(sw);
 }
 
-void viewSkills(SoulWorker* sw) {
-  const int COL_WIDTH = 30;
-  
-  SkillTree* skillTree = sw->skills;
+void viewSkills(SkillTree* skillTree) {
+  const int COL_WIDTH = 20;
 
   /**
    * Skills:
@@ -356,7 +354,7 @@ void viewSkills(SoulWorker* sw) {
   printf("|\n");
 
   for (int i = 0; i < 5; i++) {
-    printf("| %-*s, LVL %d", COL_WIDTH - 8, skillTree->skills[i].name, skillTree->skills[i].lvl);
+    printf("| %-*s, LVL %d", COL_WIDTH - 3, skillTree->skills[i].name, skillTree->skills[i].lvl);
   }
   printf("|\n");
 
@@ -381,6 +379,26 @@ void viewSkills(SoulWorker* sw) {
   }
   printf("|\n");
 
+}
+
+void viewSkill(Skill* skill) {
+  const int COL_WIDTH = 30;
+
+  /**
+   * |            #               |
+   * | [name], LVL [lvl]          |
+   * | [activeEffect1]: [effect1] |
+   * | [activeEffect2]: [effect2] |
+   * | [desc]                     |
+   * | CD: [cooldown]             |
+   */
+
+  
+  // printf("|%*d%-*s", COL_WIDTH / 2, skillNum, COL_WIDTH / 2 - 1, " ");
+  // printf("|\n");
+
+  printf("| %-*s, LVL %d", COL_WIDTH - 8, skill->name, skill->lvl);
+  printf("|\n");
 }
 
 // Keep player and equipped gear stats seperate (for leveling sake)

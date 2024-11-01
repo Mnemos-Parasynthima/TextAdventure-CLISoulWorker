@@ -394,7 +394,7 @@ bool performAction(Commands action) {
       inv = tolower(inv);
     } 
   } else if (action == OPEN_SKILLS) {
-    viewSkills(player);
+    viewSkills(player->skills);
 
     printf("Skill Menu: What do you want to do? ");
     Skills action = getchar();
@@ -432,6 +432,17 @@ bool performAction(Commands action) {
         setSkill(player->skills, &player->skills->skills[skillNum], (uint) slotNum);
       } else if (action == SKILL_INFO) {
         printf("Viewing skill!\n");
+
+        // Get the skill number to view
+        printf("What skill do you want to see? Use the skill number. ");
+        char buffer[3]; // num can be up to 2 digits + /0
+        if( !fgets(buffer, 3, stdin)) { printf("Could not get input!\n"); break; }
+        // FLUSH()
+
+        int skillNum = validSkillNum(buffer);
+        if (skillNum == -1) break;
+
+        viewSkill(&player->skills->skills[skillNum - 1]);
       } else if (action == SKILL_UNLOCK) {
         // Get the skill number to unlocked
         printf("What skill do you want to unlock? Use the skill number. ");
@@ -447,7 +458,7 @@ bool performAction(Commands action) {
       } else if (action == SKILL_UPGRADE) {
         printf("Upgrading skill!\n");
       } else if (action == SKILL_HELP) displayHelp(SKILLS_H);
-      else if (action == SKILL_SHOW) viewSkills(player);
+      else if (action == SKILL_SHOW) viewSkills(player->skills);
       else if (action == SKILL_QUIT) {
         printf("Closing skill menu\n");
         break;

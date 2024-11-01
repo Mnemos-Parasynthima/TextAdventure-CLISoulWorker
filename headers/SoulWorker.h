@@ -29,12 +29,12 @@ typedef struct SoulWorker {             // 494B+2B(PAD) = 496B
 } SoulWorker;
 
 // The player skill tree
-typedef struct SkillTree {             // 366B+2B(PAD) = 368B
+typedef struct SkillTree {             // 363B+5B(PAD) = 368B
   Skill* equippedSkills[EQUIPPED_SKILL_COUNT];  // 8B*5 = 40B
   Skill skills[TOTAL_SKILLS];                // 32B*10 = 320B
                                                         // 2B
   ushort skillStatus; // Whether a skill is unlocked or not, is a bitmap; bit-0 is skills[0], bit-n is skills[n] where n is TOTAL_SKILLS
-  uint totalSkillPoints; // How many points the player has 4B
+  byte totalSkillPoints; // How many points the player has 1B
 } SkillTree;
 
 /**
@@ -75,9 +75,15 @@ void viewSelf(SoulWorker* sw);
 
 /**
  * Displays player skills, including currently equipped.
- * @param sw The player
+ * @param sw The player's skill tree
  */
-void viewSkills(SoulWorker* sw);
+void viewSkills(SkillTree* skillTree);
+
+/**
+ * Displays the information for a given skill.
+ * @param skill The skill to display
+ */
+void viewSkill(Skill* skill);
 
 /**
  * Sets the given skill at the provided slot of the player
