@@ -46,7 +46,7 @@ static void introStory() {
   printf("\n");
   while (!feof(intro)) {
     getline(&line, &n, intro);
-    if (feof(intro)) break;
+    // if (feof(intro)) break;
     ssleep(1000);
     printf("%s", line);
     line = NULL;

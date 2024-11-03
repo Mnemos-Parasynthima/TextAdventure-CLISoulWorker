@@ -197,22 +197,23 @@ typedef enum {
   ATK_CRIT
 } effect_t;
 
-typedef struct Skill { //  32B
-  str name; //              8B
-  str description; //       8B
-  byte lvl; //              1B
-  byte cooldown; //         1B
-  union { //                2B
+typedef struct Skill { // 33B+7B(PAD) = 40B
+  str name; //                           8B
+  str description; //                    8B
+  byte lvl; //                           1B
+  byte cooldown; //                      1B
+  byte id; //                            1B
+  union { //                             2B
     ushort atk; // 2B
     ushort atk_crit_dmg; // 2B
   } effect1;
-  union { //                4B
+  union { //                             4B
     ushort def; // 2B
     ushort acc; // 2B
     float atk_crit; // 4B
   } effect2;
-  effect_t activeEffect1; // 4B
-  effect_t activeEffect2; // 4B
+  effect_t activeEffect1; //             4B
+  effect_t activeEffect2; //             4B
 } Skill;
 
 typedef struct Enemy { // 25B+7B(PAD) = 32B
@@ -225,10 +226,10 @@ typedef struct Enemy { // 25B+7B(PAD) = 32B
 
 #define BOSS_SKILL_COUNT 5
 
-typedef struct Boss { //               232B
+typedef struct Boss { //               272B
   Enemy base; //                        32B
   Gear gearDrop; //                     40B
-  Skill skills[BOSS_SKILL_COUNT]; //   160B
+  Skill skills[BOSS_SKILL_COUNT]; //   200B
 } Boss;
 
 /**
@@ -252,7 +253,15 @@ void displayEnemyStats(Enemy* enemy);
  * @param active1 
  * @param active2 
  */
-void initSkill(Skill* skill, str name, str desc, byte lvl, byte cooldown, ushort effect1, float effect2, effect_t active1, effect_t active2);
+void initSkill(Skill* skill, str name, str desc, byte lvl, byte cooldown, 
+    ushort effect1, float effect2, effect_t active1, effect_t active2, byte id);
+
+/**
+ * Deletes the skills' name and description
+ * @param skills The skills to delete
+ * @param len The length of the skill array
+ */
+void deleteSkills(Skill skills[], int len);
 
 /**
  * Deletes the enemy, freeing the memory.

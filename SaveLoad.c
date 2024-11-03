@@ -11,6 +11,8 @@
 
 
 #define NO_ITEM 0x0
+#define NO_SKILL 0x0
+
 #define NAME "name"
 #define HP "hp"
 #define MAX_HP "maxHP"
@@ -129,54 +131,54 @@ static bool saveArmor(cJSON* parentObj, Armor* data) {
   return true;
 }
 
-static bool saveGear(cJSON* parentObj, Gear data) {
+static bool saveGear(cJSON* parentObj, Gear* data) {
   cJSON* _null = (void*) ((long long) 0xFEEDBEAD); // For when a gear piece does not exist to be saved
 
   cJSON* gear = cJSON_AddObjectToObject(parentObj, "gear");
   if (gear == NULL) { createError(parentObj, GEAR); return false; }
 
-  if (data.sw == NULL) _null = cJSON_AddNullToObject(gear, "sw");
+  if (data->sw == NULL) _null = cJSON_AddNullToObject(gear, "sw");
   else {
     cJSON* sw = cJSON_AddObjectToObject(gear, "sw");
     if (sw == NULL) { createError(parentObj, "SoulWeapon"); return false; }
 
-    bool _sw = saveSoulWeapon(sw, data.sw);
+    bool _sw = saveSoulWeapon(sw, data->sw);
     if (!_sw) { createError(parentObj, "SoulWeapon"); return false; }
   }
 
-  if (data.helmet == NULL) _null = cJSON_AddNullToObject(gear, "helmet");
+  if (data->helmet == NULL) _null = cJSON_AddNullToObject(gear, "helmet");
   else {
     cJSON* helmet = cJSON_AddObjectToObject(gear, "helmet");
     if (helmet == NULL) { createError(parentObj, "helmet"); return false; }
 
-    bool _helmet = saveArmor(helmet, data.helmet);
+    bool _helmet = saveArmor(helmet, data->helmet);
     if (!_helmet) { createError(parentObj, "helmet"); return false; }
   }
 
-  if (data.guard == NULL) _null = cJSON_AddNullToObject(gear, "guard");
+  if (data->guard == NULL) _null = cJSON_AddNullToObject(gear, "guard");
   else {
     cJSON* guard = cJSON_AddObjectToObject(gear, "guard");
     if (guard == NULL) { createError(parentObj, "guard"); return false; }
 
-    bool _guard = saveArmor(guard, data.guard);
+    bool _guard = saveArmor(guard, data->guard);
     if (!_guard) { createError(parentObj, "guard"); return false; }
   }
 
-  if (data.chestplate == NULL) _null = cJSON_AddNullToObject(gear, "chestplate");
+  if (data->chestplate == NULL) _null = cJSON_AddNullToObject(gear, "chestplate");
   else {
     cJSON* chestplate = cJSON_AddObjectToObject(gear, "chestplate");
     if (chestplate == NULL) { createError(parentObj, "chestplate"); return false; }
 
-    bool _chestplate = saveArmor(chestplate, data.chestplate);
+    bool _chestplate = saveArmor(chestplate, data->chestplate);
     if (!_chestplate) { createError(parentObj, "chestplate"); return false; }
   }
 
-  if (data.boots == NULL) _null = cJSON_AddNullToObject(gear, "boots");
+  if (data->boots == NULL) _null = cJSON_AddNullToObject(gear, "boots");
   else {
     cJSON* boots = cJSON_AddObjectToObject(gear, "boots");
     if (boots == NULL) { createError(parentObj, "boots"); return false; }
 
-    bool _boots = saveArmor(boots, data.boots);
+    bool _boots = saveArmor(boots, data->boots);
     if (!_boots) { createError(parentObj, "boots"); return false; }
   }
 
@@ -290,6 +292,85 @@ static bool saveStats(cJSON* parentObj, Stats* data) {
   return cJSON_AddItemToObject(parentObj, "stats", stats);
 }
 
+// TODO: Check for null
+static cJSON* saveSkill(Skill* skill) {
+  cJSON* _skill = cJSON_CreateObject();
+
+  cJSON* name = cJSON_AddStringToObject(_skill, "name", skill->name);
+  if (!name) { createError(_skill, "skill name"); return NULL; }
+
+  cJSON* desc = cJSON_AddStringToObject(_skill, "description", skill->description);
+  if (!desc) { createError(_skill, "skill description"); return NULL; }
+
+  cJSON* lvl = cJSON_AddNumberToObject(_skill, "lvl", skill->lvl);
+  if (!lvl) { createError(_skill, "skill lvl"); return NULL; }
+
+  cJSON* cooldown = cJSON_AddNumberToObject(_skill, "cooldown", skill->cooldown);
+  //
+
+  cJSON* id = cJSON_AddNumberToObject(_skill, "id", skill->id);
+  //
+
+  // Since atk and atk_dmg are both ushort, they occupy the same region
+  // So it doesn't matter which one is which
+  cJSON* effect1 = cJSON_AddNumberToObject(_skill, "effect1", skill->effect1.atk);
+  //
+
+  cJSON* effect2;
+  if (skill->activeEffect2 == DEF || skill->activeEffect2 == ACC) {
+    // Same logic applies from effect1
+    effect2 = cJSON_AddNumberToObject(_skill, "effect2", skill->effect2.def);
+  } else if (skill->activeEffect2 == ATK_CRIT) {
+    effect2 = cJSON_AddNumberToObject(_skill, "effect2", skill->effect2.atk_crit);
+  }
+  //
+
+
+  cJSON* activeEffect1 = cJSON_AddNumberToObject(_skill, "activeEffect1", skill->activeEffect1);
+  // 
+
+  cJSON* activeEffect2 = cJSON_AddNumberToObject(_skill, "activeEffect2", skill->activeEffect2);
+  // 
+
+  return _skill;
+}
+
+static bool saveSkillTree(cJSON* parentObj, SkillTree* data) {
+  cJSON* skillTree = cJSON_CreateObject();
+  if (!skillTree) { createError(parentObj, "skill tree"); return false; }
+
+  cJSON* skillStatus = cJSON_AddNumberToObject(skillTree, "skillStatus", data->skillStatus);
+  if (!skillStatus) { createError(parentObj, "skill status"); return false; }
+
+  cJSON* totalSkillPoints = cJSON_AddNumberToObject(skillTree, "totalSkillPoints", data->totalSkillPoints);
+  if (!totalSkillPoints) { createError(parentObj, "total skill points"); return false; }
+
+  cJSON* skills = cJSON_AddArrayToObject(skillTree, "skills");
+  if (!skills) { createError(parentObj, "skills"); return false; }
+  for (int i = 0; i < TOTAL_SKILLS; i++) {
+    cJSON* skill = saveSkill(&data->skills[i]);
+    if (!skill) {}
+
+    if (!cJSON_AddItemToArray(skills, skill)) return createError(parentObj, "skill in skills");
+  }
+
+  cJSON* equippedSkills = cJSON_AddArrayToObject(skillTree, "equippedSkills");
+  if (!equippedSkills) { createError(parentObj, "equipped skills"); return false; }
+  for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+    char skillId;
+
+    if (data->equippedSkills[i] == NO_SKILL) skillId = -1;
+    else skillId = data->equippedSkills[i]->id;
+
+    if (!cJSON_AddNumberToObject(equippedSkills, "id", skillId)) {
+      createError(parentObj, "skill number in equipped skills");
+      return false;
+    }
+  }
+
+  return cJSON_AddItemToObject(parentObj, "skills", skillTree);
+}
+
 static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   /**
    * NOTE
@@ -300,7 +381,7 @@ static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
    * its data will be in the same relative order as a regular Enemy
    * Thus, doing _enemy->enemy->[] will do the same pointer arithmetic
    * as _enemy->boss->base->[].
-   * However, since Boss has 40B of data more than Enemy,
+   * However, since Boss has 240B of data more than Enemy,
    * that will need to be saved using the lens as Boss.
    */
 
@@ -327,8 +408,17 @@ static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   if (!stats) { createError(enemy, "enemy stats"); return NULL; }
 
   if (hasBoss) {
-    bool gear = saveGear(enemy, _enemy->boss->gearDrop);
+    bool gear = saveGear(enemy, &_enemy->boss->gearDrop);
     if (!gear) { createError(enemy, "boss gear drop"); return NULL; }
+
+    cJSON* skills = cJSON_AddArrayToObject(enemy, "skills");
+    // 
+    for (int i = 0; i < 5; i++) {
+      cJSON* skill = saveSkill(&_enemy->boss->skills[i]);
+      if (!skill) {}
+
+      if (!cJSON_AddItemToArray(skills, skill)) { createError(enemy, "skill in boss skills"); return NULL; }
+    }
   }
 
   return enemy;
@@ -491,15 +581,18 @@ static str createPlayerState() {
       cJSON* itemCount = cJSON_AddNumberToObject(item, COUNT, player->inv[i].count);
       if (itemCount == NULL) return createError(playerObj, COUNT);
 
-      if(!cJSON_AddItemToArray(playerInv, item)) return createError(playerObj, "item in inventory");
+      if (!cJSON_AddItemToArray(playerInv, item)) return createError(playerObj, "item in inventory");
     }
   }
 
-  bool gear = saveGear(playerObj, player->gear);
+  bool gear = saveGear(playerObj, &player->gear);
   if (!gear) return createError(playerObj, GEAR);
 
   bool stats = saveStats(playerObj, player->stats);
   if (!stats) { createError(playerObj, "player stats"); return NULL; }
+
+  bool skillTree = saveSkillTree(playerObj, player->skills);
+  if (!skillTree) { createError(playerObj, "player skill tree"); return NULL; }
 
   str playerState = cJSON_Print(playerObj);
 
@@ -602,11 +695,11 @@ static SoulWorker* loadPlayer() {
 
   DArray* visited = initDArray(maze->size);
 
-  player->room = findRoom(maze->entry, (char)roomId->valueint, visited);
+  player->room = findRoom(maze->entry, (char) roomId->valueint, visited);
 
   dArrayFree(visited);
 
-  if (player->room == NULL|| player->room == (void*)((long long)NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
+  if (player->room == NULL|| player->room == (void*)((long long) NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
 
   // Make sure room is the same
   if (player->room->id != (byte)(roomId->valueint)) handleError(ERR_DATA, FATAL, "Room ID does not match!\n");
@@ -674,6 +767,58 @@ static SoulWorker* loadPlayer() {
   if (boots == NULL) handleError(ERR_DATA, FATAL, "No  data found!\n");
   if (!cJSON_IsNull(boots)) player->gear.boots = createArmor(boots);
 
+  // TODO: Check for null
+  cJSON* skillTree = cJSON_GetObjectItemCaseSensitive(root, "skills");
+  if (!skillTree) handleError(ERR_DATA, FATAL, "No skill tree data found!\n");
+
+  cJSON* skillStatus = cJSON_GetObjectItemCaseSensitive(skillTree, "skillStatus");
+  //
+  player->skills->skillStatus = skillStatus->valueint;
+
+  cJSON* totalSkillPoints = cJSON_GetObjectItemCaseSensitive(skillTree, "totalSkillPoints");
+  //
+  player->skills->totalSkillPoints = totalSkillPoints->valueint;
+
+  cJSON* skills = cJSON_GetObjectItemCaseSensitive(skillTree, "skills");
+  //
+
+  for (int i = 0; i < cJSON_GetArraySize(skills); i++) { // size should be TOTAL_SKILLS
+    cJSON* _skill = cJSON_GetArrayItem(skills, i);
+
+    Skill* skill = createSkill(_skill);
+    
+    // strcpy(player->skills->skills[i].name, skill->name);
+    player->skills->skills[i].name = skill->name;
+    // strcpy(player->skills->skills[i].description, skill->description);
+    player->skills->skills[i].description = skill->description;
+    player->skills->skills[i].lvl = skill->lvl;
+    player->skills->skills[i].cooldown = skill->cooldown;
+    player->skills->skills[i].id = skill->id;
+    player->skills->skills[i].effect1 = skill->effect1;
+    player->skills->skills[i].effect2 = skill->effect2;
+    player->skills->skills[i].activeEffect1 = skill->activeEffect1;
+    player->skills->skills[i].activeEffect2 = skill->activeEffect2;
+
+    free(skill);
+  }
+
+  cJSON* equippedSkills = cJSON_GetObjectItemCaseSensitive(skillTree, "equippedSkills");
+  //
+
+  for (int i = 0; i < cJSON_GetArraySize(equippedSkills); i++) { // size should be EQUIPPED_SKILL_COUNT
+    cJSON* id = cJSON_GetArrayItem(equippedSkills, i);
+
+    if (id->valueint == -1) player->skills->equippedSkills[i] = NO_SKILL;
+    else {
+      // Since the actual player object stores pointers to the skill in the skill array
+      // It needs to iterate through that array, finding for a matching id, and grabbing the pointer
+      // and storing it
+      // However, since the id of the skill is just (its array pos + 1), no need to traverse it
+      // Just get it
+      // Thus for skills[i], i = id - 1
+      player->skills->equippedSkills[i] = &player->skills->skills[id->valueint - 1];
+    }
+  }
 
   cJSON_Delete(root);
 

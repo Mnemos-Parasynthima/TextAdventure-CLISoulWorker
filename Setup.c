@@ -266,12 +266,6 @@ Slime* createSlime(cJSON* obj) {
   return slime;
 }
 
-/**
- * Creates an item object given tie cJSON object.
- * @param obj The raw item data
- * @param type The type of item
- * @return The item
- */
 Item* createItem(cJSON* obj, item_t type) {
   Item* item = (Item*) malloc(sizeof(Item));
   if (item == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for item!\n");
@@ -309,6 +303,60 @@ Item* createItem(cJSON* obj, item_t type) {
   }  
 
   return item;
+}
+
+Skill *createSkill(cJSON *obj) {
+  Skill* skill = (Skill*) malloc(sizeof(Skill));
+  if (!skill) handleError(ERR_MEM, FATAL, "Could not allocate space for skill!\n");
+
+
+  cJSON* name = cJSON_GetObjectItemCaseSensitive(obj, "name");
+  if (!name) handleError(ERR_DATA, FATAL, "Could not find data for skill name!\n");
+  skill->name = (str) malloc(strlen(name->valuestring) + 1);
+  if (!skill->name) handleError(ERR_MEM, FATAL, "Could not allocate space for skill name!\n");
+  strcpy(skill->name, name->valuestring);
+
+  cJSON* desc = cJSON_GetObjectItemCaseSensitive(obj, "description");
+  if (!desc) handleError(ERR_DATA, FATAL, "Could not find data for skill description!\n");
+  skill->description = (str) malloc(strlen(desc->valuestring) + 1);
+  if (!skill->description) handleError(ERR_MEM, FATAL, "Could not allocate space for skill description!\n");
+  strcpy(skill->description, desc->valuestring);
+
+  cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
+  if (!lvl) handleError(ERR_MEM, FATAL, "Could not find data for skill level!\n");
+  skill->lvl = lvl->valueint;
+
+  cJSON* cooldown = cJSON_GetObjectItemCaseSensitive(obj, "cooldown");
+  if (!cooldown) handleError(ERR_MEM, FATAL, "Could not find data for skill cooldown!\n");
+  skill->cooldown = cooldown->valueint;
+
+  cJSON* id = cJSON_GetObjectItemCaseSensitive(obj, "id");
+  if (!id) handleError(ERR_MEM, FATAL, "Could not find data for skill id!\n");
+  skill->id = id->valueint;
+
+  cJSON* effect1 = cJSON_GetObjectItemCaseSensitive(obj, "effect1");
+  if (!effect1) handleError(ERR_MEM, FATAL, "Could not find data for skill effect 1!\n");
+  // Since atk and atk_dmg occupy the same space, it doesn't matter which is assigned to
+  skill->effect1.atk = effect1->valueint;
+
+  cJSON* activeEffect1 = cJSON_GetObjectItemCaseSensitive(obj, "activeEffect1");
+  if (!activeEffect1) handleError(ERR_MEM, FATAL, "Could not find data for skill active effect 1!\n");
+  skill->activeEffect1 = activeEffect1->valueint;
+
+  cJSON* activeEffect2 = cJSON_GetObjectItemCaseSensitive(obj, "activeEffect2");
+  if (!activeEffect2) handleError(ERR_MEM, FATAL, "Could not find data for skill active effect 2!\n");
+  skill->activeEffect2 = activeEffect2->valueint;
+
+  cJSON* effect2 = cJSON_GetObjectItemCaseSensitive(obj, "effect2");
+  if (!effect2) handleError(ERR_MEM, FATAL, "Could not find data for skill effect 2!\n");
+  if (skill->activeEffect2 == ATK_CRIT) {
+    skill->effect2.atk_crit = activeEffect2->valuedouble;
+  } else {
+    // Since acc and def occupy the same space, it doesn't matter which is assigned
+    skill->effect2.acc = activeEffect2->valueint;
+  }
+
+  return skill;
 }
 
 static float selectFStat(cJSON* arr) {
@@ -444,6 +492,7 @@ Boss* initBoss(cJSON* obj) {
   if (lvl == NULL) handleError(ERR_DATA, FATAL, errMsg, "lvl");
   boss->base.lvl = lvl->valueint;
 
+
   cJSON* stats = cJSON_GetObjectItemCaseSensitive(obj, "stats");
 
   boss->base.stats = (Stats*) malloc(sizeof(Stats));
@@ -492,6 +541,29 @@ Boss* initBoss(cJSON* obj) {
   cJSON* boots = cJSON_GetObjectItemCaseSensitive(gear, "boots");
   if (boots == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear boots");
   boss->gearDrop.boots = createArmor(boots);
+
+
+  cJSON* skills = cJSON_GetObjectItemCaseSensitive(obj, "skills");
+  if (!skills) handleError(ERR_DATA, FATAL, errMsg, "skills");
+  for (int i = 0; i < cJSON_GetArraySize(skills); i++) {
+    cJSON* _skill = cJSON_GetArrayItem(skills, i);
+
+    Skill* skill = createSkill(_skill);
+
+    // strcpy(boss->skills[i].name, skill->name);
+    boss->skills[i].name = skill->name;
+    // strcpy(boss->skills[i].description, skill->description);
+    boss->skills[i].description = skill->description;
+    boss->skills[i].lvl = skill->lvl;
+    boss->skills[i].cooldown = skill->cooldown;
+    boss->skills[i].id = skill->id;
+    boss->skills[i].effect1 = skill->effect1;
+    boss->skills[i].effect2 = skill->effect2;
+    boss->skills[i].activeEffect1 = skill->activeEffect1;
+    boss->skills[i].activeEffect2 = skill->activeEffect2;
+
+    free(skill);
+  }
 
   return boss;
 }

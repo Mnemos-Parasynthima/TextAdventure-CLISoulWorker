@@ -47,7 +47,7 @@ SoulWorker* initSoulWorker(str name) {
   stats->DEF = 8;
   stats->ACC = 2;
   stats->ATK_CRIT_DMG = 3;
-  stats->ATK_CRIT = 0.7;
+  stats->ATK_CRIT = 2.0;
   sw->stats = stats;
 
   // Set skill tree
@@ -627,17 +627,31 @@ static SkillTree* initSkillTree() {
   }
 
   // I think it'll have to be done manually, not a loop
-  initSkill(&skillTree->skills[0], "SKILL 1", "Skill 1 desc", 1, 2, 5, 0, ATK, DEF);
-  initSkill(&skillTree->skills[1], "SKILL 2", "Skill 2 desc", 1, 6, 10, 0.5, ATK, ATK_CRIT);
-  initSkill(&skillTree->skills[2], "SKILL 3", "Skill 3 desc", 1, 3, 5, 2, ATK_CRIT_DMG, DEF);
-  initSkill(&skillTree->skills[3], "SKILL 4", "Skill 4 desc", 1, 4, 5, 3, ATK, ACC);
-  initSkill(&skillTree->skills[4], "SKILL 5", "Skill 5 desc", 1, 1, 1, 1, ATK, DEF);
+  // Note to self: Skill name and skill desc MUST be allocated dynamically
+  // Because of how deleteSkill works (it frees name and desc)
+  // It cannot be changed how it works because all other skill info (from boss and when loaded [since its alloc'd])
+  initSkill(&skillTree->skills[0], "SKILL 1", "Skill 1 desc", 1, 2, 5, 0, ATK, DEF, 1);
+  initSkill(&skillTree->skills[1], "SKILL 2", "Skill 2 desc", 1, 6, 10, 0.5, ATK, ATK_CRIT, 2);
+  initSkill(&skillTree->skills[2], "SKILL 3", "Skill 3 desc", 1, 3, 5, 2, ATK_CRIT_DMG, DEF, 3);
+  initSkill(&skillTree->skills[3], "SKILL 4", "Skill 4 desc", 1, 4, 5, 3, ATK, ACC, 4);
+  initSkill(&skillTree->skills[4], "SKILL 5", "Skill 5 desc", 1, 1, 1, 1, ATK, DEF, 5);
+  initSkill(&skillTree->skills[5], "SKILL 6", "Skill 6 desc", 1, 1, 1, 1, ATK, DEF, 6);
+  initSkill(&skillTree->skills[6], "SKILL 7", "Skill 7 desc", 1, 1, 1, 1, ATK, DEF, 7);
+  initSkill(&skillTree->skills[7], "SKILL 8", "Skill 8 desc", 1, 1, 1, 1, ATK, DEF, 8);
+  initSkill(&skillTree->skills[8], "SKILL 9", "Skill 9 desc", 1, 1, 1, 1, ATK, DEF, 9);
+  initSkill(&skillTree->skills[9], "SKILL 10", "Skill 10 desc", 1, 1, 1, 1, ATK, DEF, 10);
   // Not going to bother about the rest for now
 
   skillTree->skillStatus = 0x0000;
   skillTree->totalSkillPoints = 0;
 
   return skillTree;
+}
+
+static void deleteSkillTree(SkillTree* skillTree) {
+  deleteSkills(skillTree->skills, TOTAL_SKILLS);
+
+  free(skillTree);
 }
 
 void deleteSoulWorker(SoulWorker* sw) {
@@ -676,6 +690,7 @@ void deleteSoulWorker(SoulWorker* sw) {
     }
   }
 
+  deleteSkillTree(sw->skills);
+
   free(sw);
-  sw = NULL;
 }

@@ -298,11 +298,13 @@ void displayEnemyStats(Enemy* enemy) {
       enemy->stats->ATK, enemy->stats->DEF, enemy->stats->ACC, enemy->stats->ATK_CRIT_DMG, enemy->stats->ATK_CRIT);
 }
 
-void initSkill(Skill *skill, str name, str desc, byte lvl, byte cooldown, ushort effect1, float effect2, effect_t active1, effect_t active2) {
+void initSkill(Skill *skill, str name, str desc, byte lvl, byte cooldown, 
+    ushort effect1, float effect2, effect_t active1, effect_t active2, byte id) {
   skill->name = name;
   skill->description = desc;
   skill->lvl = lvl;
   skill->cooldown = cooldown;
+  skill->id = id;
 
   switch (active1) {
     case ATK:
@@ -332,6 +334,13 @@ void initSkill(Skill *skill, str name, str desc, byte lvl, byte cooldown, ushort
   skill->activeEffect2 = active2;
 }
 
+void deleteSkills(Skill skills[], int len) {
+  for (int i = 0; i < len; i++) {
+    free(skills[i].name);
+    free(skills[i].description);
+  }
+}
+
 bool deleteEnemy(Enemy *enemy)
 {
   if (enemy == NULL) return false;
@@ -358,6 +367,9 @@ bool deleteBoss(Boss* boss, bool deleteGear) {
     deleteArmor(boss->gearDrop.chestplate);
     deleteArmor(boss->gearDrop.boots);
   }
+
+  deleteSkills(boss->skills, BOSS_SKILL_COUNT);
+
   free(boss);
 
   return true;

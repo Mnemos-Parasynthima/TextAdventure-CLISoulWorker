@@ -287,7 +287,64 @@
             "def": 2
           }
         },
-        "xpPoints": 10
+        "xpPoints": 10,
+        "skills": [
+          {
+            "name": "Skill 1",
+            "description": "Skill 1 description",
+            "lvl": 5,
+            "cooldown": 1,
+            "id": 1,
+            "effect1": 3,
+            "effect2": 3.2,
+            "activeEffect1": 0,
+            "activeEffect2": 4
+          },
+          {
+            "name": "Skill 2",
+            "description": "Skill 2 description",
+            "lvl": 5,
+            "cooldown": 1,
+            "id": 2,
+            "effect1": 4,
+            "effect2": 3,
+            "activeEffect1": 1,
+            "activeEffect2": 2
+          },
+          {
+            "name": "Skill 3",
+            "description": "Skill 3 description",
+            "lvl": 5,
+            "cooldown": 1,
+            "id": 3,
+            "effect1": 3,
+            "effect2": 3,
+            "activeEffect1": 0,
+            "activeEffect2": 2
+          },
+          {
+            "name": "Skill 4",
+            "description": "Skill 4 description",
+            "lvl": 5,
+            "cooldown": 1,
+            "id": 4,
+            "effect1": 3,
+            "effect2": 2,
+            "activeEffect1": 0,
+            "activeEffect2": 2
+          },
+          {
+            "name": "Skill 5",
+            "description": "Skill 5 description",
+            "lvl": 5,
+            "cooldown": 1,
+            "id": 5,
+            "effect1": 3,
+            "effect2": 4,
+            "activeEffect1": 0,
+            "activeEffect2": 2
+          }
+        ]
       }
     ],
     "loot": []

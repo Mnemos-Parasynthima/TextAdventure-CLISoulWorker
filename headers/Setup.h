@@ -53,13 +53,19 @@ Upgrade* createUpgrade(cJSON* obj);
  */
 Slime* createSlime(cJSON* obj);
 
-
 /**
- * Creates an item object given tie cJSON object.
+ * Creates an item object given the cJSON object.
  * @param obj The raw item data
  * @param type The type of item
  * @return The item
  */
 Item* createItem(cJSON* obj, item_t type);
+
+/**
+ * Creates a skill object given the cJSON object.
+ * @param obj The raw skill data
+ * @return The skill
+ */
+Skill* createSkill(cJSON* obj);
 
 #endif

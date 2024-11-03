@@ -79,7 +79,7 @@
               "description": "The possibly enemy. Boss rooms have a single boss.",
               "type": "object",
               "minProperties": 5,
-              "maxProperties": 6,
+              "maxProperties": 7,
               "properties": {
                 "name": {
                   "description": "The name of the enemy",

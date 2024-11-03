@@ -1,6 +1,6 @@
 /.vscode
 *.o
-clisw
+clisw*
 .gdbinit
 *.log
 TODO
@@ -10,3 +10,4 @@ storyboard
 /data/saves/*-ex.json
 /data/saves/*save.json
 test.c
+CLISW
