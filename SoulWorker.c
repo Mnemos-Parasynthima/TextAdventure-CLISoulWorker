@@ -408,7 +408,7 @@ void setSkill(SkillTree* skillTree, Skill* skill, uint slot) {
   // Check that the slot and skill is appropriate beforehand
 
   // Set skill
-  skillTree->equippedSkills[slot] = skill;
+  skillTree->equippedSkills[slot - 1] = skill;
 
   printf("Skill %s set at slot %d!\n", skill->name, slot);
 }
@@ -433,6 +433,8 @@ void skillUnlock(SkillTree* skillTree, uint skillNum) {
   ushort bitmask = 0x1 << (skillNum - 1);
 
   skillTree->skillStatus |= bitmask;
+
+  // printf("0x%x\n", skillTree->skillStatus);
 
   printf("Skill %s is now unlocked!\n", skillTree->skills[skillNum - 1].name);
 
@@ -626,6 +628,7 @@ static SkillTree* initSkillTree() {
     skillTree->equippedSkills[i] = NO_SKILL;
   }
 
+  // FIXME
   // I think it'll have to be done manually, not a loop
   // Note to self: Skill name and skill desc MUST be allocated dynamically
   // Because of how deleteSkill works (it frees name and desc)
@@ -648,6 +651,10 @@ static SkillTree* initSkillTree() {
   return skillTree;
 }
 
+/**
+ * 
+ * @param skillTree 
+ */
 static void deleteSkillTree(SkillTree* skillTree) {
   deleteSkills(skillTree->skills, TOTAL_SKILLS);
 

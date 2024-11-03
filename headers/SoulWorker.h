@@ -4,7 +4,6 @@
 #include <stdbool.h>
 
 #include "Setup.h"
-// #include "Bitmap.h"
 
 
 #define INV_CAP 25
@@ -86,7 +85,8 @@ void viewSkills(SkillTree* skillTree);
 void viewSkill(Skill* skill);
 
 /**
- * Sets the given skill at the provided slot of the player
+ * Sets the given skill at the provided slot of the player.
+ * Note that slot is 1-indexed.
  * @param sw The player's skill tree
  * @param skill The skill to set
  * @param slot The slot to set the skill at
@@ -94,7 +94,8 @@ void viewSkill(Skill* skill);
 void setSkill(SkillTree* skillTree, Skill* skill, uint slot);
 
 /**
- * Whether the given skill number (its ID) points to an unlocked skill
+ * Whether the given skill number (its ID) points to an unlocked skill.
+ * Note that ID is 1-indexed.
  * @param skillTree The player's skill tree
  * @param skillNum The skill ID to check
  * @return True if the skill has been unlock, false otherwise
@@ -102,7 +103,8 @@ void setSkill(SkillTree* skillTree, Skill* skill, uint slot);
 bool isSkillUnlocked(SkillTree* skillTree, uint skillNum);
 
 /**
- * Unlocks the given skill using its ID
+ * Unlocks the given skill using its ID.
+ * Note that ID is 1-indexed.
  * @param skillTree The player's skill tree
  * @param skillNum The ID of the skill to unlock
  */

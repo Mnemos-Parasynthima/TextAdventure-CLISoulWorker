@@ -117,6 +117,7 @@ static void fight(Enemy* enemy) {
     player->hp = player->maxHP;
   } else {
     updateXP(player, enemy->xpPoints);
+    player->skills->totalSkillPoints += 1;
     deleteEnemyFromMap(player->room, false);
   }
 }
@@ -215,6 +216,7 @@ void bossBattle(Boss* boss) {
     player->hp = player->maxHP;
   } else {
     updateXP(player, boss->base.xpPoints);
+    player->skills->totalSkillPoints += 5;
 
     // Need to create Item* in order to use addToInv
     Item* gearItem = (Item*) malloc(sizeof(Item));

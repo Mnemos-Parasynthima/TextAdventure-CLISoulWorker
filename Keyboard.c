@@ -205,7 +205,7 @@ static bool validInvAction(Inventory inv) {
 static int validSkillNum(char buffer[3]) {
   int num = (uint) atoi(buffer);
 
-  if (num > TOTAL_SKILLS || num < 0) {
+  if (num > TOTAL_SKILLS || num <= 0) {
     printf("Not a skill number!\n");
     return -1;
   }
@@ -429,7 +429,7 @@ bool performAction(Commands action) {
         int slotNum = slot - 0x30;
         if (slotNum <= 0 || slotNum > 5) { printf("Invalid slot!\n"); break; }
 
-        setSkill(player->skills, &player->skills->skills[skillNum], (uint) slotNum);
+        setSkill(player->skills, &player->skills->skills[skillNum - 1], (uint) slotNum);
       } else if (action == SKILL_INFO) {
         printf("Viewing skill!\n");
 
