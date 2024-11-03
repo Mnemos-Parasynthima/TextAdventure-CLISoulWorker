@@ -5,9 +5,6 @@ clisw*
 *.log
 TODO
 storyboard
-/data/saves/maps/*-ex.json
-/data/saves/maps/*save.json
-/data/saves/*-ex.json
-/data/saves/*save.json
+/data/saves/*
 test.c
 CLISW
