@@ -84,6 +84,12 @@ static Room* findRoom(Room* room, byte id, DArray* visited) {
   return NULL;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param data 
+ * @return 
+ */
 static bool saveSoulWeapon(cJSON* parentObj, SoulWeapon* data) {
   cJSON* name = cJSON_AddStringToObject(parentObj, NAME, data->name);
   if (name == NULL) { createError(parentObj, "SoulWeapon name"); return false; }
@@ -112,6 +118,12 @@ static bool saveSoulWeapon(cJSON* parentObj, SoulWeapon* data) {
   return true;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param data 
+ * @return 
+ */
 static bool saveArmor(cJSON* parentObj, Armor* data) {
   cJSON* name = cJSON_AddStringToObject(parentObj, NAME, data->name);
   if (name == NULL) { createError(parentObj, "armor name"); return false; }
@@ -131,6 +143,12 @@ static bool saveArmor(cJSON* parentObj, Armor* data) {
   return true;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param data 
+ * @return 
+ */
 static bool saveGear(cJSON* parentObj, Gear* data) {
   cJSON* _null = (void*) ((long long) 0xFEEDBEAD); // For when a gear piece does not exist to be saved
 
@@ -190,6 +208,13 @@ static bool saveGear(cJSON* parentObj, Gear* data) {
   return true;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param lootItem 
+ * @param lootType 
+ * @return 
+ */
 static cJSON* saveLootItem(cJSON* parentObj, void* lootItem, item_t lootType) {
   cJSON* _lootItem = cJSON_AddObjectToObject(parentObj, ITEM);
   if (_lootItem == NULL) { createError(parentObj, "loot item"); return NULL; }
@@ -239,6 +264,11 @@ static cJSON* saveLootItem(cJSON* parentObj, void* lootItem, item_t lootType) {
   return _lootItem;
 }
 
+/**
+ * 
+ * @param loot 
+ * @return 
+ */
 static cJSON* saveLoot(Item* loot) {
   cJSON* _loot = cJSON_CreateObject();
   if (_loot == NULL) { createError(_loot, "loot"); return NULL; }
@@ -255,6 +285,12 @@ static cJSON* saveLoot(Item* loot) {
   return _loot;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param data 
+ * @return 
+ */
 static bool saveStats(cJSON* parentObj, Stats* data) {
   cJSON* stats = cJSON_CreateObject();
   if (stats == NULL) { createError(parentObj, "stats"); return false; }
@@ -293,6 +329,11 @@ static bool saveStats(cJSON* parentObj, Stats* data) {
 }
 
 // TODO: Check for null
+/**
+ * 
+ * @param skill 
+ * @return 
+ */
 static cJSON* saveSkill(Skill* skill) {
   cJSON* _skill = cJSON_CreateObject();
 
@@ -335,6 +376,12 @@ static cJSON* saveSkill(Skill* skill) {
   return _skill;
 }
 
+/**
+ * 
+ * @param parentObj 
+ * @param data 
+ * @return 
+ */
 static bool saveSkillTree(cJSON* parentObj, SkillTree* data) {
   cJSON* skillTree = cJSON_CreateObject();
   if (!skillTree) { createError(parentObj, "skill tree"); return false; }
@@ -371,6 +418,12 @@ static bool saveSkillTree(cJSON* parentObj, SkillTree* data) {
   return cJSON_AddItemToObject(parentObj, "skills", skillTree);
 }
 
+/**
+ * 
+ * @param _enemy 
+ * @param hasBoss 
+ * @return 
+ */
 static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
   /**
    * NOTE

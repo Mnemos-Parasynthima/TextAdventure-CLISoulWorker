@@ -359,6 +359,11 @@ Skill *createSkill(cJSON *obj) {
   return skill;
 }
 
+/**
+ * 
+ * @param arr 
+ * @return 
+ */
 static float selectFStat(cJSON* arr) {
   if (cJSON_GetArraySize(arr) == 1) return (cJSON_GetArrayItem(arr, 0))->valuedouble;
 
@@ -374,7 +379,11 @@ static float selectFStat(cJSON* arr) {
   // return ((float)rand() / RAND_MAX) % (max - min + 1) + min;
 }
 
-
+/**
+ * 
+ * @param arr 
+ * @return 
+ */
 static uint selectStat(cJSON* arr) {
   if (cJSON_GetArraySize(arr) == 1) return (cJSON_GetArrayItem(arr, 0))->valueint;
 
@@ -413,7 +422,6 @@ static Item* selectLoot(cJSON* table) {
 
   return createItem(item, type);
 }
-
 
 Enemy* initEnemy(cJSON* obj) {
   const str errMsg = "Could not find data for enemy %s!\n";
@@ -568,6 +576,11 @@ Boss* initBoss(cJSON* obj) {
   return boss;
 }
 
+/**
+ * 
+ * @param table 
+ * @return 
+ */
 static Enemy* selectEnemy(cJSON* table) {
   int len = cJSON_GetArraySize(table);
 

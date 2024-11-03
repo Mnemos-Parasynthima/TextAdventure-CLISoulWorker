@@ -451,8 +451,6 @@ bool performAction(Commands action) {
 
         int skillNum = validSkillNum(buffer);
         if (skillNum == -1) break;
-        // Check if it's already unlocked
-        if (isSkillUnlocked(player->skills, skillNum)) { printf("Skill has already been unlocked!\n"); break; }
 
         skillUnlock(player->skills, skillNum);        
       } else if (action == SKILL_UPGRADE) {

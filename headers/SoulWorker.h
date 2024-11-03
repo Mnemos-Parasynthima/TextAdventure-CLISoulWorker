@@ -33,7 +33,7 @@ typedef struct SkillTree {             // 443B+5B(PAD) = 448B
   Skill skills[TOTAL_SKILLS];                // 40B*10 = 400B
                                                         // 2B
   ushort skillStatus; // Whether a skill is unlocked or not, is a bitmap; bit-0 is skills[0], bit-n is skills[n] where n is TOTAL_SKILLS
-  byte totalSkillPoints; // How many points the player has 1B
+  signed char totalSkillPoints; // How many points the player has 1B
 } SkillTree;
 
 /**

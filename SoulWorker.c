@@ -7,6 +7,7 @@
 
 #define NO_ITEM NULL
 #define NO_SKILL NULL
+#define SKILL_DATA "./data/misc/skills.dat"
 
 static SkillTree* initSkillTree();
 
@@ -343,25 +344,87 @@ void viewSkills(SkillTree* skillTree) {
    * ...
    * Active skills:
    * | [skill 1] | [skill2] | [skill3] | [skill4] | [skill5] |
+   * Current Skill Points: []
    */
 
   printf("Skills:\n");
 
-
+  // Print slot/id
   for (int i = 0; i < 5; i++) {
-    printf("|%*d%-*s", COL_WIDTH / 2, i + 1, COL_WIDTH / 2 - 1, " ");
+    printf("|%*d%*s", COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ");
   }
   printf("|\n");
 
+  // Print name and level
   for (int i = 0; i < 5; i++) {
-    printf("| %-*s, LVL %d", COL_WIDTH - 3, skillTree->skills[i].name, skillTree->skills[i].lvl);
+    printf("| %-*s LVL %d", COL_WIDTH - 5, skillTree->skills[i].name, skillTree->skills[i].lvl);
   }
   printf("|\n");
 
-  // Print CD
+  // Print cooldown
+  for (int i = 0; i < 5; i++) {
+    printf("| CD: %-*d", COL_WIDTH - 5, skillTree->skills[i].cooldown);
+  }
+  printf("|\n");
+
+
+  str activeEffect;
+  effect_t _activeEffect;
+  ushort effect;
+  float effectF;
+
   // Print effect 1
-  // Print effect 2
+  for (int i = 0; i < 5; i++) {
+    _activeEffect = skillTree->skills[i].activeEffect1;
 
+    switch (_activeEffect) {
+      case ATK: // "ATK"
+        // activeEffect = (str) malloc(4);
+        activeEffect = "ATK";
+        effect = skillTree->skills[i].effect1.atk;
+        break;
+      case ATK_CRIT_DMG: // "ATK CRIT DMG"
+        activeEffect = "ATK CRIT DMG";
+        effect = skillTree->skills[i].effect1.atk_crit_dmg;
+        break;
+      default:
+        break;
+    }
+
+    printf("| %-*s: %-*d", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 2, effect);
+  }
+  printf("|\n");
+
+  // Print effect 2
+  for (int i = 0; i < 5; i++) {
+    _activeEffect = skillTree->skills[i].activeEffect2;
+
+    switch (_activeEffect) {
+      case DEF: // "DEF"
+        activeEffect = "DEF";
+        effect = skillTree->skills[i].effect2.def;
+        break;
+      case ACC: // "ACC"
+        activeEffect = "ACC";
+        effect = skillTree->skills[i].effect2.acc;
+        break;
+      case ATK_CRIT: // "ATK CRIT"
+        activeEffect = "ATK CRIT";
+        effectF = skillTree->skills[i].effect2.atk_crit;
+        break;
+      default:
+        break;
+    }
+
+    if (_activeEffect == ATK_CRIT) {
+      printf("| %-*s: %-*.2f", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 1, effectF);
+    } else {
+      printf("| %-*s: %-*d", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 1, effect);
+    }
+  }
+  printf("|\n");
+
+  // Print seperator
   for (int i = 0; i < 5; i++) {
     for (int j = 0; j < COL_WIDTH + 1; j++) {
       printf("-");
@@ -371,13 +434,15 @@ void viewSkills(SkillTree* skillTree) {
 
   printf("Active skills:\n");
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    if (skillTree->equippedSkills[i] == NULL) {
-
+    if (skillTree->equippedSkills[i] == NO_SKILL) {
+      printf("| %-*s", COL_WIDTH - 1, "");
     } else {
       printf("| %-*s", COL_WIDTH - 1, skillTree->equippedSkills[i]->name);
     }
   }
   printf("|\n");
+
+  printf("Current Skill Points: %d\n", skillTree->totalSkillPoints);
 
 }
 
@@ -424,6 +489,11 @@ bool isSkillUnlocked(SkillTree* skillTree, uint skillNum) {
 void skillUnlock(SkillTree* skillTree, uint skillNum) {
   if (isSkillUnlocked(skillTree, skillNum)) {
     printf("Skill has already been unlocked!\n");
+    return;
+  }
+
+  if (skillTree->totalSkillPoints - 2 <= 0) {
+    printf("You do not have sufficient skill points!\n");
     return;
   }
 
@@ -628,22 +698,71 @@ static SkillTree* initSkillTree() {
     skillTree->equippedSkills[i] = NO_SKILL;
   }
 
-  // FIXME
-  // I think it'll have to be done manually, not a loop
-  // Note to self: Skill name and skill desc MUST be allocated dynamically
-  // Because of how deleteSkill works (it frees name and desc)
-  // It cannot be changed how it works because all other skill info (from boss and when loaded [since its alloc'd])
-  initSkill(&skillTree->skills[0], "SKILL 1", "Skill 1 desc", 1, 2, 5, 0, ATK, DEF, 1);
-  initSkill(&skillTree->skills[1], "SKILL 2", "Skill 2 desc", 1, 6, 10, 0.5, ATK, ATK_CRIT, 2);
-  initSkill(&skillTree->skills[2], "SKILL 3", "Skill 3 desc", 1, 3, 5, 2, ATK_CRIT_DMG, DEF, 3);
-  initSkill(&skillTree->skills[3], "SKILL 4", "Skill 4 desc", 1, 4, 5, 3, ATK, ACC, 4);
-  initSkill(&skillTree->skills[4], "SKILL 5", "Skill 5 desc", 1, 1, 1, 1, ATK, DEF, 5);
-  initSkill(&skillTree->skills[5], "SKILL 6", "Skill 6 desc", 1, 1, 1, 1, ATK, DEF, 6);
-  initSkill(&skillTree->skills[6], "SKILL 7", "Skill 7 desc", 1, 1, 1, 1, ATK, DEF, 7);
-  initSkill(&skillTree->skills[7], "SKILL 8", "Skill 8 desc", 1, 1, 1, 1, ATK, DEF, 8);
-  initSkill(&skillTree->skills[8], "SKILL 9", "Skill 9 desc", 1, 1, 1, 1, ATK, DEF, 9);
-  initSkill(&skillTree->skills[9], "SKILL 10", "Skill 10 desc", 1, 1, 1, 1, ATK, DEF, 10);
-  // Not going to bother about the rest for now
+
+  FILE* skillsFile = fopen(SKILL_DATA, "r");
+  if (!skillsFile) handleError(ERR_DATA, FATAL, "Could not open skills data!\n");
+
+  str buffer = (str) malloc(4096);
+
+  str name = NULL, *description = NULL;
+  byte lvl, cooldown, id;
+  ushort effect1;
+  float effect2;
+  effect_t activeEffect1, activeEffect2;
+
+  char* pos;
+
+  for (int i = 0; i < TOTAL_SKILLS; i++) {
+    // printf("Iteration %d\n", i);
+
+    fgets(buffer, 4096, skillsFile);
+    if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
+    name = strdup(buffer);
+    // printf("name: %s\n", name);
+
+    fgets(buffer, 4096, skillsFile);
+    if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
+    // printf("Buffer for desc: %s\n", buffer);
+    description = strdup(buffer);
+    // printf("description: %s\n", description);
+
+    fgets(buffer, 5, skillsFile);
+    lvl = (byte) atoi(buffer);
+    // printf("lvl: %d\n", lvl);
+
+    fgets(buffer, 5, skillsFile);
+    cooldown = (byte) atoi(buffer);
+    // printf("cooldown: %d\n", cooldown);
+
+    fgets(buffer, 5, skillsFile);
+    id = (byte) atoi(buffer);
+    // printf("id: %d\n", id);
+
+    fgets(buffer, 7, skillsFile);
+    effect1 = (ushort) atoi(buffer);
+    // printf("effect 1: %d\n", effect1);
+
+    fgets(buffer, 4096, skillsFile);
+    if (strchr(buffer, '.')) effect2 = (float) atof(buffer);
+    else effect2 = (float) ((ushort) atoi(buffer));
+    // printf("effect 2: \n");
+
+    fgets(buffer, 3, skillsFile);
+    activeEffect1 = (effect_t) atoi(buffer);
+    // printf("active effect 1: %d\n", activeEffect1);
+
+    fgets(buffer, 3, skillsFile);
+    activeEffect2 = (effect_t) atoi(buffer);
+    // printf("active effect 2: %d\n", activeEffect2);
+
+    // For empty newline
+    fgets(buffer, 2, skillsFile);
+    // printf("\n");
+
+    initSkill(&skillTree->skills[i], name, description, lvl, cooldown, effect1, effect2, activeEffect1, activeEffect2, id);
+  }
+
+  free(buffer);
 
   skillTree->skillStatus = 0x0000;
   skillTree->totalSkillPoints = 0;
