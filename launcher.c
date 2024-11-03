@@ -34,6 +34,8 @@
 
 #define INSTALLER_DIR ".."
 #define DATA_DIR "data"
+#define MISC_DIR "misc"
+#define STORY_DIR "story"
 #define MAPS_DIR "data/maps"
 #define SAVES_DIR "data/saves"
 #define SAVES_MAPS_DIR "data/saves/maps"
@@ -265,6 +267,21 @@ int main(int argc, char const* argv[]) {
     UNREACHABLE()
   }
   closedir(maps);
+
+  DIR* misc = opendir(MISC_DIR);
+  if (!misc) {
+    print("Could not find misc data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
+  closedir(misc);
+
+  DIR* story = opendir(STORY_DIR);
+  if (!story) {
+    printf("Could not find story data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
 
   int ret;
 

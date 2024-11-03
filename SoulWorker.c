@@ -700,7 +700,7 @@ static SkillTree* initSkillTree() {
 
 
   FILE* skillsFile = fopen(SKILL_DATA, "r");
-  if (!skillsFile) handleError(ERR_DATA, FATAL, "Could not open skills data!\n");
+  if (!skillsFile) handleError(ERR_IO, FATAL, "Could not open skills data!\n");
 
   str buffer = (str) malloc(4096);
 
