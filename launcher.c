@@ -34,8 +34,8 @@
 
 #define INSTALLER_DIR ".."
 #define DATA_DIR "data"
-#define MISC_DIR "misc"
-#define STORY_DIR "story"
+#define MISC_DIR "data/misc"
+#define STORY_DIR "data/story"
 #define MAPS_DIR "data/maps"
 #define SAVES_DIR "data/saves"
 #define SAVES_MAPS_DIR "data/saves/maps"
@@ -270,7 +270,7 @@ int main(int argc, char const* argv[]) {
 
   DIR* misc = opendir(MISC_DIR);
   if (!misc) {
-    print("Could not find misc data! Fixing files...\n");
+    printf("Could not find misc data! Fixing files...\n");
     runInstaller(FIX);
     UNREACHABLE()
   }

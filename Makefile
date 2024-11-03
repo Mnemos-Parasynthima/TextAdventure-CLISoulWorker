@@ -54,9 +54,11 @@ package: all installer launcher
 	cp $(LAUNCHER) $(PACKAGE_DIR)/
 	cp version $(PACKAGE_DIR)/
 	mkdir -p $(PACKAGE_DIR)/data/maps
+	mkdir -p $(PACKAGE_DIR)/data/misc
 	mkdir -p $(PACKAGE_DIR)/data/story
 	
 	rsync -av --include='map*.json' --exclude='*' data/maps/ $(PACKAGE_DIR)/data/maps/
+	rsync -av --include='*.dat' --exclude='*' data/misc/ $(PACKAGE_DIR)/data/misc/
 	rsync -av --include='*.dat' --exclude='*' data/story/ $(PACKAGE_DIR)/data/story/
 
 	zip -r $(PACKAGE_NAME) $(PACKAGE_DIR)
