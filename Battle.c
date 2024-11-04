@@ -153,45 +153,64 @@ void battleEnemy(Enemy* enemy) {
   }  
 }
 
+static void displayAttackOptions() {
+  /**
+   * What are you going to do?
+   * [0] Basic attack
+   * [1] SKILL 1
+   * [3] SKILL 2
+   * [4] SKILL 5
+   * [5] SKILL 7
+   * [6] SKILL 9
+   * : 
+   */
+
+  printf("[0] Basic attack\n");
+
+  Skill** equipped = player->skills->equippedSkills;
+
+  for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+    if (equipped[i] != NULL) {
+      printf("[%d] %s\n", i + 1, equipped[i]->name);
+    }
+  }
+}
+
+static bool validAttack(char attack) {
+  if (attack == '0') return true;
+
+  for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+    if ((player->skills->equippedSkills[i] != NULL) && ((attack - 0x30) == i + 1)) return true;
+  }
+
+  return false;
+}
+
 void bossBattle(Boss* boss) {
   ushort playerAtk, enemyAtk;
 
   bool defeat = false; // Player defeat
   uint bossMaxHP = boss->base.hp;
 
-  // printf("Boss %s encountered!\n", currRoom->enemy.boss->base.name);
-
-  // displayEnemyStats(&(currRoom->enemy.boss->base));
-
-  // Gear* gearDrop = &(currRoom->enemy.boss->gearDrop);
-
-  // printf("It died from surprise! You are so powerful, wow!!\n");
-  // player->gear.boots = gearDrop->boots;
-  // player->gear.helmet = gearDrop->helmet;
-  // player->gear.guard = gearDrop->guard;
-  // player->gear.chestplate = gearDrop->chestplate;
-  // player->gear.sw = gearDrop->sw;
-
-  // deleteEnemyFromMap(currRoom, false);
-
-
   printf("BOSS ENCOUNTERED!!\n");
   displayEnemyStats(&(boss->base));
   printf("Retreat is not an option!\n");
 
   while (true) {
-    printf("What are you going to do?\n[1] Basic attack\n: ");
-    // displayAttackOptions();
+    printf("What are you going to do?\n");
+    displayAttackOptions();
+    printf(": ");
     uchar attack = getchar();
     FLUSH()
-    while (attack != '1') {
+    while (!validAttack(attack)) {
       printf("That is not an attack!\n");
+      printf(": ");
       attack = getchar();
       FLUSH()
     }
 
     playerAtk = getTotalDmg(player->stats, boss->base.stats);
-    printf("-%d!\n", playerAtk);
+    printf("You dealt %d DMG!\n", playerAtk);
 
     if (playerAtk >= boss->base.hp) { printf("%s defeated!\n", boss->base.name); break; }
 
@@ -201,7 +220,7 @@ void bossBattle(Boss* boss) {
     ssleep(500);
 
     enemyAtk = getTotalDmg(boss->base.stats, player->stats);
-    printf("-%d!\n", enemyAtk);
+    printf("You received %d DMG!\n", enemyAtk);
 
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
 
@@ -216,7 +235,7 @@ void bossBattle(Boss* boss) {
     player->hp = player->maxHP;
   } else {
     updateXP(player, boss->base.xpPoints);
-    player->skills->totalSkillPoints += 5;
+    player->skills->totalSkillPoints += 3;
 
     // Need to create Item* in order to use addToInv
     Item* gearItem = (Item*) malloc(sizeof(Item));
