@@ -331,6 +331,9 @@ void viewSelf(SoulWorker* sw) {
 
 void viewSkills(SkillTree* skillTree) {
   const int COL_WIDTH = 20;
+  const str COLOR_RESET = "\033[0m";
+  const str COLOR_UNLOCKED = "\033[1;32m";  // Bright green for unlocked
+  const str COLOR_LOCKED = "\033[1;31m"; // Grey for locked
 
   /**
    * Skills:
@@ -351,7 +354,8 @@ void viewSkills(SkillTree* skillTree) {
 
   // Print slot/id
   for (int i = 0; i < 5; i++) {
-    printf("|%*d%*s", COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ");
+    printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? COLOR_UNLOCKED : COLOR_LOCKED, 
+        COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", COLOR_RESET);
   }
   printf("|\n");
 
@@ -487,18 +491,20 @@ bool isSkillUnlocked(SkillTree* skillTree, uint skillNum) {
 }
 
 void skillUnlock(SkillTree* skillTree, uint skillNum) {
+  const int SKILL_COST = 10;
+
   if (isSkillUnlocked(skillTree, skillNum)) {
     printf("Skill has already been unlocked!\n");
     return;
   }
 
-  if (skillTree->totalSkillPoints - 2 <= 0) {
+  if (skillTree->totalSkillPoints - SKILL_COST < 0) {
     printf("You do not have sufficient skill points!\n");
     return;
   }
 
   // The cost of unlocking a skill
-  skillTree->totalSkillPoints -= 2;
+  skillTree->totalSkillPoints -= SKILL_COST;
 
   ushort bitmask = 0x1 << (skillNum - 1);
 
@@ -642,6 +648,8 @@ static void levelUp(SoulWorker* sw) {
 
   sw->lvl++;
 
+  sw->skills->totalSkillPoints += 5;
+
   uint baseHPGain = 10;
   sw->maxHP = sw->hp = sw->hp + baseHPGain + (sw->lvl * 2);
 
@@ -765,7 +773,7 @@ static SkillTree* initSkillTree() {
   free(buffer);
 
   skillTree->skillStatus = 0x0000;
-  skillTree->totalSkillPoints = 0;
+  skillTree->totalSkillPoints = 20; // OG is 0
 
   return skillTree;
 }
