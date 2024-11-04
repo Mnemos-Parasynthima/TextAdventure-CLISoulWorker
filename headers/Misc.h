@@ -197,11 +197,12 @@ typedef enum {
   ATK_CRIT
 } effect_t;
 
-typedef struct Skill { // 33B+7B(PAD) = 40B
+typedef struct Skill { // 34B+6B(PAD) = 40B
   str name; //                           8B
   str description; //                    8B
   byte lvl; //                           1B
   byte cooldown; //                      1B
+  byte cdTimer; //                       1B
   byte id; //                            1B
   union { //                             2B
     ushort atk; // 2B

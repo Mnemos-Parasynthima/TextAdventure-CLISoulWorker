@@ -304,6 +304,10 @@ void initSkill(Skill *skill, str name, str desc, byte lvl, byte cooldown,
   skill->description = desc;
   skill->lvl = lvl;
   skill->cooldown = cooldown;
+  // cdTimer works by starting at 0
+  // When the skill is used, it gets set to cooldown
+  // As each turn finishes, all skills have their cdTimer reduced by 1
+  skill->cdTimer = 0;
   skill->id = id;
 
   switch (active1) {

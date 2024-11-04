@@ -564,6 +564,7 @@ Boss* initBoss(cJSON* obj) {
     boss->skills[i].description = skill->description;
     boss->skills[i].lvl = skill->lvl;
     boss->skills[i].cooldown = skill->cooldown;
+    boss->skills[i].cdTimer = 0;
     boss->skills[i].id = skill->id;
     boss->skills[i].effect1 = skill->effect1;
     boss->skills[i].effect2 = skill->effect2;

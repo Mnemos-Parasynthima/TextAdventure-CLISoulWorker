@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <time.h>
 
 #include "Battle.h"
 #include "Error.h"
@@ -53,27 +54,71 @@ static void returnRoom() {
 }
 
 /**
- * Calculates how much HP lost based on attacker and target stats
+ * Calculates how much HP lost based on attacker and target stats.
+ * Also take into account the skill used for the attack, if any.
  * @param attacker The stats of the attacker
  * @param target The stats of the target
+ * @param skill The skill used
  * @return How much damage taken
  */
-static ushort getTotalDmg(Stats* attacker, Stats* target) {
-  float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
-  // printf("hitroll: %3.2f\n", hitRoll);
-  if (hitRoll > attacker->ACC) return 0;
+static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
+  // TODO
+  // If no skill used (aka basic skill was used), then do normal calculations
+  // otherwise, take into account the skill bonus
+  if (!skill) {
+    printf("Basic attack used!\n");
 
-  short baseDamage = 1 + (attacker->ATK - target->DEF);
-  // printf("baseDamage: %d\n", baseDamage);
-  if (baseDamage < 1) baseDamage = 1;
+    float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
+    // printf("hitroll: %3.2f\n", hitRoll);
+    if (hitRoll > attacker->ACC) return 0;
 
-  float critRoll = (float) rand() / RAND_MAX;
-  // printf("critroll: %3.2f\n", critRoll);
-  if (critRoll <= attacker->ATK_CRIT) {
-    baseDamage += ((ushort) baseDamage * attacker->ATK_CRIT_DMG) / 100;
+    short baseDamage = 1 + (attacker->ATK - target->DEF);
+    // printf("baseDamage: %d\n", baseDamage);
+    if (baseDamage < 1) baseDamage = 1;
+
+    float critRoll = (float) rand() / RAND_MAX;
+    // printf("critroll: %3.2f\n", critRoll);
+    if (critRoll <= attacker->ATK_CRIT) {
+      baseDamage += ((ushort) baseDamage * attacker->ATK_CRIT_DMG) / 100;
+    }
+
+    return (ushort) baseDamage;
   }
 
-  return (ushort) baseDamage;
+  printf("Skill used! [NOT YET IMPLEMENTED]\n");
+  skill->cdTimer = skill->cooldown;
+
+  return skill->effect1.atk;
+}
+
+/**
+ * Chooses a skill for the boss to use from its
+ * array of possible skills. It can also choose its basic.
+ * @param skills The array of possible boss skills
+ * @return The skill to use
+ */
+Skill* chooseBossSkill(Skill* skills) {
+  srand(time(NULL));
+
+  int r = rand() % 2;
+
+  // printf("Random is %d\n", r);
+
+  Skill* choosenSkill;
+
+  if (r == 1) {
+    // printf("Choosing a skill\n");
+    do {
+      choosenSkill = &skills[rand() % BOSS_SKILL_COUNT];
+      // printf("Chosen skill is %s, CD: %d\n", choosenSkill->name, choosenSkill->cdTimer);
+    } while (choosenSkill->cdTimer != 0);
+    // printf("Skill choosen\n");
+
+    return choosenSkill;
+  }
+  // printf("Basic attack chosen\n");
+
+  return NULL;
 }
 
 /**
@@ -87,7 +132,7 @@ static void fight(Enemy* enemy) {
   uint enemyMaxHP = enemy->hp;
 
   while (true) {
-    playerAtk = getTotalDmg(player->stats, enemy->stats);
+    playerAtk = getTotalDmg(player->stats, enemy->stats, NULL);
     // printf("%s attacks for %d dmg!\n", player->name, playerAtk);
 
     if (playerAtk >= enemy->hp) { printf("%s defeated!\n", enemy->name); break; }
@@ -98,7 +143,7 @@ static void fight(Enemy* enemy) {
 
     ssleep(500);
 
-    enemyAtk = getTotalDmg(enemy->stats, player->stats);
+    enemyAtk = getTotalDmg(enemy->stats, player->stats, NULL);
     // printf("%s attacks for %d dmg!\n", enemy->name, enemyAtk);
 
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
@@ -157,11 +202,11 @@ static void displayAttackOptions() {
   /**
    * What are you going to do?
    * [0] Basic attack
-   * [1] SKILL 1
-   * [3] SKILL 2
-   * [4] SKILL 5
-   * [5] SKILL 7
-   * [6] SKILL 9
+   * [1] SKILL 1; CD: 
+   * [3] SKILL 2; CD: 
+   * [4] SKILL 5; CD: 
+   * [5] SKILL 7; CD: 
+   * [6] SKILL 9; CD: 
    * : 
    */
 
@@ -171,17 +216,42 @@ static void displayAttackOptions() {
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
     if (equipped[i] != NULL) {
-      printf("[%d] %s\n", i + 1, equipped[i]->name);
+      printf("[%d] %s; CD: %d\n", i + 1, equipped[i]->name, equipped[i]->cdTimer);
     }
   }
 }
 
-static bool validAttack(char attack) {
-  if (attack == '0') return true;
+/**
+ * Checks whether the given attack is an equipped skill,
+ * storing the attack in skillActivated if it is and setting whether
+ * the basic attack was used.
+ * @param attack The attack to check
+ * @param skillActivated Where to store the activated skill, if valid
+ * @param basicUsed.
+ * @return True if valid skill, false otherwise
+ */
+static bool validAttack(char attack, Skill** skillActivated, bool* basicUsed) {
+  if (attack == '0') {
+    *basicUsed = true;
+    return true;
+  }
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    if ((player->skills->equippedSkills[i] != NULL) && ((attack - 0x30) == i + 1)) return true;
+    if ((player->skills->equippedSkills[i] != NULL) && ((attack - 0x30) == i + 1)) {
+      // Found the skill that attack matches
+      if (player->skills->equippedSkills[i]->cdTimer != 0) {
+        // The cooldown is still in effect
+        printf("Cannot use this skill yet! Cooldown of %d\n", player->skills->equippedSkills[i]->cdTimer);
+        return false;
+      }
+
+      *basicUsed = false;
+      *skillActivated = player->skills->equippedSkills[i];
+
+      return true;
+    }
   }
+  printf("That is not an attack!\n");
 
   return false;
 }
@@ -196,21 +266,27 @@ void bossBattle(Boss* boss) {
   displayEnemyStats(&(boss->base));
   printf("Retreat is not an option!\n");
 
+  Skill* skillActivated = NULL;
+  bool basicUsed = false;
+
   while (true) {
     printf("What are you going to do?\n");
     displayAttackOptions();
     printf(": ");
     uchar attack = getchar();
     FLUSH()
-    while (!validAttack(attack)) {
-      printf("That is not an attack!\n");
+    while (!validAttack(attack, &skillActivated, &basicUsed)) {
       printf(": ");
       attack = getchar();
       FLUSH()
     }
 
-    playerAtk = getTotalDmg(player->stats, boss->base.stats);
+    if (basicUsed) skillActivated = NULL;
+    printf("Skill activated is %s\n", (!skillActivated) ? NULL : skillActivated->name);
+
+    playerAtk = getTotalDmg(player->stats, boss->base.stats, skillActivated);
     printf("You dealt %d DMG!\n", playerAtk);
+    // TODO: Activate skill CD when appropriate and check for CD when attempting to use that skill
 
     if (playerAtk >= boss->base.hp) { printf("%s defeated!\n", boss->base.name); break; }
 
@@ -219,13 +295,17 @@ void bossBattle(Boss* boss) {
 
     ssleep(500);
 
-    enemyAtk = getTotalDmg(boss->base.stats, player->stats);
+    skillActivated = chooseBossSkill(boss->skills);
+
+    enemyAtk = getTotalDmg(boss->base.stats, player->stats, skillActivated);
     printf("You received %d DMG!\n", enemyAtk);
 
     if (enemyAtk >= player->hp) { printf("Player defeated!\n"); defeat = true; break; }
 
     player->hp -= enemyAtk;
     printf("%s: %d/%d\n", player->name, player->hp, player->maxHP);
+
+    // Decrease all skills' CD
   }
 
   if (defeat) {
