@@ -3,6 +3,8 @@
 #include <ctype.h>
 #include <time.h>
 
+#include <pthread.h>
+
 #include "Battle.h"
 #include "Error.h"
 
@@ -86,7 +88,7 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
   }
 
   printf("Skill used! [NOT YET IMPLEMENTED]\n");
-  skill->cdTimer = skill->cooldown;
+  skill->cdTimer = skill->cooldown + 1;
 
   return skill->effect1.atk;
 }
@@ -198,6 +200,9 @@ void battleEnemy(Enemy* enemy) {
   }  
 }
 
+/**
+ * 
+ */
 static void displayAttackOptions() {
   /**
    * What are you going to do?
@@ -256,6 +261,26 @@ static bool validAttack(char attack, Skill** skillActivated, bool* basicUsed) {
   return false;
 }
 
+static void* decreaseCD(void* _skills) {
+  if (!_skills) {
+    // Decrease player's skills' CD
+    for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
+      if (player->skills->equippedSkills[i] != NULL) {
+        if (player->skills->equippedSkills[i]->cdTimer > 0) player->skills->equippedSkills[i]->cdTimer--;
+      }
+    }
+  } else {
+    Skill* skills = (Skill*) _skills;
+
+    // Decrease boss's skills' CD
+    for (int i = 0; i < BOSS_SKILL_COUNT; i++) {
+      if (skills[i].cdTimer > 0) skills[i].cdTimer--;
+    }
+  }
+
+  return NULL;
+}
+
 void bossBattle(Boss* boss) {
   ushort playerAtk, enemyAtk;
 
@@ -286,7 +311,6 @@ void bossBattle(Boss* boss) {
 
     playerAtk = getTotalDmg(player->stats, boss->base.stats, skillActivated);
     printf("You dealt %d DMG!\n", playerAtk);
-    // TODO: Activate skill CD when appropriate and check for CD when attempting to use that skill
 
     if (playerAtk >= boss->base.hp) { printf("%s defeated!\n", boss->base.name); break; }
 
@@ -306,6 +330,13 @@ void bossBattle(Boss* boss) {
     printf("%s: %d/%d\n", player->name, player->hp, player->maxHP);
 
     // Decrease all skills' CD
+    pthread_t playerCDThread, bossCDThread;
+
+    pthread_create(&playerCDThread, NULL, decreaseCD, NULL);
+    pthread_create(&bossCDThread, NULL, decreaseCD, (void*) boss->skills);
+
+    pthread_join(playerCDThread, NULL);
+    pthread_join(bossCDThread, NULL);
   }
 
   if (defeat) {
