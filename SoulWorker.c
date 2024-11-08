@@ -622,6 +622,32 @@ void equipGear(SoulWorker* sw, Item* item) {
   printf("Equipped!\n");
 }
 
+void heal(SoulWorker* sw, Item* item) {
+  // item is guaranteed to contain the hp kit
+  HPKit* hpKit = (HPKit*) item->_item;
+
+  uint hpIncr;
+
+  // TODO: Synch how much each level heals with player's HP level and max increase
+  switch (hpKit->type) {
+    case DEKA:
+      hpIncr = 10;
+      break;
+    case MEGA:
+      hpIncr = 240;
+      break;
+    case PETA:
+      hpIncr = 1000;
+      break;
+    default:
+      break;
+  }
+
+  sw->hp = (sw->hp + hpIncr < sw->maxHP) ? sw->hp + hpIncr : sw->maxHP;
+  item->count--;
+  printf("+%d!\n", hpIncr);
+}
+
 /**
  * Formula for how much xp is required for the given level.
  * @param lvl The level

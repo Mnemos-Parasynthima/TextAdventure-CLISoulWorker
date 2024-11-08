@@ -23,11 +23,19 @@ typedef enum {
 } Movement;
 
 typedef enum {
-  INV_SELL = 's', // Sell item
+  ITEM_SELL = 's', // Sell the item (valid for all items)
+  ITEM_EQUIP = 'e', // Equip the item (valid for gear)
+  ITEM_UPGRADE = 'u', // Upgrade the item (valid for gear)
+  ITEM_HEAL = 'h', // Heal (valid for HP kits)
+  ITEM_QUIT = 'q', // Quit the item use menu
+  // ITEM_HELP = 'h' // Available options for item menu
+} Item_Use;
+
+typedef enum {
+  INV_USE = 'u', // Use the item
   INV_INFO = 'i', // View item info
-  INV_QUIT = 'q', // Exit inventory
   INV_SHOW = 'v', // Show inventory (again)
-  INV_EQUIP = 'e', // Equip gear
+  INV_QUIT = 'q', // Exit inventory
   INV_HELP = 'h' // Available options for inv menu
 } Inventory;
 
@@ -45,7 +53,8 @@ typedef enum {
   MOVEMENT_H,
   ACTIONS_H,
   INVENTORY_H,
-  SKILLS_H
+  SKILLS_H,
+  ITEM_H,
 } HELP_T;
 
 
@@ -199,7 +208,7 @@ static bool validSkillAction(Skills opt) {
 }
 
 static bool validInvAction(Inventory inv) {
-  return (inv == INV_SELL || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW || inv == INV_EQUIP);
+  return (inv == INV_USE || inv == INV_INFO || inv == INV_HELP || inv == INV_QUIT || inv == INV_SHOW);
 }
 
 static int validSkillNum(char buffer[3]) {
@@ -231,16 +240,16 @@ static Item* getItemFromPos() {
   return item;
 }
 
+
 static void displayHelp(HELP_T type) {
   if (type == MOVEMENT_H) {
     printf("Directions are north ('n'), east ('e'), south ('s'), and west ('w').");
   } else if (type == INVENTORY_H) {
     printf("Possible actions are:\n");
-    printf("\t Sell item ('s')\n");
+    printf("\t Use item ('u')\n");
     printf("\t View item info ('i')\n");
-    printf("\t Close inventory ('q')\n");
     printf("\t View inventory ('v')\n");
-    printf("\t Equip gear ('e')\n");
+    printf("\t Close inventory ('q')\n");
     printf("\t Help message ('h')\n");
   } else if (type == SKILLS_H) {
     printf("Possible actions are:\n");
@@ -251,16 +260,141 @@ static void displayHelp(HELP_T type) {
     printf("\t Upgrade skill ('u')\n");
     printf("\t Close skill menu ('q')\n");
     printf("\t Help message ('h')\n");
+  } else if (type == ITEM_H) {
+    printf("Possible actions are:\n");
+    printf("\t Sell item ('s')\n");
+    printf("\t Equip gear ('e')\n");
+    printf("\t Upgrade gear ('u')\n");
+    printf("\t Heal ('l')\n");
+    // printf("\t Close item menu ('q')\n");
+    // printf("\t Help message ('h')\n");
   } else { // type == ACTIONS
     printf("Possible actions are:\n");
     printf("\t Open Inventory ('i')\n");
     printf("\t Open Skill Menu ('k')\n");
     printf("\t Move ('m')\n");
     printf("\t Save ('s')\n");
-    printf("\t Save and Quit ('q')\n");
     printf("\t View self ('e')\n");
     printf("\t Unequip all gear ('g')\n");
+    printf("\t Save and Quit ('q')\n");
     printf("\t Help message ('h')\n");
+  }
+}
+
+
+static void useItem() {
+  displayHelp(ITEM_H);
+
+  printf("Enter the position of the item to use. ");
+  Item* item = getItemFromPos();
+
+  // printf("You chose %d\n", item->type);
+
+  printf("Possible actions are:\n");
+
+  char opt;
+
+  if (item->type >= SOULWEAPON_T && item->type <= BOOTS_T) {
+    printf("\t Sell item ('s')\n");
+    printf("\t Equip gear ('e')\n");
+    printf("\t Upgrade gear ('u')\n");
+
+    opt = getchar();
+    opt = tolower(opt);
+    FLUSH()
+
+    while (opt != 's' && opt != 'e' && opt != 'u') {
+      printf("That is not a valid action. Try again! ");
+
+      opt = getchar();
+      FLUSH()
+      opt = tolower(opt);
+    }
+
+    if (opt == ITEM_SELL) {
+      // FIXME: Currently takes in a single character, does not work when player enters two-digit+ nums
+      printf("How many do you want to sell? ");
+      uchar _count = getchar();
+      FLUSH()
+      uchar count = _count - '0';
+
+      while (count < 0 || count > item->count) {
+        printf("Invalid count! Try again! ");
+        _count = getchar();
+        FLUSH()
+        count = _count - '0';
+      }        
+
+      sellItem(item, count);
+    } else if (opt == ITEM_EQUIP) {
+      equipGear(player, item);
+    } else { // opt == 'u'
+      printf("NOT IMPLEMENTED! Upgrading gear...\n");
+    }
+  } else if (item->type == HP_KITS_T) {
+    printf("\t Sell item ('s')\n");
+    printf("\t Heal ('h')\n");
+
+    printf("What do you want to do? ");
+    opt = getchar();
+    opt = tolower(opt);
+    // printf("Chose %c/%d\n", opt, opt);
+    FLUSH()
+
+    while (opt != ITEM_SELL && opt != ITEM_HEAL) {
+      printf("That's not a valid action. Try again! ");
+
+      opt = getchar();
+      opt = tolower(opt);
+      // printf("Chose %c/%d\n", opt, opt);
+      FLUSH()
+    }
+
+    if (opt == ITEM_SELL) {
+      printf("How many do you want to sell? ");
+      uchar _count = getchar();
+      FLUSH()
+      uchar count = _count - '0';
+
+      while (count < 0 || count > item->count) {
+        printf("Invalid count! Try again! ");
+        _count = getchar();
+        FLUSH()
+        count = _count - '0';
+      }        
+
+      sellItem(item, count);
+    } else { // opt == ITEM_HEAL
+      heal(player, item);
+    }
+  } else {
+    printf("\t Sell item ('s')\n");
+
+    opt = getchar();
+    opt = tolower(opt);
+    FLUSH()
+
+    while (opt != ITEM_SELL) {
+      printf("That's not a valid action. Try again! ");
+
+      opt = getchar();
+      opt = tolower(opt);
+      FLUSH()
+    }
+
+    printf("How many do you want to sell? ");
+    uchar _count = getchar();
+    FLUSH()
+    uchar count = _count - '0';
+
+    while (count < 0 || count > item->count) {
+      printf("Invalid count! Try again! ");
+      _count = getchar();
+      FLUSH()
+      count = _count - '0';
+    }        
+
+    sellItem(item, count);
   }
 }
 
@@ -319,24 +453,12 @@ bool performAction(Commands action) {
         inv = tolower(inv);
       }
 
-      if (inv == INV_SELL) {
-        printf("What item? Use a number for its position. ");
-        Item* item = getItemFromPos();
-
-        printf("How many do you want to sell? ");
-        uchar _count = getchar();
-        FLUSH()
-        uchar count = _count - '0';
-
-        while (count < 0 || count > item->count) {
-          printf("Invalid count! Try again! ");
-          _count = getchar();
-          FLUSH()
-          count = _count - '0';
-        }        
-
-        sellItem(item, count);
+      if (inv == INV_USE) {
+        if (player->invCount == 0) { printf("No items to use!\n"); break; }
+        useItem();
       } else if (inv == INV_INFO) {
+        if (player->invCount == 0) { printf("No items to view!\n"); break; }
+
         printf("What item do you want to inspect? Use a number for its position. ");
         Item* item = getItemFromPos();
 
@@ -370,16 +492,6 @@ bool performAction(Commands action) {
           default:
             printf("NOT AN ITEM\n");
             break;
-        }
-      } else if (inv == INV_EQUIP) {
-        if (player->invCount == 0) printf("There are no items to equip!\n");
-        else {
-          printf("What do you want to equip? Use a numer for its position. ");
-          Item* item = getItemFromPos();
-          
-          if (item->type < SOULWEAPON_T || item->type > BOOTS_T) {
-            printf("That is not an equippable gear!\n");
-          } else equipGear(player, item);
         }
       } else if (inv == INV_HELP) displayHelp(INVENTORY_H);
       else if (inv == INV_SHOW) viewInventory(player);

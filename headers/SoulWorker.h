@@ -129,6 +129,9 @@ void unequipGear(SoulWorker* sw);
  */
 void equipGear(SoulWorker* sw, Item* item);
 
+
+void heal(SoulWorker* sw, Item* item);
+
 /**
  * Updates the player's XP, increase the level if necessary.
  * @param sw The player

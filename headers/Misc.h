@@ -46,6 +46,8 @@ typedef struct Item {      // 14B+2B(PAD) = 16B
   // Maybe in future, store the price as a uchar or ushort????
 } Item;
 
+// 
+
 typedef struct SoulWeapon {      // 21B+3B(PAD) = 24B
   str name; // The name of the weapon              8B
   ushort atk; // The attack stat                   2B

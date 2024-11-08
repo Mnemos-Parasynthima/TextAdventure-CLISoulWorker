@@ -165,6 +165,7 @@ static void fight(Enemy* enemy) {
   } else {
     updateXP(player, enemy->xpPoints);
     player->skills->totalSkillPoints += 1;
+    // player->dzenai +=
     deleteEnemyFromMap(player->room, false);
   }
 }
@@ -201,7 +202,8 @@ void battleEnemy(Enemy* enemy) {
 }
 
 /**
- * 
+ * Displays the possible options for the player to use.
+ * It includes at the very least the basic attack and up to 5 skills (equipped).
  */
 static void displayAttackOptions() {
   /**
@@ -261,6 +263,11 @@ static bool validAttack(char attack, Skill** skillActivated, bool* basicUsed) {
   return false;
 }
 
+/**
+ * Goes through all the skills and decreases its cooldown timer.
+ * @param _skills The skill array
+ * @return NULL
+ */
 static void* decreaseCD(void* _skills) {
   if (!_skills) {
     // Decrease player's skills' CD
