@@ -516,12 +516,53 @@ void skillUnlock(SkillTree* skillTree, uint skillNum) {
 
 }
 
-void upgradeSkill(Skill* skill) {
-  
+void upgradeSkill(SkillTree* skillTree, uint skillNum) {
+  if (!isSkillUnlocked(skillTree, skillNum)) {
+    printf("You can't upgrade a locked skill!\n");
+    return;
+  }
+
+  Skill* skill = &skillTree->skills[skillNum - 1];
+
+  if (skill->lvl == 10) {
+    printf("Skill is maxed out!\n");
+    return;
+  }
+
+  skill->lvl++;
+
+  // TODO: Play around with numbers
+  float temp;
+  float scaleFactor = 1.0f + 0.1f * skill->lvl;
+
+  if (skill->activeEffect1 == ATK) {
+    temp = skill->effect1.atk;
+    skill->effect1.atk = (ushort) skill->effect1.atk * scaleFactor;
+    printf("ATK: %d -> %d\n", (uint) temp, skill->effect1.atk);
+  } else { // activeEffect1 == atk_crit_dmg
+    temp = skill->effect1.atk_crit_dmg;
+    skill->effect1.atk_crit_dmg = (ushort) skill->effect1.atk_crit_dmg * scaleFactor;
+    printf("ATK CRIT DMG: %d -> %d\n", (uint) temp, skill->effect1.atk_crit_dmg);
+  }
+
+  if (skill->activeEffect2 == DEF) {
+    temp = skill->effect2.def;
+    skill->effect2.def = (ushort) skill->effect2.def * scaleFactor;
+    printf("DEF: %d -> %d\n", (uint) temp, skill->effect2.def);
+  } else if (skill->activeEffect2 == ACC) {
+    temp = skill->effect2.acc;
+    skill->effect2.acc = (ushort) skill->effect2.acc * scaleFactor;
+    printf("ACC: %d -> %d\n", (uint) temp, skill->effect2.acc);
+  } else { // activeEffect2 = atk_crit
+    temp = skill->effect2.atk_crit;
+    skill->effect2.atk_crit = skill->effect2.atk_crit * scaleFactor;
+    printf("ATK CRIT: %.2f -> %.2f\n", temp, skill->effect2.atk_crit);
+  }
+
+  printf("Skill upgraded to level %d!\n", skill->lvl);
 }
 
-void unequipGear(SoulWorker *sw)
-{
+void unequipGear(SoulWorker *sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
   gear->count = 1;
 

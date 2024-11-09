@@ -265,7 +265,7 @@ static void displayHelp(HELP_T type) {
     printf("\t Sell item ('s')\n");
     printf("\t Equip gear ('e')\n");
     printf("\t Upgrade gear ('u')\n");
-    printf("\t Heal ('l')\n");
+    printf("\t Heal ('h')\n");
     // printf("\t Close item menu ('q')\n");
     // printf("\t Help message ('h')\n");
   } else { // type == ACTIONS
@@ -566,7 +566,14 @@ bool performAction(Commands action) {
 
         skillUnlock(player->skills, skillNum);        
       } else if (action == SKILL_UPGRADE) {
-        printf("Upgrading skill!\n");
+        printf("What skill do you want to upgrade? Use the skill number. ");
+        char buffer[3];
+        if (!fgets(buffer, 3, stdin)) { printf("Could not get input!\n"); break; }
+
+        int skillNum = validSkillNum(buffer);
+        if (skillNum == -1) break;
+
+        upgradeSkill(player->skills, skillNum);
       } else if (action == SKILL_HELP) displayHelp(SKILLS_H);
       else if (action == SKILL_SHOW) viewSkills(player->skills);
       else if (action == SKILL_QUIT) {

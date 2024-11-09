@@ -112,9 +112,10 @@ void skillUnlock(SkillTree* skillTree, uint skillNum);
 
 /**
  * Upgrades the given skill.
- * @param skill The skill to upgrade
+ * @param skill The player's skill tree
+ * @param skillNum The ID of the skill to upgrade
  */
-void upgradeSkill(Skill* skill);
+void upgradeSkill(SkillTree* skillTree, uint skillNum);
 
 /**
  * Unequips all the equipped gear.
@@ -129,7 +130,11 @@ void unequipGear(SoulWorker* sw);
  */
 void equipGear(SoulWorker* sw, Item* item);
 
-
+/**
+ * Given the heal item, heals the player by the amount specified in type.
+ * @param sw The player
+ * @param item The item containing the hp kit
+ */
 void heal(SoulWorker* sw, Item* item);
 
 /**
