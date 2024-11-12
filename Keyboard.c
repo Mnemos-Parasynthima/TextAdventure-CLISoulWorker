@@ -501,7 +501,7 @@ bool performAction(Commands action) {
         break;
       }
 
-      printf("Inventory: What do you want to do? ");
+      printf("%sInventory%s: What do you want to do? ", CYAN, RESET);
       inv = getchar();
       FLUSH()
       inv = tolower(inv);
@@ -583,7 +583,7 @@ bool performAction(Commands action) {
       }
 
 
-      printf("Skills: What do you want to do? ");
+      printf("%sSkill Menu%s: What do you want to do? ", CYAN, RESET);
       action = getchar();
       FLUSH()
       action = tolower(action);
