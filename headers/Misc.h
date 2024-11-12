@@ -4,6 +4,8 @@
 
 #include <stdbool.h>
 
+#include "Colors.h"
+
 
 #define ushort unsigned short
 #define uchar unsigned char
@@ -15,6 +17,7 @@
 #ifndef _BYTE_
 #define byte unsigned char
 #endif
+
 
 typedef struct Stats {                         // 12B
   ushort ATK; // The attack damage                 2B

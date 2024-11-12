@@ -206,17 +206,6 @@ void battleEnemy(Enemy* enemy) {
  * It includes at the very least the basic attack and up to 5 skills (equipped).
  */
 static void displayAttackOptions() {
-  /**
-   * What are you going to do?
-   * [0] Basic attack
-   * [1] SKILL 1; CD: 
-   * [3] SKILL 2; CD: 
-   * [4] SKILL 5; CD: 
-   * [5] SKILL 7; CD: 
-   * [6] SKILL 9; CD: 
-   * : 
-   */
-
   printf("[0] Basic attack\n");
 
   Skill** equipped = player->skills->equippedSkills;
@@ -294,9 +283,9 @@ void bossBattle(Boss* boss) {
   bool defeat = false; // Player defeat
   uint bossMaxHP = boss->base.hp;
 
-  printf("BOSS ENCOUNTERED!!\n");
+  printf("%sBOSS ENCOUNTERED!!%s\n", RED, RESET);
   displayEnemyStats(&(boss->base));
-  printf("Retreat is not an option!\n");
+  printf("%sRetreat is not an option!%s\n", RED, RESET);
 
   Skill* skillActivated = NULL;
   bool basicUsed = false;

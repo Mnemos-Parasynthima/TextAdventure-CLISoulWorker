@@ -275,6 +275,7 @@ static void displayHelp(HELP_T type) {
     printf("\t Move ('m')\n");
     printf("\t Save ('s')\n");
     printf("\t View self ('e')\n");
+    printf("\t View map ('p')\n");
     printf("\t Unequip all gear ('g')\n");
     printf("\t Save and Quit ('q')\n");
     printf("\t Help message ('h')\n");
@@ -439,7 +440,7 @@ bool performAction(Commands action) {
   } else if (action == OPEN_INVENTORY) {
     viewInventory(player);
 
-    printf("Inventory: What do you want to do? ");
+    printf("%sInventory%s: What do you want to do? ", CYAN, RESET);
     Inventory inv = getchar();
     FLUSH()
     inv = tolower(inv);
@@ -508,7 +509,7 @@ bool performAction(Commands action) {
   } else if (action == OPEN_SKILLS) {
     viewSkills(player->skills);
 
-    printf("Skill Menu: What do you want to do? ");
+    printf("%sSkill Menu%s: What do you want to do? ", CYAN, RESET);
     Skills action = getchar();
     FLUSH()
     action = tolower(action);

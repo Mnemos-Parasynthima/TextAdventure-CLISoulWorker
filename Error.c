@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 #include "Error.h"
+#include "Colors.h"
 
 #define str char*
 
@@ -30,10 +31,10 @@ void handleError(errType err, sevType sev, const str fmsg, ...) {
   formatMessage(fmsg, args);
 
   if (sev == FATAL) {
-    fprintf(stdout, ANSI_COLOR_RED "%s: %s" ANSI_RESET, errnames[err], buffer);
+    fprintf(stdout, RED "%s: %s" RESET, errnames[err], buffer);
     // TODO: write/log errors to files in future if exiting
     exit(-1);
   }
 
-  fprintf(stdout, ANSI_COLOR_YELLOW "%s: %s" ANSI_RESET, errnames[err], buffer);
+  fprintf(stdout, YELLOW "%s: %s" RESET, errnames[err], buffer);
 }

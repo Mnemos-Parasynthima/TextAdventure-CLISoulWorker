@@ -88,12 +88,14 @@ void showMap(Maze* maze, Room* playerRoom) {
   
   placeRoomOnGrid(maze->entry, grid, gridSize/2, gridSize/2, visited, gridSize, playerRoom);
   
+  printf("%s", PURPLE);
   for (int i = 0; i < gridSize; i++) {
     for (int j = 0; j < gridSize; j++) {
       putchar(grid[i][j]);
     }
     putchar('\n');
   }
+  printf("%s", RESET);
 }
 
 void deleteRoom(Room* room) {

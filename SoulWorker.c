@@ -322,8 +322,8 @@ void viewSelf(SoulWorker* sw) {
   uint totalCritDmg = sw->stats->ATK_CRIT_DMG + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit_dmg : 0);
   float totalCrit = sw->stats->ATK_CRIT + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit : 0);
 
-  printf("%s, LVL %d; %d/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
-          sw->name, sw->lvl, sw->hp, sw->maxHP, sw->xp, sw->dzenai,
+  printf("%s, LVL %d; %s%d%s/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
+          sw->name, sw->lvl, (sw->hp <= (sw->maxHP / 2)) ? RED : GREEN, sw->hp, RESET, sw->maxHP, sw->xp, sw->dzenai,
           totalAtk, totalDef, totalAcc, totalCritDmg, totalCrit);
           
   viewGear(sw);
@@ -331,9 +331,8 @@ void viewSelf(SoulWorker* sw) {
 
 void viewSkills(SkillTree* skillTree) {
   const int COL_WIDTH = 20;
-  const str COLOR_RESET = "\033[0m";
-  const str COLOR_UNLOCKED = "\033[1;32m";  // Bright green for unlocked
-  const str COLOR_LOCKED = "\033[1;31m"; // Grey for locked
+  const str UNLOCKED = GREEN;
+  const str LOCKED = RED;
 
   /**
    * Skills:
@@ -350,12 +349,12 @@ void viewSkills(SkillTree* skillTree) {
    * Current Skill Points: []
    */
 
-  printf("Skills:\n");
+  printf("%sSkills:%s\n", CYAN, RESET);
 
   // Print slot/id
   for (int i = 0; i < 5; i++) {
-    printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? COLOR_UNLOCKED : COLOR_LOCKED, 
-        COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", COLOR_RESET);
+    printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? UNLOCKED : LOCKED, 
+        COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", RESET);
   }
   printf("|\n");
 

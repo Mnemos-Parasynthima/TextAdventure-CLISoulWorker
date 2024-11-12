@@ -8,7 +8,7 @@ SRCS = cJSON.c main.c RoomTable.c Setup.c SoulWorker.c Maze.c Error.c Keyboard.c
 
 HEADERS = headers/cJSON.h headers/Setup.h headers/SoulWorker.h headers/Maze.h headers/Error.h \
 		headers/Keyboard.h headers/SaveLoad.h headers/LoadJSON.h headers/DArray.h headers/Misc.h \
-		headers/Battle.h
+		headers/Battle.h headers/Colors.h
 
 OBJS = $(SRCS:.c=.o)
 OBJS := $(OBJS:.s=.o)
