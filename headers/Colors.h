@@ -10,5 +10,6 @@
 #define PURPLE "\x1b[35m"
 #define CYAN "\x1b[36m"
 #define WHITE "\x1b[37m"
+#define BLINK "\x1b[5m"
 
 #endif

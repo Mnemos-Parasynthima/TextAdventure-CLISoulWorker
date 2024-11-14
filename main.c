@@ -18,6 +18,111 @@ Maze* maze;
 
 
 /**
+ * 
+ */
+void printSplashScreen() {
+  printf("╔═════════════════════════════════════******═══════════════════════════════════════════════╗\n");
+  printf("|                                                                                          |\n");
+  printf("|%s                               ██████╗██╗     ██╗                                         %s|\n", BLINK, RESET);
+  printf("║%s                              ██╔════╝██║     ██║                                         %s║\n", BLINK, RESET);
+  printf("║%s                              ██║     ██║     ██║                                         %s║\n", BLINK, RESET);
+  printf("*%s                              ██║     ██║     ██║                                         %s*\n", BLINK, RESET);
+  printf("*%s                              ╚██████╗███████╗██║                                         %s*\n", BLINK, RESET);
+  printf("║                                                                                          ║\n");
+  printf("║%s  ███████╗ ██████╗ ██╗    ██╗██╗     ██╗    ██╗ ██████╗ ██████╗ ██╗  ██╗███████╗██████╗   %s║\n", BLINK, RESET);
+  printf("*%s  ██╔════╝██╔═══██╗██║    ██║██║     ██║    ██║██╔═══██╗██╔══██╗██║ ██╔╝██╔════╝██╔══██╗  %s*\n", BLINK, RESET);
+  printf("*%s  ███████╗██║   ██║██║    ██║██║     ██║ █╗ ██║██║   ██║██████╔╝█████╔╝ █████╗  ██████╔╝  %s*\n", BLINK, RESET);
+  printf("║%s  ╚════██║██║   ██║██║    ██║██║     ██║███╗██║██║   ██║██╔══██╗██╔═██╗ ██╔══╝  ██╔══██╗  %s║\n", BLINK, RESET);
+  printf("║%s  ███████║╚██████╔╝╚███████╔╝███████╗╚███╔███╔╝╚██████╔╝██║  ██║██║  ██╗███████╗██║  ██║  %s║\n", BLINK, RESET);
+  printf("|%s  ╚══════╝ ╚═════╝  ╚══╝╚══╝ ╚══════╝ ╚══╝╚══╝  ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝  %s|\n", BLINK, RESET);
+  printf("|                                                                                          |\n");
+  printf("╚══════════════════════════════════════******══════════════════════════════════════════════╝\n");
+
+  printf("                           The Journey of the SoulWorker....                                \n");
+  // Next two lines make sure the player only presses the enter key once
+  // Using only getchar() makes it press two (for some reason)
+  getchar();
+  // Don't know why this works but it works
+  ungetc('\n', stdin);
+
+  FLUSH()
+  system("clear"); // I DO NOT like this
+}
+
+/**
+ * 
+ */
+void printWelcome() {
+  printf("✧~~~~~~~~~~~~~~~~~~✧\n");
+  printf("Welcome to Cloudream\n");
+  printf("✧~~~~~~~~~~~~~~~~~~✧\n");
+  // Add delay in print characters
+  printf("      . . . .\n");
+
+  printf("Cloudream, divided.\n");
+  ssleep(1000);
+  printf("North. East. South. %sWest%s...\n", PURPLE, RESET);
+  ssleep(1000);
+  printf("Which %sRosca%s hath forsaken\n", YELLOW, RESET);
+  ssleep(1000);
+  printf("To which %sKent%s then envores\n", RED, RESET);
+  ssleep(1000);
+  printf("\n\n");
+}
+
+/**
+ * 
+ */
+void tutorial() {
+  printf("*~%sRosca%s shows you how to navigate the New World~*\n", YELLOW, RESET);
+  ssleep(500);
+
+  // Maybe extract to a text file?
+
+  printf("In Game Menu:\n");
+  printf("\tTo view your stats: ('e')\n");
+  printf("\tTo view the map: ('p')\n");
+  printf("\tTo move ('m') to a direction: ('n', 'e', 's', 'w')\n");
+  printf("\tTo save the game: ('s')\n");
+  printf("\tTo open the inventory menu: ('k')\n");
+  printf("\tTo open the skill menu: ('k')\n");
+  printf("\tTo unequip all the gear: ('g')\n");
+  printf("\tTo save and quit: ('q')\n");
+  printf("\tTo view the main help message: ('h')\n");
+  ssleep(500);
+
+  printf("In Inventory Menu:\n");
+  printf("\tTo view the item: ('i')\n");
+  printf("\tTo view your inventory: ('v')\n");
+  printf("\tTo use an item (opens item menu): ('u')\n");
+  printf("\tTo close the inventory: ('q')\n");
+  printf("\tTo view the inventory help message: ('h')\n");
+  ssleep(500);
+
+  printf("In Item Menu:\n");
+  printf("\tTo sell the item (all items): ('s')\n");
+  printf("\tTo equip (only for gear): ('e')\n");
+  printf("\tTo upgrade (only for gear): ('u')\n");
+  printf("\tTo heal (only for HP kits): ('h')\n");
+  ssleep(500);
+
+  printf("In Skill Menu:\n");
+  printf("\tTo view skill info: ('i')\n");
+  printf("\tTo view all skills and equipped skills: ('k')\n");
+  printf("\tTo unlock a skill: ('n')\n");
+  printf("\tTo set a skill to equipped skills: ('s')\n");
+  printf("\tTo upgrade a skill: ('u')\n");
+  printf("\tTo close the menu: ('q')\n");
+  printf("\tTo view the skill menu help message: ('h')\n");
+  ssleep(500);
+
+
+  // Add more info????
+  printf("%sRosca%s wishes you the best...\n\n", YELLOW, RESET);
+  ssleep(500);
+}
+
+/**
  * Detects whether there is a saved game so the player can resume.
  * @return True if a saved game exists, false otherwise
  */
@@ -62,7 +167,7 @@ void loop() {
   Room* currRoom = player->room;
   Commands choice;
   
-  printf("You are in %s...\n", currRoom->info);
+  printf("You find yourself in %s...\n", currRoom->info);
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
@@ -116,7 +221,7 @@ void loop() {
 
 
 int main(int argc, char const *argv[]) {
-  if (argc != 2) exit(1); // running without launcher, exit silently
+  if (argc < 2) exit(1); // running without launcher, exit silently
 
   // if ran in cmd, check it was done by the launcher
   const char* arg = argv[1];
@@ -124,12 +229,30 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
-  printf("Welcome to the Cloudream Adventure!\n");
+  // Dev shortcuts
+  bool noSplash = false, noIntro = false;
+
+  if (argc == 3) {
+    const char* arg1 = argv[2];
+    if (strncmp(arg1, "-nosplash", 9) == 0) {
+      noSplash = true;
+    }
+  }
+  if (!noSplash) printSplashScreen();
+
+  if (argc == 4) {
+    const char* arg2 = argv[3];
+    if (strncmp(arg2, "-nointro", 8) == 0) {
+      noIntro = true;
+    }
+  }
+  printWelcome();
 
   bool saveExists = detectSave();
 
   if (saveExists) {
-    printf("A save has been detected! Do you want to load that save? (yes|no) ");
+    printf("~~~~The %sAkashic Records%s indicate change~~~~\n", YELLOW, RESET);
+    printf("Do you wish to follow the Records? (yes|no) ");
 
     // char buff[5];
     // fgets(buff, sizeof(buff), stdin);
@@ -142,16 +265,16 @@ int main(int argc, char const *argv[]) {
     if (strncmp(in, "yes", 3) == 0) {
       free(in);
 
-      printf("Loading save...\n");
+      printf("Reading Akashic Records...\n");
       loadGame();
 
-      printf("Welcome back to Cloudream, %s!\n", player->name);
+      printf("%sRosca%s welcomes you back, %s...\n", YELLOW, RESET, player->name);
 
       loop();
     } else if (strncmp(in, "no", 2) == 0) {
-      printf("Starting a new game...\n");
+      printf("The Akashic Records shall start anew...\n");
     } else {
-      printf("Invalid decision. Starting a new game.\n");
+      printf("No such response exists for the Records. Starting anew...\n\n");
     }
 
     free(in);
@@ -159,7 +282,7 @@ int main(int argc, char const *argv[]) {
 
   maze = initMaze("./data/maps/map.json");
 
-  printf("Enter your name: ");
+  printf("What shall the Records name you, birthing %sSoul%s? ", CYAN, RESET);
 
   str name = NULL;
   size_t n = 0;
@@ -174,8 +297,11 @@ int main(int argc, char const *argv[]) {
   // Do a yes or no, repeat type of thing
   // printf("")
 
-  printf("Hello, %s! Welcome to Cloudream!\n", (player->name));
-  // introStory();
+  printf("%sRosca%s cordially welcomes you, %sSoulWorker %s%s, to Cloudream...\n\n", YELLOW, RESET, CYAN, player->name, RESET);
+  ssleep(1000);
+
+  tutorial();
+  if (!noIntro) introStory();
   loop();
 
 
