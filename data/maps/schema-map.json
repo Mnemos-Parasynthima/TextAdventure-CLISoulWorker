@@ -4,12 +4,20 @@
   "description": "The structure of how a map is stored. There must be at least one room, the entry, in a given map. Then entry is the only one that can have its id as 0.",
   "type": "object",
   "properties": {
+    "name": {
+      "description": "The name of the maze.",
+      "type": "string"
+    },
     "id": {
       "description": "The ID of the room.",
       "type": "object",
-      "minProperties": 6,
-      "maxProperties": 6,
+      "minProperties": 7,
+      "maxProperties": 7,
       "properties": {
+        "storyfile": {
+          "description": "The name of this room's story text file.",
+          "type": "string"
+        },
         "isEntry": {
           "description": "Whether this room is the entry. Note, only one entry is allowed per map.",
           "type": "integer",
@@ -322,8 +330,8 @@
                     {
                       "description": "The skill",
                       "type": "object",
-                      "minProperties": 8,
-                      "maxProperties": 8,
+                      "minProperties": 9,
+                      "maxProperties": 9,
                       "properties": {
                         "name" : {
                           "description": "The name of the skill.",
@@ -341,6 +349,12 @@
                         },
                         "cooldown": {
                           "description": "The turn cooldown of the skill.",
+                          "type": "integer",
+                          "minimum": 0,
+                          "maximum": 255
+                        },
+                        "id": {
+                          "description": "The ID of the skill.",
                           "type": "integer",
                           "minimum": 0,
                           "maximum": 255
@@ -373,6 +387,7 @@
                         "desc",
                         "lvl",
                         "cooldown",
+                        "id",
                         "effect1",
                         "effect2",
                         "activeEffect1",
@@ -388,6 +403,7 @@
         }
       },
       "required": [
+        "storyfile",
         "isEntry",
         "exits",
         "info",

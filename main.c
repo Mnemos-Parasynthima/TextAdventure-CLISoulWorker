@@ -140,34 +140,68 @@ static bool detectSave() {
   return false;
 }
 
-static void introStory() {
-  FILE* intro = fopen("./data/story/intro.dat", "r");
+/**
+ * Prints the story. If room is true, it means print the story for the room (either entry or boss)
+ * @param room 
+ */
+static void story(bool room) {
+  str base = "./data/story";
+  str filename = NULL;
 
-  if (intro == NULL) handleError(ERR_IO, FATAL, "Could not open story!\n");
+  // If the story to be printed is for a room
+  if (room) {
+    size_t mazeNameLen = strlen(maze->name);
+    size_t roomStoryLen = strlen(player->room->storyFile);
+
+    filename = (str) malloc(14 + mazeNameLen + roomStoryLen + 1);
+    if (!filename) handleError(ERR_MEM, FATAL, "Could not allocate space for filename!\n");
+
+    sprintf(filename, "%s/%s/%s", base, maze->name, player->room->storyFile);
+  } else { // The story is the introduction story
+    filename = (str) malloc(25);
+    if (!filename) handleError(ERR_MEM, FATAL, "Could not allocate space for filename!\n");
+
+    sprintf(filename, "%s/intro.story", base);
+  }
+
+  FILE* story = fopen(filename, "r");
+  free(filename);
+  if (!story) handleError(ERR_IO, FATAL, "Could not open story!\n");
+
+  if (room) player->room->file = story;
 
   str line = NULL;
   size_t n = 0;
 
   printf("\n");
-  while (!feof(intro)) {
-    getline(&line, &n, intro);
+  while (!feof(story)) {
+    getline(&line, &n, story);
     // if (feof(intro)) break;
+
+    if (strncmp(line, "FIGHT\n", 6) == 0) break;
+
     ssleep(1000);
     printf("%s", line);
     line = NULL;
   }
   printf("\n\n");
 
-
-  fclose(intro);
+  if (!room) fclose(story);
+  else { free(player->room->storyFile); player->room->storyFile = NULL; }
 }
 
 
 void loop() {
   Room* currRoom = player->room;
   Commands choice;
+
+  // Code only runs from here only if it's the start of a new maze  
+  START:
   
   printf("You find yourself in %s...\n", currRoom->info);
+
+  story(true);
+  fclose(currRoom->file);
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
@@ -178,10 +212,34 @@ void loop() {
     }
 
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
+      story(true);
+
       bossBattle(currRoom->enemy.boss);
 
-      // Transport to next maze
+      // File for boss story is already opened
+      // Can just do the printing
+      // Assuming the pointer to text is past FIGHT
 
+      str line = NULL;
+      size_t n = 0;
+
+      printf("\n");
+      while (!feof(currRoom->file)) {
+        getline(&line, &n, currRoom->file);
+        ssleep(1000);
+        printf("%s", line);
+        line = NULL;
+      }
+      printf("\n\n");
+
+      
+      // Transport to next maze
+      printf("GOING TO NEXT MAZE\n");
+
+      exit(0);
+
+
+      goto START;
     }
 
     if (currRoom->loot != NULL) {
@@ -280,7 +338,7 @@ int main(int argc, char const *argv[]) {
     free(in);
   }
 
-  maze = initMaze("./data/maps/map.json");
+  maze = initMaze("./data/maps/control-zone.json");
 
   printf("What shall the Records name you, birthing %sSoul%s? ", CYAN, RESET);
 
@@ -300,8 +358,8 @@ int main(int argc, char const *argv[]) {
   printf("%sRosca%s cordially welcomes you, %sSoulWorker %s%s, to Cloudream...\n\n", YELLOW, RESET, CYAN, player->name, RESET);
   ssleep(1000);
 
-  tutorial();
-  if (!noIntro) introStory();
+  // tutorial();
+  if (!noIntro) story(false);
   loop();
 
 

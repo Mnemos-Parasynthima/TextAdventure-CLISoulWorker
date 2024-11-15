@@ -59,7 +59,10 @@ cJSON* readData(const str filename) {
 static void validateRoom(cJSON* room) {
   const str dataErr = "Room %d: No %s data found!\n";
 
-  char roomId = (char)atoi(room->string);
+  char roomId = (char) atoi(room->string);
+
+  cJSON* storyfile = cJSON_GetObjectItemCaseSensitive(room, "storyfile");
+  if (storyfile == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "storyfile");
 
   cJSON* isEntry = cJSON_GetObjectItemCaseSensitive(room, "isEntry");
   if (isEntry == NULL) handleError(ERR_DATA, FATAL, dataErr, roomId, "isEntry");
@@ -608,7 +611,9 @@ static Room* createRoom(cJSON* _room) {
   Room* room = (Room*) malloc(sizeof(Room));
   room->enemy.enemy = NULL;
   room->loot = NULL;
+  room->file = NULL;
 
+  cJSON* storyfile = cJSON_GetObjectItemCaseSensitive(_room, "storyfile");
   cJSON* info = cJSON_GetObjectItemCaseSensitive(_room, "info");
   cJSON* hasBoss = cJSON_GetObjectItemCaseSensitive(_room, "hasBoss");
   cJSON* exits = cJSON_GetObjectItemCaseSensitive(_room, "exits");
@@ -620,7 +625,16 @@ static Room* createRoom(cJSON* _room) {
 
   room->hasBoss = (bool) hasBoss->valueint;
 
+  // A room w/o storyfile stores an empty string
+  size_t storyfileLen = strlen(storyfile->valuestring);
+  if (storyfileLen != 0) {
+    room->storyFile = (str) malloc(sizeof(char) * storyfileLen + 1);
+    if (!room->storyFile) handleError(ERR_MEM, FATAL, "Could not allocate space for room storyfile!\n");
+    strcpy(room->storyFile, storyfile->valuestring);
+  } else room->storyFile = NULL;
+
   room->info = (str) malloc(sizeof(char) * strlen(info->valuestring) + 1);
+  if (!room->info) handleError(ERR_MEM, FATAL, "Could not allocate space for room info!\n");
   strcpy(room->info, info->valuestring);
 
   Item* loot = selectLoot(lootTable);
@@ -688,7 +702,11 @@ Maze* initMaze(const str filename) {
     handleError(ERR_DATA, FATAL, "There does not exist a room with value of '0' for the entry!\n");
   }
 
-  cJSON* roomI = root->child;
+  cJSON* mazeName = cJSON_GetObjectItemCaseSensitive(root, "name");
+  if (!mazeName) handleError(ERR_DATA, FATAL, "Maze name could not be found!\n");
+
+  // Since "name" is the first child, the actual rooms start after that
+  cJSON* roomI = root->child->next;
   int mazeSize = 0;
 
   Table* roomTable = initTable();
@@ -709,7 +727,6 @@ Maze* initMaze(const str filename) {
   }
 
   // fprintf(stdout, "%d rooms have been created...", mazeSize);
-  cJSON_Delete(root);
 
   Room* entry = connectRooms(roomTable);
   // Maybe a function to make sure all rooms have at least one connection???
@@ -720,6 +737,11 @@ Maze* initMaze(const str filename) {
 
   maze->entry = entry;
   maze->size = mazeSize;
+  maze->name = (str) malloc(strlen(mazeName->valuestring + 1));
+  if (!maze->name) handleError(ERR_MEM, FATAL, "Could not allocate space for the maze name!\n");
+  strcpy(maze->name, mazeName->valuestring);
+
+  cJSON_Delete(root);
 
   return maze;
 }
