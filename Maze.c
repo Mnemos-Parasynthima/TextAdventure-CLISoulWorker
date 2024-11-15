@@ -115,6 +115,8 @@ void deleteRoom(Room* room) {
   if (room->loot != NULL) deleteItem(room->loot);
   deleteEnemyFromMap(room, true);
   free(room->info);
+  // if (room->storyFile != NULL) free(room->storyFile);
+  // if (room->file != NULL) fclose(room->file);
   free(room);
 
   room = NULL;
@@ -135,5 +137,4 @@ void deleteMaze(Maze* maze) {
   deleteTable(table);
 
   free(maze);
-  maze = NULL;
 }

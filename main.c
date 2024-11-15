@@ -16,6 +16,13 @@
 SoulWorker* player;
 Maze* maze;
 
+int mazeIdx; // The index indicating the current maze name from mazes
+// The array of the names of all possible mazes
+str mazes[] = {
+  "control-zone",
+  "r-square"
+};
+
 
 /**
  * 
@@ -191,6 +198,19 @@ static void story(bool room) {
 }
 
 
+static str getNextMaze() {
+  str nextMaze = NULL;
+
+  str maze = mazes[mazeIdx];
+
+  nextMaze = (str) malloc(18 + strlen(maze));
+  if (!nextMaze) handleError(ERR_MEM, FATAL, "Could not allocate space for maze name when loading new!\n");
+
+  sprintf(nextMaze, "./data/maps/%s.json", maze);
+
+  return nextMaze;
+}
+
 void loop() {
   Room* currRoom = player->room;
   Commands choice;
@@ -214,32 +234,43 @@ void loop() {
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
       story(true);
 
-      bossBattle(currRoom->enemy.boss);
+      bool win;
+      win = bossBattle(currRoom->enemy.boss);
 
-      // File for boss story is already opened
-      // Can just do the printing
-      // Assuming the pointer to text is past FIGHT
+      // If the battle was a win, then print story and move on to next maze
+      // Otherwise, player is respawned to current maze entry
+      if (win) {
+        // File for boss story is already opened
+        // Can just do the printing
+        // Assuming the pointer to text is past FIGHT
 
-      str line = NULL;
-      size_t n = 0;
+        str line = NULL;
+        size_t n = 0;
 
-      printf("\n");
-      while (!feof(currRoom->file)) {
-        getline(&line, &n, currRoom->file);
-        ssleep(1000);
-        printf("%s", line);
-        line = NULL;
+        printf("\n");
+        while (!feof(currRoom->file)) {
+          getline(&line, &n, currRoom->file);
+          ssleep(1000);
+          printf("%s", line);
+          line = NULL;
+        }
+        printf("\n\n");
+
+        
+        // Transport to next maze
+        // printf("GOING TO NEXT MAZE\n");
+
+        deleteMaze(maze);
+
+        mazeIdx++;
+        str mazeFile = getNextMaze();
+
+        maze = initMaze(mazeFile);
+
+        player->room = maze->entry;
+
+        goto START;
       }
-      printf("\n\n");
-
-      
-      // Transport to next maze
-      printf("GOING TO NEXT MAZE\n");
-
-      exit(0);
-
-
-      goto START;
     }
 
     if (currRoom->loot != NULL) {
@@ -338,6 +369,7 @@ int main(int argc, char const *argv[]) {
     free(in);
   }
 
+  mazeIdx = 0;
   maze = initMaze("./data/maps/control-zone.json");
 
   printf("What shall the Records name you, birthing %sSoul%s? ", CYAN, RESET);
@@ -359,7 +391,7 @@ int main(int argc, char const *argv[]) {
   ssleep(1000);
 
   // tutorial();
-  if (!noIntro) story(false);
+  // if (!noIntro) story(false);
   loop();
 
 

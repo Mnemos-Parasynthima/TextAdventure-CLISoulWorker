@@ -277,7 +277,7 @@ static void* decreaseCD(void* _skills) {
   return NULL;
 }
 
-void bossBattle(Boss* boss) {
+bool bossBattle(Boss* boss) {
   ushort playerAtk, enemyAtk;
 
   bool defeat = false; // Player defeat
@@ -340,6 +340,8 @@ void bossBattle(Boss* boss) {
     printf("Respawning to entrance...\n");
     player->room = maze->entry;
     player->hp = player->maxHP;
+
+    return false;
   } else {
     updateXP(player, boss->base.xpPoints);
     player->skills->totalSkillPoints += 3;
@@ -394,5 +396,9 @@ void bossBattle(Boss* boss) {
     gearItem = NULL;
 
     deleteEnemyFromMap(player->room, false);
+
+    return true;
   }
+
+  return false;
 }

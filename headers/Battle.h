@@ -25,8 +25,9 @@ void battleEnemy(Enemy* enemy);
 /**
  * Battle the boss
  * @param boss The boss encountered
+ * @return True if the battle was a win, false otherwise
  */
-void bossBattle(Boss* boss);
+bool bossBattle(Boss* boss);
 
 /**
  * Wrapper around sleep function for Windows and Linux.
