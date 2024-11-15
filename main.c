@@ -16,9 +16,10 @@
 SoulWorker* player;
 Maze* maze;
 
+#define NUM_MAZES 2
 int mazeIdx; // The index indicating the current maze name from mazes
 // The array of the names of all possible mazes
-str mazes[] = {
+str mazes[NUM_MAZES] = {
   "control-zone",
   "r-square"
 };
@@ -197,9 +198,15 @@ static void story(bool room) {
   else { free(player->room->storyFile); player->room->storyFile = NULL; }
 }
 
-
+/**
+ * Gets the next maze to load up, or null if no more
+ * @return Next maze
+ */
 static str getNextMaze() {
   str nextMaze = NULL;
+
+  // Out of bounds, as in no more mazes
+  if (mazeIdx >= NUM_MAZES) return nextMaze;
 
   str maze = mazes[mazeIdx];
 
@@ -209,6 +216,21 @@ static str getNextMaze() {
   sprintf(nextMaze, "./data/maps/%s.json", maze);
 
   return nextMaze;
+}
+
+void endOfGame() {
+  // Print some conclusion story??
+
+  // Note that Kent will not drop gear (no need to)
+  // But b/c of how game is structured, every boss needs to have it
+  // So on game time, do not give out armor
+  // THis will be done after boss fight
+  // Maybe...just maybe the boss fight with Kent will be different, who knows
+
+  printf("You have beaten Kent! Now you can go back to where you came from!\n");
+  printf("Bye bye!!!\n");
+
+  exit(1);
 }
 
 void loop() {
@@ -264,6 +286,8 @@ void loop() {
 
         mazeIdx++;
         str mazeFile = getNextMaze();
+
+        if (!mazeFile) endOfGame();
 
         maze = initMaze(mazeFile);
 
