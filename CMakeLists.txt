@@ -50,7 +50,7 @@ add_custom_target(package
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}/data/misc
     COMMAND ${CMAKE_COMMAND} -E make_directory ${PACKAGE_DIR}/data/story
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/maps ${PACKAGE_DIR}/data/maps
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/misc${PACKAGE_DIR}/data/isc
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/misc ${PACKAGE_DIR}/data/misc
     COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_SOURCE_DIR}/data/story ${PACKAGE_DIR}/data/story
 
     # Use external command for zipping
