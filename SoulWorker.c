@@ -791,13 +791,21 @@ static SkillTree* initSkillTree() {
 
     fgets(buffer, 4096, skillsFile);
     if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
+#ifdef _WIN64
+    name = _strdup(buffer);
+#else
     name = strdup(buffer);
+#endif
     // printf("name: %s\n", name);
 
     fgets(buffer, 4096, skillsFile);
     if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
     // printf("Buffer for desc: %s\n", buffer);
+#ifdef _WIN64
+    description = _strdup(buffer);
+#else
     description = strdup(buffer);
+#endif
     // printf("description: %s\n", description);
 
     fgets(buffer, 5, skillsFile);

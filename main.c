@@ -54,7 +54,11 @@ void printSplashScreen() {
   ungetc('\n', stdin);
 
   FLUSH()
-  system("clear"); // I DO NOT like this
+#ifdef _WIN64
+  system("cls");
+#else
+  system("clear"); // I DO NOT like this, extra overhead???
+#endif
 }
 
 /**
@@ -334,7 +338,7 @@ void loop() {
 
 
 int main(int argc, char const *argv[]) {
-  if (argc < 2) exit(1); // running without launcher, exit silently
+  if (argc != 2) exit(1); // running without launcher, exit silently
 
   // if ran in cmd, check it was done by the launcher
   const char* arg = argv[1];
@@ -342,23 +346,12 @@ int main(int argc, char const *argv[]) {
     exit(1);
   }
 
-  // Dev shortcuts
-  bool noSplash = false, noIntro = false;
+  // Funky utf8 windows stuff
+#ifdef _WIN64
+  SetConsoleOutputCP(CP_UTF8);
+#endif
 
-  if (argc == 3) {
-    const char* arg1 = argv[2];
-    if (strncmp(arg1, "-nosplash", 9) == 0) {
-      noSplash = true;
-    }
-  }
-  if (!noSplash) printSplashScreen();
-
-  if (argc == 4) {
-    const char* arg2 = argv[3];
-    if (strncmp(arg2, "-nointro", 8) == 0) {
-      noIntro = true;
-    }
-  }
+  printSplashScreen();
   printWelcome();
 
   bool saveExists = detectSave();
@@ -394,7 +387,7 @@ int main(int argc, char const *argv[]) {
   }
 
   mazeIdx = 0;
-  maze = initMaze("./data/maps/control-zone.json");
+  maze = initMaze(getNextMaze());
 
   printf("What shall the Records name you, birthing %sSoul%s? ", CYAN, RESET);
 
@@ -414,10 +407,9 @@ int main(int argc, char const *argv[]) {
   printf("%sRosca%s cordially welcomes you, %sSoulWorker %s%s, to Cloudream...\n\n", YELLOW, RESET, CYAN, player->name, RESET);
   ssleep(1000);
 
-  // tutorial();
-  // if (!noIntro) story(false);
+  tutorial();
+  story(false);
   loop();
-
 
   return 0;
 }
