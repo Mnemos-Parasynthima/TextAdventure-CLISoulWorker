@@ -20,8 +20,8 @@ Maze* maze;
 int mazeIdx; // The index indicating the current maze name from mazes
 // The array of the names of all possible mazes
 str mazes[NUM_MAZES] = {
-  "control-zone",
-  "r-square"
+  "control_zone",
+  "r_square"
 };
 
 
@@ -241,13 +241,16 @@ void loop() {
   Room* currRoom = player->room;
   Commands choice;
 
-  // Code only runs from here only if it's the start of a new maze  
+  // Code only runs from here only if it's the start of a new maze 
+  // Or when the save file is loaded 
   START:
   
   printf("You find yourself in %s...\n", currRoom->info);
 
-  story(true);
-  fclose(currRoom->file);
+  if (currRoom->storyFile != NULL) {
+    story(true);
+    fclose(currRoom->file);
+  }
 
   while (true) {
     if (!currRoom->hasBoss && currRoom->enemy.enemy != NULL) {
@@ -386,6 +389,11 @@ int main(int argc, char const *argv[]) {
     free(in);
   }
 
+  // FIXME
+  // When a save file is loaded up, this is not set
+  // so if the player tries to progress to the next maze
+  // it will set them to the 1st maze since mazeIdx is at .bss, init to 0
+  // Find a way to know which maze we left off/are back in the sequence of the maze progression
   mazeIdx = 0;
   maze = initMaze(getNextMaze());
 
