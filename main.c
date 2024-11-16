@@ -28,7 +28,7 @@ str mazes[NUM_MAZES] = {
 /**
  * 
  */
-void printSplashScreen() {
+static void printSplashScreen() {
   printf("╔═════════════════════════════════════******═══════════════════════════════════════════════╗\n");
   printf("|                                                                                          |\n");
   printf("|%s                               ██████╗██╗     ██╗                                         %s|\n", BLINK, RESET);
@@ -64,7 +64,7 @@ void printSplashScreen() {
 /**
  * 
  */
-void printWelcome() {
+static void printWelcome() {
   printf("✧~~~~~~~~~~~~~~~~~~✧\n");
   printf("Welcome to Cloudream\n");
   printf("✧~~~~~~~~~~~~~~~~~~✧\n");
@@ -85,7 +85,7 @@ void printWelcome() {
 /**
  * 
  */
-void tutorial() {
+static void tutorial() {
   printf("*~%sRosca%s shows you how to navigate the New World~*\n", YELLOW, RESET);
   ssleep(500);
 
@@ -222,6 +222,9 @@ static str getNextMaze() {
   return nextMaze;
 }
 
+/**
+ * Handles what happens when the game is finished.
+ */
 void endOfGame() {
   // Print some conclusion story??
 
@@ -237,6 +240,9 @@ void endOfGame() {
   exit(1);
 }
 
+/**
+ * Main game loop
+ */
 void loop() {
   Room* currRoom = player->room;
   Commands choice;
@@ -345,9 +351,7 @@ int main(int argc, char const *argv[]) {
 
   // if ran in cmd, check it was done by the launcher
   const char* arg = argv[1];
-  if (strncmp(arg, "-l", 2) != 0) {
-    exit(1);
-  }
+  if (strncmp(arg, "-l", 2) != 0) exit(1);
 
   // Funky utf8 windows stuff
 #ifdef _WIN64
@@ -379,6 +383,12 @@ int main(int argc, char const *argv[]) {
 
       printf("%sRosca%s welcomes you back, %s...\n", YELLOW, RESET, player->name);
 
+      // When loading from a save, the mazeIdx for the progression is lost
+      // Reverse search to get the mazeIdx and reset so proper progression can happen
+      for (int i = 0; i < NUM_MAZES; i++) {
+        if (strcmp(mazes[i], maze->name) == 0) mazeIdx = i;
+      }
+
       loop();
     } else if (strncmp(in, "no", 2) == 0) {
       printf("The Akashic Records shall start anew...\n");
@@ -389,11 +399,6 @@ int main(int argc, char const *argv[]) {
     free(in);
   }
 
-  // FIXME
-  // When a save file is loaded up, this is not set
-  // so if the player tries to progress to the next maze
-  // it will set them to the 1st maze since mazeIdx is at .bss, init to 0
-  // Find a way to know which maze we left off/are back in the sequence of the maze progression
   mazeIdx = 0;
   maze = initMaze(getNextMaze());
 
