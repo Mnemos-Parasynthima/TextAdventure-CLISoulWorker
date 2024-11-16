@@ -56,10 +56,18 @@ package: all installer launcher
 	mkdir -p $(PACKAGE_DIR)/data/maps
 	mkdir -p $(PACKAGE_DIR)/data/misc
 	mkdir -p $(PACKAGE_DIR)/data/story
+	mkdir -p $(PACKAGE_DIR)/data/story/best_showtime
+	mkdir -p $(PACKAGE_DIR)/data/story/control_zone
+	mkdir -p $(PACKAGE_DIR)/data/story/r_square
+	mkdir -p $(PACKAGE_DIR)/data/story/tower_of_greed
 	
-	rsync -av --include='map*.json' --exclude='*' data/maps/ $(PACKAGE_DIR)/data/maps/
+	rsync -av --include='*.json' --exclude='*' data/maps/ $(PACKAGE_DIR)/data/maps/
 	rsync -av --include='*.dat' --exclude='*' data/misc/ $(PACKAGE_DIR)/data/misc/
-	rsync -av --include='*.dat' --exclude='*' data/story/ $(PACKAGE_DIR)/data/story/
+	rsync -av --include='intro.story' --exclude='*' data/story/ $(PACKAGE_DIR)/data/story/
+	rsync -av --include='*.story' --exclude='*' data/story/best_showtime/ $(PACKAGE_DIR)/data/story/best_showtime/
+	rsync -av --include='*.story' --exclude='*' data/story/control_zone/ $(PACKAGE_DIR)/data/story/control_zone/
+	rsync -av --include='*.story' --exclude='*' data/story/r_square/ $(PACKAGE_DIR)/data/story/r_square/
+	rsync -av --include='*.story' --exclude='*' data/story/tower_of_greed/ $(PACKAGE_DIR)/data/story/tower_of_greed/
 
 	zip -r $(PACKAGE_NAME) $(PACKAGE_DIR)
 

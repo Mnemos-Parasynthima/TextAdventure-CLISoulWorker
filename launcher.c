@@ -282,6 +282,39 @@ int main(int argc, char const* argv[]) {
     runInstaller(FIX);
     UNREACHABLE()
   }
+  closedir(story);
+
+  story = opendir("data/story/best_showtime");
+  if (!story) {
+    printf("Could not find story data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
+  closedir(story);
+
+  story = opendir("data/story/control_zone");
+  if (!story) {
+    printf("Could not find story data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
+  closedir(story);
+
+  story = opendir("data/story/r_square");
+  if (!story) {
+    printf("Could not find story data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
+  closedir(story);
+
+  story = opendir("data/story/tower_of_greed");
+  if (!story) {
+    printf("Could not find story data! Fixing files...\n");
+    runInstaller(FIX);
+    UNREACHABLE()
+  }
+  closedir(story);
 
   int ret;
 
