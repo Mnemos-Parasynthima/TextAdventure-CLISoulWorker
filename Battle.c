@@ -3,7 +3,11 @@
 #include <ctype.h>
 #include <time.h>
 
+#ifdef _WIN64
+#include <Windows.h>
+#else
 #include <pthread.h>
+#endif
 
 #include "Battle.h"
 #include "Error.h"
@@ -326,6 +330,19 @@ bool bossBattle(Boss* boss) {
     printf("%s: %d/%d\n", player->name, player->hp, player->maxHP);
 
     // Decrease all skills' CD
+#ifdef _WIN64
+    HANDLE playerCDThread, bossCDThread;
+    DWORD thread1D, thread2D;
+
+    playerCDThread = CreateThread(NULL, 0, decreaseCD, NULL, 0, &thread1D);
+    bossCDThread = CreateThread(NULL, 0, decreaseCD, (void*) boss->skills, 0, &thread2D);
+
+    WaitForSingleObject(playerCDThread, INFINITE);
+    WaitForSingleObject(bossCDThread, INFINITE);
+
+    CloseHandle(playerCDThread);
+    CloseHandle(bossCDThread);
+#else
     pthread_t playerCDThread, bossCDThread;
 
     pthread_create(&playerCDThread, NULL, decreaseCD, NULL);
@@ -333,6 +350,7 @@ bool bossBattle(Boss* boss) {
 
     pthread_join(playerCDThread, NULL);
     pthread_join(bossCDThread, NULL);
+#endif
   }
 
   if (defeat) {
