@@ -495,6 +495,10 @@ static str createMapState() {
   // Time to create the JSON object
   cJSON* mapObj = cJSON_CreateObject();
   if (mapObj == NULL) return createError(mapObj, "map");
+
+  cJSON* mapName = cJSON_AddStringToObject(mapObj, "name", maze->name);
+  if (mapName == NULL) return createError(mapName, "map name");
+
   for (int i = 0; i < table->len; i++) {
     room = table->rooms[i];
     // Creating each room
@@ -504,6 +508,10 @@ static str createMapState() {
 
     cJSON* roomObj = cJSON_AddObjectToObject(mapObj, idAsChar);
     if (roomObj == NULL) return createError(mapObj, idAsChar);
+
+    cJSON* storyfile = cJSON_AddStringToObject(roomObj, "storyfile", 
+      (room->storyFile != NULL) ? room->storyFile : "");
+    if (storyfile == NULL) return createError(mapObj, "storyfile");
 
     cJSON* isEntry = cJSON_AddNumberToObject(roomObj, IS_ENTRY, (room->id == 0) ? 1 : 0);
     if (isEntry == NULL) return createError(mapObj, IS_ENTRY);
@@ -615,8 +623,18 @@ static str createPlayerState() {
   if (playerRoom == NULL) return createError(playerObj, ROOM);
   cJSON* roomId = cJSON_AddNumberToObject(playerRoom, ID, player->room->id);
   if (roomId == NULL) return createError(playerObj, ID);
-  cJSON* roomMap = cJSON_AddStringToObject(playerRoom, MAP, "../maps/map.json");
-  if (roomMap == NULL) return createError(playerObj, MAP);
+  // Look at comment of loading map stuff when loading player
+  // // Create the map filename
+  // str base = "../maps/";
+  // str mapFile = (str) malloc(14 + strlen(maze->name));
+  // if (!mapFile) {
+  //   cJSON_Delete(playerObj);
+  //   handleError(ERR_MEM, WARNING, "Could not allocate space for map filename!\n");
+  //   return NULL;
+  // }
+  // sprintf(mapFile, "%s%s.json", base, maze->name);
+  // cJSON* roomMap = cJSON_AddStringToObject(playerRoom, MAP, mapFile);
+  // if (roomMap == NULL) return createError(playerObj, MAP);
 
   cJSON* playerInv = cJSON_AddArrayToObject(playerObj, INV);
   if (playerInv == NULL) createError(playerObj, INV);
@@ -726,8 +744,12 @@ static SoulWorker* loadPlayer() {
   if (room == NULL) handleError(ERR_DATA, FATAL, "No room data found!\n");
   cJSON* roomId = cJSON_GetObjectItemCaseSensitive(room, ID);
   if (roomId == NULL) handleError(ERR_DATA, FATAL, "No roomID data found!\n");
-  cJSON* roomMap = cJSON_GetObjectItemCaseSensitive(room, MAP);
-  if (roomMap == NULL) handleError(ERR_DATA, FATAL, "No roomMap data found!\n");
+  // Just realized this is not used and it is not needed
+  // The map is obviously saved on its own but alongside player
+  // So by logic, the saved map (which gets loaded before the player)
+  // is the map that the player is to be in
+  // cJSON* roomMap = cJSON_GetObjectItemCaseSensitive(room, MAP);
+  // if (roomMap == NULL) handleError(ERR_DATA, FATAL, "No roomMap data found!\n");
 
   cJSON* inv = cJSON_GetObjectItemCaseSensitive(root, INV);
   if (inv == NULL) handleError(ERR_DATA, FATAL, "No inventory data found!\n");
