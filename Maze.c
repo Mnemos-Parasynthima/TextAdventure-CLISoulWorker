@@ -42,7 +42,7 @@ bool deleteEnemyFromMap(Room* room, bool deleteGear) {
 static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visited, uint gridSize, Room* playerRoom) {
   if (room == ((void*) ((long long) NO_EXIT)) || visited[y][x]) return;
 
-  visited[y][x] = 1;
+  visited[y][x] = true;
 
   if (room->hasBoss) grid[y][x] = '!';
   else if (room->enemy.enemy != NULL) grid[y][x] = '%';
@@ -72,7 +72,9 @@ static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visite
 }
 
 void showMap(Maze* maze, Room* playerRoom) {
-  uint gridSize = (int)(sqrt(maze->size) * 4);
+  // TODO: Fix map size printing
+  uint gridSize = (int) (sqrt(maze->size) * 6);
+
   if (gridSize < 5) gridSize = 5;
 
   char** grid = malloc(gridSize * sizeof(char*));
