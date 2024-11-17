@@ -75,7 +75,7 @@ static bool checkLatest() {
   char* scriptContents[] = {
     // "for /f "tokens=*" %%i in ('curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt') do set LATEST_VERSION=%%i",
     "@echo off\n",
-    "set LATEST_VERSION=alpha-3.0.0\n",
+    "set LATEST_VERSION=alpha-3.1.0\n",
     "set /p CURRENT_VERSION=<version\n",
     "echo Checking version...\n",
     "echo Current version is %CURRENT_VERSION%\n",
@@ -92,7 +92,7 @@ static bool checkLatest() {
   scriptLen = 9;
   char* scriptContents[] = {
     "#!/bin/bash\n",
-    "LATEST_VERSION='alpha-3.0.0'\n",
+    "LATEST_VERSION='alpha-3.1.0'\n",
     // "LATEST_VERSION=$(curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt)\n",
     "CURRENT_VERSION=$(cat version)\n",
     "echo 'Checking version...'\n",
