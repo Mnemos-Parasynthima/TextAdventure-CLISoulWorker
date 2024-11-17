@@ -3,7 +3,7 @@
 .global itoa
 .type   itoa, @function
 itoa:
-  # char* itoa(int, char*)
+  # char* itoa(int, char*, int UNUSED)
   # rdi: int
   # rsi: char*
   # rax: char* (ret, points to same place as arg1 at beginning)

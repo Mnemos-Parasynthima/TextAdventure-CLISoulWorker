@@ -13,7 +13,6 @@ set(SOURCES
     Error.c
     Keyboard.c
     SaveLoad.c
-    itoa.s
     DArray.c
     Misc.c
     Battle.c
@@ -21,8 +20,6 @@ set(SOURCES
 
 include_directories(headers)
 
-enable_language(ASM)
-set_source_files_properties(itoa.s PROPERTIES LANGUAGE ASM)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

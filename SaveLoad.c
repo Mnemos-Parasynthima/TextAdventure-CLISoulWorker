@@ -38,6 +38,7 @@
 
 const str SAVE_DIR = "./data/saves";
 
+#ifdef __linux__
 // itoa is in assembly (just for fun), change it to C later
 /**
  * Converts integer n into a character string.
@@ -45,7 +46,8 @@ const str SAVE_DIR = "./data/saves";
  * @param buffer The buffer to hold the string
  * @return The integer as a string
  */
-extern str itoa(int n, char* buffer);
+extern str itoa(int n, char* buffer, int radix);
+#endif
 
 /**
  * Handles errors regarding cJSON objects.
@@ -504,7 +506,7 @@ static str createMapState() {
     // Creating each room
 
     char buffer[2];
-    str idAsChar = itoa(room->id, buffer);
+    str idAsChar = itoa(room->id, buffer, 10);
 
     cJSON* roomObj = cJSON_AddObjectToObject(mapObj, idAsChar);
     if (roomObj == NULL) return createError(mapObj, idAsChar);
