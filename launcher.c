@@ -284,13 +284,13 @@ int main(int argc, char const* argv[]) {
   }
   closedir(story);
 
-  story = opendir("data/story/best_showtime");
-  if (!story) {
-    printf("Could not find story data! Fixing files...\n");
-    runInstaller(FIX);
-    UNREACHABLE()
-  }
-  closedir(story);
+  // story = opendir("data/story/best_showtime");
+  // if (!story) {
+  //   printf("Could not find story data! Fixing files...\n");
+  //   runInstaller(FIX);
+  //   UNREACHABLE()
+  // }
+  // closedir(story);
 
   story = opendir("data/story/control_zone");
   if (!story) {
@@ -308,13 +308,13 @@ int main(int argc, char const* argv[]) {
   }
   closedir(story);
 
-  story = opendir("data/story/tower_of_greed");
-  if (!story) {
-    printf("Could not find story data! Fixing files...\n");
-    runInstaller(FIX);
-    UNREACHABLE()
-  }
-  closedir(story);
+  // story = opendir("data/story/tower_of_greed");
+  // if (!story) {
+  //   printf("Could not find story data! Fixing files...\n");
+  //   runInstaller(FIX);
+  //   UNREACHABLE()
+  // }
+  // closedir(story);
 
   int ret;
 
