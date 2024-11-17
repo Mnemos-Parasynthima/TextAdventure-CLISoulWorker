@@ -11,6 +11,6 @@ typedef __int64   int64_t;
 #define ssize_t long
 #endif
 
-ssize_t getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream);
+ssize_t getline(char** restrict lineptr, size_t* restrict n, FILE* restrict stream);
 
 #endif

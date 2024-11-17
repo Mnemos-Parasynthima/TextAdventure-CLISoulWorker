@@ -1,27 +1,38 @@
-#include "./headers/unistd.h"
+#include "unistd.h"
+#include "Error.h"
 
-ssize_t getline(char **restrict lineptr, size_t *restrict n, FILE *restrict stream) {
+ssize_t getline(char** restrict lineptr, size_t* restrict n, FILE* restrict stream) {
   register char c;
-  register char *cs = NULL;
+  register char* cs = NULL;
   register int length = 0;
-  while ((c = getc(stream)) != EOF) {
-    cs = (char *)realloc(cs, ++length + 1);
 
-    if ((*(cs + length - 1) = c) == '\n') {
-      *(cs + length) = '\0';
-      break;
+  c = _getc_nolock(stream);
+  // if (c == EOF) return -1;
+
+  *lineptr = (char*) malloc(64);
+  if (!*lineptr) handleError(ERR_MEM, FATAL, "Could not allocate space for lineptr!\n");
+  *n = 64;
+
+  while (c != EOF) {
+    if (length + 1 >= *n) {
+      size_t newsize = *n + (*n >> 2);
+      if (newsize < 64) newsize = 64;
+
+      cs = (char*) realloc(*lineptr, newsize);
+      if (!cs) handleError(ERR_MEM, FATAL, "Could not reallocate space for lineptr!\n");
+
+      *n = newsize;
+      *lineptr = cs;
     }
+
+    ((unsigned char*) *lineptr)[length++] = c;
+
+    if (c == '\n') break;
+
+    c = _getc_nolock(stream);
   }
 
-  // return the allocated memory if lineptr is null
-  if ((*lineptr) == NULL) *lineptr = cs;
-  else {
-    // check if enough memory is allocated 
-    if ((length + 1) < *n) *lineptr = (char *)realloc(*lineptr, length + 1);
+  (*lineptr)[length] = '\0';
 
-    memcpy(*lineptr, cs, length);
-    free(cs);
-  }
-
-  return (ssize_t)(*n = strlen(*lineptr));
+  return (ssize_t) length;
 }
