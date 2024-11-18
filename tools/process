@@ -1,0 +1,80 @@
+- Run `CreateEnemy`
+  - Asks how many enemies to create (including boss)
+  - For each enemy to create
+    - ID is automatically generated (start at 0)
+    - Ask if boss (not saved to file)
+    - Ask for xp points
+    - Ask for HP
+      - Since it's varied, input is `[min] [max]` (ie `> 5 6` for `HP: [5, 6]`)
+      - Boss has no variation, so input level twice (ie `> 5 5` for `HP: [5]`)
+    - Ask for level
+    - Ask for stats
+      - Since it's varied, input is same as HP's system
+    - If boss, ask for gear to drop
+      - For soulweapon, ask for its associated ID in `items/soulweapon.item`, store it
+      - Similar for the rest of gear
+      - For skills, iterate 5 times
+        - For each skill:
+          - Ask for name, description, cooldown, and stats
+          - Set all the skills' level to boss' level
+          - Automatic id (start at 1)
+          - End each skill with "END_SKILL"
+    - End each enemy with "END_ENEMY"
+    - Loop until no more enemies to create
+  - Save it as `enemies.enemy` to `out/`
+ 
+- Run `CreateItem` (only per item type)
+  - Item type is passed in as an arg
+  - Asks how many items (of provided type) to create
+  - Depending on type, store all common data at the top (indicated by "COMMON")
+  - For each item (data depends on type)
+    - ID is automatically generated (start at 0)
+    - Ask for count of that item
+    - Ask for data
+    - End each item block with "END_ITEM"
+    - Loop until no more items to create
+  - Save it as `[type].item` to `out/items/`
+
+- Run `CreateRoom`
+  - Asks how many rooms to create
+  - Automatically set room id (first room is 0 [entry])
+  - For each room to create
+    - Set room id first
+    - Ask for exit ids (`struct Room* exits[]`)
+      - Reminder: exits stored as ids with no exit as -1
+    - Ask if boss
+      - if boss, then for storyfile, set it as `boss.story`
+    - If automatic ID is 0, set storyfile as `entry.story`
+      - else, empty line
+    - Ask for info
+      - store is as name of file (in `tools/info/`)
+    - Ask for loot item
+      - If no loot item, enter -1 and store it
+      - else, what type (soulweapon, or boots, etc), then the id associated with in `items/[type].item`
+        - store type and id
+    - Ask for enemy
+      - If no enemy, enter -1 and store it
+      - else, the id associated with in `out/enemies.enemy`, store it
+    - Store each data per line, seperate rooms with "END_ROOM"
+    - Loop until no more rooms to create 
+  - Save it as text file as `[id].room` to `out/rooms/`
+
+- Run `CreateMaze` (only creates one maze at a time)
+  - Name of maze is passed in as an arg
+  - Goes into `out/rooms` and gathers all the room structures
+  - Create root json
+  - For each room file
+    - Extract information
+    - Create json
+      - If room id is 0, set the tag `isEntry` to true (1) otherwise to 0
+      - For info, go to `info/` and search for the given file, extracting the description
+      - For item, go to `out/items/` and search for the provided file (`[type].item`)
+        - Go to the ID'd item, extracting data (type/how much is on a per-type basis)
+      - For enemy, go to `out/enemies.enemy`
+        - Go to the ID'd enemy, extracting data
+          - If ID'd enemy has boss label
+            - Go to `item/[type].item` for each provided gear drop, do same as "For item" bullet point
+            - Read the skills, each skill ending with "END_SKILL"
+    - Attack json room to root
+  - Save to `tools/` and to `tool/history/`
+    - For `tools/history/`, save it with a timestamp
