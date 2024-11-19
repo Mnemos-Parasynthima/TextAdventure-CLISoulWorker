@@ -4,8 +4,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-
 #include "Error.h"
+#include "Colors.h"
 
 #define UNUSED __attribute__ ((unused))
 
@@ -42,7 +42,7 @@ int main(int argc UNUSED, char const* argv[] UNUSED) {
     printf("For room %d:\n", id);
 
     fprintf(room, "%d\n", id);
-    printf("\tSet room id to %d\n", id);
+    printf("\t%sSet room id to %d\n%s", GREEN, id, RESET);
 
     bool boss = false;
     printf("\tIs boss room? [y|n]: ");
@@ -56,30 +56,30 @@ int main(int argc UNUSED, char const* argv[] UNUSED) {
     else storyfile = "\n";
 
     fputs(storyfile, room);
-    printf("\tSet storyfile to %s", (*storyfile == '\n') ? "[none]" : storyfile);
+    printf("\t%sSet storyfile to %s%s", GREEN, (*storyfile == '\n') ? "[none]\n" : storyfile, RESET);
 
     printf("\tEnter info file: ");
     getline(&line, &n, stdin);
     fputs(line, room);
-    printf("\tSet info file to %s", line);
+    printf("\t%sSet info file to %s%s", GREEN, line, RESET);
 
     printf("\tEnter exits: ");
     getline(&line, &n, stdin);
     fputs(line, room);
-    printf("\tSet exits to %s", line);
+    printf("\t%sSet exits to %s%s", GREEN, line, RESET);
 
-    fputs((boss) ? "1" : "0", room);
-    printf("\tSet boss to %s\n", (boss) ? "1" : "0");
+    fputs((boss) ? "1\n" : "0\n", room);
+    printf("\t%sSet boss to %s\n%s", GREEN, (boss) ? "1" : "0", RESET);
 
     printf("\tEnter loot (-1 for none or type::id,...): ");
     getline(&line, &n, stdin);
     fputs(line, room);
-    printf("\tSet loot to %s", line);
+    printf("\t%sSet loot to %s%s", GREEN, line, RESET);
 
     printf("\tEnter enemies (-1 for none or id,...): ");
     getline(&line, &n, stdin);
     fputs(line, room);
-    printf("\tSet enemies to %s", line);
+    printf("\t%sSet enemies to %s%s", GREEN, line, RESET);
 
     id++;
 
