@@ -4,7 +4,7 @@ CFLAGS = -Wall -Wextra
 
 PARENT_OBJ = itoa.o error.o cJSON.o
 
-HEADERS = ../headers/Error.h ../headers/cJSON.h
+HEADERS = ../headers/Error.h ../headers/Colors.h
 
 TARGETS = room maze item enemy
 EXES = CreateMaze CreateRoom CreateItem CreateEnemy
@@ -13,10 +13,13 @@ EXES = CreateMaze CreateRoom CreateItem CreateEnemy
 
 all: $(TARGETS)
 
-maze: $(PARENT_OBJ) $(HEADERS)
+debug: CFLAGS += -g -O0
+debug: $(TARGETS)
+
+maze: $(PARENT_OBJ) $(HEADERS) ../headers/cJSON.h
 	$(CC) $(CFLAGS) CreateMaze.c $(PARENT_OBJ) -o CreateMaze
 
-room: $(PARENT_OBJ) ../headers/Error.h
+room: $(PARENT_OBJ) $(HEADERS)
 	$(CC) $(CFLAGS) -I../headers/ CreateRoom.c $(PARENT_OBJ) -o CreateRoom
 
 itoa.o: ../itoa.s
