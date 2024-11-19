@@ -6,6 +6,7 @@
 #include <unistd.h>
 
 #include "../headers/Error.h"
+#include "../headers/Colors.h"
 #include "../headers/cJSON.h"
 
 
@@ -31,13 +32,22 @@ static void createError(cJSON* obj, const str type) {
   exit(-1);
 }
 
+static int compare(const void* a, const void* b) {
+  int aID = atoi(*((str*) a));
+  int bID = atoi(*((str*) b));
+
+  return aID - bID;
+}
+
 /**
  * 
  * @param roomCount 
  * @return 
  */
 static FILE** getRoomFiles(int* roomCount) {
-  DIR* roomsDir = opendir("./out/rooms");
+  const str ROOMS_DIR = "./out/rooms";
+
+  DIR* roomsDir = opendir(ROOMS_DIR);
 
   // Get the number of room files
   int count = 0;
@@ -47,26 +57,57 @@ static FILE** getRoomFiles(int* roomCount) {
     entry = readdir(roomsDir);
   }
   *roomCount = count;
+  printf("%sFound %d rooms...%s\n", PURPLE, count, RESET);
 
   rewinddir(roomsDir);
-
-  // Skip the current and parent entry
-  entry = readdir(roomsDir);
-  while (entry->d_type == DT_DIR) entry = readdir(roomsDir);
 
   FILE** rooms = (FILE**) malloc(sizeof(FILE*) * count);
   if (!rooms) handleError(ERR_MEM, FATAL, "Could not allocate memory for room files!\n");
 
+
+  // Read all the entries into an array, placing the names and skipping "." and ".."
+  // The array will be used to open the files, so they need to be in order
+  // Thus array is to be sorted
+  str* names = (str*) malloc(sizeof(str) * count);
+  if (!names) handleError(ERR_MEM, FATAL, "Could not allocate memory for room names!\n");
+  str* _temp = names;
+
+  entry = readdir(roomsDir);
+  while (entry != NULL) {
+    if (entry->d_type == DT_DIR) {
+      entry = readdir(roomsDir);
+      continue;
+    }
+    *_temp = &entry->d_name;
+    entry = readdir(roomsDir);
+    _temp++;
+    // No need to check if filename is valid
+    // Will be done later on
+  }
+
+  qsort(names, count, sizeof(str), compare);
+
   // Fill rooms array with open files for all room files
   // Reminder to close the files at the end
+  str filename = (str) malloc(19);
   for (int i = 0; i < count; i++) {
-    printf("Placing file %s\n", entry->d_name);
-    rooms[i] = fopen(entry->d_name, "r");
+    // printf("%si: %d%s\n", YELLOW, i, RESET);
+    printf("Placing file %s\n", *names);
+
+    str temp = (str) realloc(filename, 13 + strlen(*names));
+    if (!temp) handleError(ERR_MEM, FATAL, "Could not allocate memory for filename!\n");
+    filename = temp;
+
+    sprintf(filename, "%s/%s", ROOMS_DIR, *names);
+
+    rooms[i] = fopen(filename, "r");
     if (!rooms[i]) handleError(ERR_IO, FATAL, "Could not open room file!\n");
 
     entry = readdir(roomsDir);
+    names++;
   }
-
+  // printf("%sFinished placing%s\n", YELLOW, RESET);
+  free(filename);
   closedir(roomsDir);
 
   return rooms;
@@ -85,7 +126,7 @@ str getInfo(str infoFile) {
   sprintf(filename, "./info/%s", infoFile);
 
   FILE* file = fopen(filename, "r");
-  if (!file) handleError(ERR_IO, FATAL, "Could not open info file!\n");
+  if (!file) handleError(ERR_IO, FATAL, "Could not open info file %s!\n", infoFile);
 
   free(filename);
 
@@ -177,7 +218,7 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
  */
 void createRoom(cJSON* root, int id, FILE* room) {
   // Check if file is not empty
-  char c = getchar();
+  char c = getc(room);
   if (c == EOF) {
     handleError(ERR_DATA, WARNING, "File %d is empty!\n", id);
     return;
@@ -186,14 +227,17 @@ void createRoom(cJSON* root, int id, FILE* room) {
 
   char buffer[2];
 
+  printf("%sCreating room %d....%s\n", PURPLE, id, RESET);
+
   cJSON* roomObj = cJSON_AddObjectToObject(root, itoa(id, buffer, 10));
   if (!roomObj) createError(root, "room");
 
-  str line;
+  str line = NULL;
   size_t n;
+  ssize_t read;
 
   // Get the id
-  getline(&line, &n, room);
+  read = getline(&line, &n, room);
   int _id = *line - 0x30;
   // Make sure the IDs match between in file and array
   if (id != _id) {
@@ -211,16 +255,16 @@ void createRoom(cJSON* root, int id, FILE* room) {
   // Maybe it should leave the data json as is and continue
   // or stop and exit
   // or delete the room and continue to other rooms
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   cJSON* storyfile = cJSON_AddStringToObject(roomObj, "storyfile", line);
   if (!storyfile) createError(root, "storyfile");
-  printf("Added storyfile tag with value of %s", line);
+  printf("Added storyfile tag with value of %s\n", line);
 
   // Get info
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   str _info = getInfo(line);
   cJSON* info = cJSON_AddStringToObject(roomObj, "info", _info);
@@ -228,8 +272,8 @@ void createRoom(cJSON* root, int id, FILE* room) {
   printf("Added info tag\n");
 
   // Get exits
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   cJSON* exits = cJSON_AddArrayToObject(roomObj, "exits");
   if (!exits) createError(root, "exits");
@@ -255,16 +299,16 @@ void createRoom(cJSON* root, int id, FILE* room) {
   line = NULL;
 
   // Get if boss
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   cJSON* hasBoss = cJSON_AddNumberToObject(roomObj, "hasBoss", atoi(line));
   if (!hasBoss) createError(root, "hasBoss");
   printf("Added hasBoss tag with value of %s\n", line);
 
   // Get loot
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   cJSON* loot = cJSON_AddArrayToObject(roomObj, "loot");
   if (!loot) createError(root, "loot");
@@ -283,8 +327,8 @@ void createRoom(cJSON* root, int id, FILE* room) {
   } else printf("Added empty loot tag\n");
 
   // Get enemies
-  getline(&line, &n, room);
-  *(line + n - 1) = '\0';
+  read = getline(&line, &n, room);
+  *(line + read - 1) = '\0';
 
   cJSON* enemies = cJSON_AddArrayToObject(roomObj, "enemy");
   if (!enemies) createError(root, "enemy");
