@@ -1,4 +1,6 @@
 *.o
 CreateMaze
 CreateRoom
-out/*
+CreateItem
+out/rooms/*
+out/items/*

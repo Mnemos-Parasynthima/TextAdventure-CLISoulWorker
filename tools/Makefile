@@ -6,7 +6,7 @@ PARENT_OBJ = itoa.o error.o cJSON.o
 
 HEADERS = ../headers/Error.h ../headers/Colors.h
 
-TARGETS = room maze item enemy
+TARGETS = room maze item enemy item
 EXES = CreateMaze CreateRoom CreateItem CreateEnemy
 
 .PHONY: all clean $(TARGETS)
@@ -21,6 +21,9 @@ maze: $(PARENT_OBJ) $(HEADERS) ../headers/cJSON.h
 
 room: $(PARENT_OBJ) $(HEADERS)
 	$(CC) $(CFLAGS) -I../headers/ CreateRoom.c $(PARENT_OBJ) -o CreateRoom
+
+item: $(PARENT_OBJ) $(HEADERS)
+	$(CC) $(CFLAGS) -I../headers/ CreateItem.c $(PARENT_OBJ) -o CreateItem
 
 itoa.o: ../itoa.s
 	$(CC) $< -c -o $@
