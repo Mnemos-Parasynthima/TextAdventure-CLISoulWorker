@@ -4,6 +4,7 @@
 #include <string.h>
 #include <dirent.h>
 #include <unistd.h>
+#include <time.h>
 
 #include "../headers/Error.h"
 #include "../headers/Colors.h"
@@ -554,6 +555,47 @@ static void createRoom(cJSON* root, int id, FILE* room) {
   // } 
 }
 
+void saveCopy(str maze, str filename) {
+  // [name].json to ./history/[name]-[time-date].json
+
+  time_t timer;
+  time(&timer);
+  struct tm* info = localtime(&timer);
+
+  // Format: [month]_[day]_[year]-[hour]_[minute]_[second]
+  int datetimeLen = 19;
+  char buffer[datetimeLen + 1];
+  strftime(buffer, 64, "%m_%d_%Y-%H_%M_%S", info);
+
+  int filenameLen = strlen(filename);
+  int newFilenameLen = 10 + filenameLen + 1 + datetimeLen + 1;
+
+  str newFilename = (str) malloc(newFilenameLen);
+  if (!newFilename) {
+    handleError(ERR_MEM, WARNING, "Could not allocate memory for archiving filename!\n");
+    return;
+  }
+
+  int nameLen = filenameLen - 5;
+
+  // Null out the '.' on the extension to ignore the .json part
+  *(filename + nameLen) = '\0';
+
+  sprintf(newFilename, "./history/%s-%s.json", filename, buffer);
+
+  FILE* file = fopen(newFilename, "w");
+  if (!file) {
+    handleError(ERR_IO, WARNING, "Could not create file!\n");
+    free(newFilename);
+  }
+
+  int written = fprintf(file, "%s", maze);
+  if (written <= 0) {
+    handleError(ERR_IO, WARNING, "Could not save maze!\n");
+    free(newFilename);
+  }
+  printf("%sCopy saved to %s!%s\n", GREEN, newFilename, RESET);
+}
 
 int main(int argc, char const* argv[]) {
   if (argc < 2 || argc > 3) {
