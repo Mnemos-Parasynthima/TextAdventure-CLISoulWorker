@@ -71,16 +71,6 @@ static str itemToString(item_t item) {
  * @param num 
  */
 static void createSoulWeapon(FILE* file, int num) {
-  printf("For common:\n");
-
-  fputs("100\n", file);
-  printf("\t%sSet durability to 100%s\n", GREEN, RESET);
-
-  fputs("100\n", file);
-  printf("\t%sSet upgrades to 100%s\n", GREEN, RESET);
-
-  fputs("END_COMMON\n", file);
-
   int id = 0;
 
   str line = NULL;
@@ -147,17 +137,6 @@ static void createSoulWeapon(FILE* file, int num) {
  * @param type 
  */
 static void createArmor(FILE* file, int num, item_t type) {
-  printf("For common:\n");
-
-  // Doing type - 2 to change from item_t to armor_t
-  // In item_t, helmet is 2 while in armor_t, it is 0
-  // Shift helmet-boots down by two
-
-  fprintf(file, "%d\n", type - 1);
-  printf("\t%sSet type to %d%s\n", GREEN, type - 1, RESET);
-
-  fputs("END_COMMON\n", file);
-
   int id = 0;
 
   str line = NULL;
@@ -221,6 +200,9 @@ static void createHPKit(FILE* file, int num) {
   while (id != num) {
     printf("For HP Kit %d:\n", id);
 
+    fprintf(file, "%d\n", id);
+    printf("\t%sSet HP Kit id to %d\n%s", GREEN, id, RESET);
+
     printf("How many? ");
     fscanf(stdin, "%d", &count);
     fprintf(file, "%d\n", count);
@@ -265,13 +247,6 @@ static void createHPKit(FILE* file, int num) {
  * @param type 
  */
 static void createUpgrade(FILE* file, int num, item_t type) {
-  printf("For common:\n");
-
-  fprintf(file, "%d\n", type - 6);
-  printf("\t%sSet type to %d%s\n", GREEN, type - 6, RESET);
-
-  fputs("END_COMMON\n", file);
-
   int id = 0;
 
   int count, rank;
@@ -343,6 +318,9 @@ static void createSlime(FILE* file, int num) {
 
   while (id != num) {
     printf("For Slime %d:\n", id);
+
+    fprintf(file, "%d\n", id);
+    printf("\t%sSet Slime id to %d\n%s", GREEN, id, RESET);
 
     printf("How many? ");
     fscanf(stdin, "%d", &count);
