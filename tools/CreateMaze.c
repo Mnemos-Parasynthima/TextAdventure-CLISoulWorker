@@ -9,7 +9,7 @@
 #include "../headers/Colors.h"
 #include "../headers/cJSON.h"
 
-
+// Needs to match up with Misc.h!!!
 
 typedef enum {
   HELMET,
@@ -17,7 +17,6 @@ typedef enum {
   CHESTPLATE,
   BOOTS
 } armor_t;
-// Needs to match up with Misc.h!!!
 
 typedef enum {
   NONE,
@@ -56,10 +55,10 @@ static void createError(cJSON* obj, const str type) {
 }
 
 /**
- * 
- * @param a 
- * @param b 
- * @return 
+ * Used by qsort to compare file names based on their id
+ * @param a File name a
+ * @param b File name b
+ * @return 0 if equal, otherwise, they are different
  */
 static int compare(const void* a, const void* b) {
   int aID = atoi(*((str*) a));
@@ -69,9 +68,10 @@ static int compare(const void* a, const void* b) {
 }
 
 /**
- * 
- * @param roomCount 
- * @return 
+ * Gets the room files from the output room directory, placing opened files in the array,
+ * sorted by their ID, where 0.room is the first element.
+ * @param roomCount How many rooms to open and place
+ * @return Array of opened room files
  */
 static FILE** getRoomFiles(int* roomCount) {
   const str ROOMS_DIR = "./out/rooms";
@@ -92,7 +92,6 @@ static FILE** getRoomFiles(int* roomCount) {
 
   FILE** rooms = (FILE**) malloc(sizeof(FILE*) * count);
   if (!rooms) handleError(ERR_MEM, FATAL, "Could not allocate memory for room files!\n");
-
 
   // Read all the entries into an array, placing the names and skipping "." and ".."
   // The array will be used to open the files, so they need to be in order
@@ -143,9 +142,9 @@ static FILE** getRoomFiles(int* roomCount) {
 }
 
 /**
- * Gets the contents of the provided file.
- * @param infoFile 
- * @return 
+ * Gets the contents of the provided file. Assumed to be in a single line.
+ * @param infoFile The file containing the description for the room
+ * @return The file contents
  */
 static str getInfo(str infoFile) {
   int infoFileLen = strlen(infoFile);
@@ -170,9 +169,9 @@ static str getInfo(str infoFile) {
 }
 
 /**
- * 
- * @param _str 
- * @return 
+ * Converts the type in string to the type in number.
+ * @param _str The type as a string
+ * @return The type as a number
  */
 static item_t strToType(str _str) {
   item_t type;
@@ -191,13 +190,15 @@ static item_t strToType(str _str) {
 }
 
 /**
- * 
- * @param item 
- * @param file 
+ * Fills the JSON object with the soulweapon data from the file.
+ * @param item The JSON object to fill out
+ * @param file The file
  */
 static void createSoulWeapon(cJSON* item, FILE* file) {
   str line = NULL;
   size_t n;
+
+  // TODO: Check for null
 
   ssize_t read = getline(&line, &n, file);
   *(line + read - 1) = '\0';
@@ -236,10 +237,10 @@ static void createSoulWeapon(cJSON* item, FILE* file) {
 }
 
 /**
- * 
- * @param item 
- * @param file 
- * @param type 
+ * Fills the JSON object with the armor data from the file, depending on the type.
+ * @param item The JSON object to fill out
+ * @param file The file
+ * @param type The type of armor
  */
 static void createArmor(cJSON* item, FILE* file, armor_t type) {
   str line = NULL;
@@ -247,6 +248,8 @@ static void createArmor(cJSON* item, FILE* file, armor_t type) {
 
   ssize_t read = getline(&line, &n, file);
   *(line + read - 1) = '\0';
+
+  // TODO: Check for null
 
   cJSON* name = cJSON_AddStringToObject(item, "name", line);
   // 
@@ -270,10 +273,10 @@ static void createArmor(cJSON* item, FILE* file, armor_t type) {
 }
 
 /**
- * 
+ * Adds a loot object to the loot array for the provided item file.
  * @param root The root JSON file
  * @param lootArr The JSON loot array object
- * @param item The loot item to add
+ * @param item The loot item to add, indicating the file to use
  */
 static void addLoot(cJSON* root, cJSON* lootArr, str item) {
   // item: [type]::[id]
@@ -292,11 +295,12 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
   FILE* itemFile = fopen(filename, "r");
   if (!itemFile) handleError(ERR_IO, FATAL, "Could not open loot item file!\n");
 
-  // Loop until we get to the desired item
-
+  // Check for empty
   char c = fgetc(itemFile);
   if (c == EOF) handleError(ERR_DATA, FATAL, "Empty item file for %s!\n", filename);
   else ungetc(c, itemFile);
+
+  // Loop until we get to the desired item
 
   str line = NULL;
   size_t n;
@@ -339,12 +343,14 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
   if (!_loot) { createError(root, "loot"); return; }
   if (!cJSON_AddItemToArray(lootArr, _loot)) return;
 
+  // TODO: Check for null
+
   read = getline(&line, &n, itemFile);
   *(line + read - 1) = '\0';
   cJSON* count = cJSON_AddNumberToObject(_loot, "count", atoi(line));
   // if (!count) {  }
 
-  // Move the following section to its own function
+  // Move the following section to its own function?????
 
   item_t itemType = strToType(type);
 
@@ -408,9 +414,10 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
 }
 
 /**
- * 
- * @param root 
- * @param id 
+ * Creates the JSON object for the provided room file.
+ * @param root The root JSON object
+ * @param id The id of the room
+ * @param room The room file
  */
 static void createRoom(cJSON* root, int id, FILE* room) {
   // Check if file is not empty
@@ -549,9 +556,16 @@ static void createRoom(cJSON* root, int id, FILE* room) {
 
 
 int main(int argc, char const* argv[]) {
-  if (argc != 2) {
-    fprintf(stderr, "usage: CreateMaze [name_of_maze]\n");
+  if (argc < 2 || argc > 3) {
+    fprintf(stderr, "usage: CreateMaze name_of_maze [archive (-a)]\n");
     return 1;
+  }
+
+  bool archive = false;
+
+  if (argc == 3) {
+    str _archive = argv[2];
+    if (strncmp(_archive, "-a", 2) == 0) archive = true;
   }
 
   str _mazeName = argv[1];
@@ -589,7 +603,7 @@ int main(int argc, char const* argv[]) {
   fclose(file);
 
   // Have a copy be saved to history
-  // saveCopy(maze, filename);
+  if (archive) saveCopy(maze, filename);
 
   free(filename);
   cJSON_free(maze); // ????
