@@ -10,6 +10,29 @@
 #include "../headers/cJSON.h"
 
 
+
+typedef enum {
+  HELMET,
+  SHOULDER_GUARD,
+  CHESTPLATE,
+  BOOTS
+} armor_t;
+// Needs to match up with Misc.h!!!
+
+typedef enum {
+  NONE,
+  SOULWEAPON_T,
+  HELMET_T,
+  SHOULDER_GUARD_T,
+  CHESTPLATE_T,
+  BOOTS_T,
+  HP_KITS_T,
+  WEAPON_UPGRADE_MATERIALS_T,
+  ARMOR_UPGRADE_MATERIALS_T,
+  SLIME_T
+} item_t;
+
+
 /**
  * Converts integer n into a character string.
  * @param n The integer
@@ -32,6 +55,12 @@ static void createError(cJSON* obj, const str type) {
   exit(-1);
 }
 
+/**
+ * 
+ * @param a 
+ * @param b 
+ * @return 
+ */
 static int compare(const void* a, const void* b) {
   int aID = atoi(*((str*) a));
   int bID = atoi(*((str*) b));
@@ -118,7 +147,7 @@ static FILE** getRoomFiles(int* roomCount) {
  * @param infoFile 
  * @return 
  */
-str getInfo(str infoFile) {
+static str getInfo(str infoFile) {
   int infoFileLen = strlen(infoFile);
   str filename = (str) malloc(8 + infoFileLen);
   if (!filename) handleError(ERR_MEM, FATAL, "Could not allocate memory for info file!\n");
@@ -132,13 +161,112 @@ str getInfo(str infoFile) {
 
   str info = NULL;
 
-  // PROCESS
   size_t n;
   // Assuming entire info is in a single line
-  getline(&info, &n, file);
-  *(info + n - 1) = '\0';
+  size_t read = getline(&info, &n, file);
+  *(info + read - 1) = '\0';
 
   return info;
+}
+
+/**
+ * 
+ * @param _str 
+ * @return 
+ */
+static item_t strToType(str _str) {
+  item_t type;
+
+  if (strcmp(_str, "soulweapon") == 0) type = SOULWEAPON_T;
+  else if (strcmp(_str, "helmet") == 0) type = HELMET_T;
+  else if (strcmp(_str, "shoulder_guard") == 0) type = SHOULDER_GUARD_T;
+  else if (strcmp(_str, "chestplate") == 0) type = CHESTPLATE_T;
+  else if (strcmp(_str, "boots") == 0) type = BOOTS_T;
+  else if (strcmp(_str, "hp_kit") == 0) type = HP_KITS_T;
+  else if (strcmp(_str, "weapon_upgrade") == 0) type = WEAPON_UPGRADE_MATERIALS_T;
+  else if (strcmp(_str, "armor_upgrade") == 0) type = ARMOR_UPGRADE_MATERIALS_T;
+  else type = SLIME_T;
+
+  return type;
+}
+
+/**
+ * 
+ * @param item 
+ * @param file 
+ */
+static void createSoulWeapon(cJSON* item, FILE* file) {
+  str line = NULL;
+  size_t n;
+
+  ssize_t read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+
+  cJSON* name = cJSON_AddStringToObject(item, "name", line);
+  // 
+
+  int stat;
+  float statf;
+
+  fscanf(file, "%d", &stat);
+  cJSON* atk = cJSON_AddNumberToObject(item, "atk", stat);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* acc = cJSON_AddNumberToObject(item, "acc", stat);
+  //
+
+  fscanf(file, "%f", &statf);
+  cJSON* atkCrit = cJSON_AddNumberToObject(item, "atk_crit", statf);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* atkCritDmg = cJSON_AddNumberToObject(item, "atk_crit_dmg", stat);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* lvl = cJSON_AddNumberToObject(item, "lvl", stat);
+  //
+
+  cJSON* upgrades = cJSON_AddNumberToObject(item, "upgrades", 0);
+  //
+
+  cJSON* durability = cJSON_AddNumberToObject(item, "durability", 100);
+  //
+}
+
+/**
+ * 
+ * @param item 
+ * @param file 
+ * @param type 
+ */
+static void createArmor(cJSON* item, FILE* file, armor_t type) {
+  str line = NULL;
+  size_t n;
+
+  ssize_t read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+
+  cJSON* name = cJSON_AddStringToObject(item, "name", line);
+  // 
+
+  int stat;
+
+  cJSON* _type = cJSON_AddNumberToObject(item, "type", type);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* acc = cJSON_AddNumberToObject(item, "acc", stat);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* def = cJSON_AddNumberToObject(item, "def", stat);
+  //
+
+  fscanf(file, "%d", &stat);
+  cJSON* lvl = cJSON_AddNumberToObject(item, "lvl", stat);
+  //
 }
 
 /**
@@ -147,7 +275,7 @@ str getInfo(str infoFile) {
  * @param lootArr The JSON loot array object
  * @param item The loot item to add
  */
-void addLoot(cJSON* root, cJSON* lootArr, str item) {
+static void addLoot(cJSON* root, cJSON* lootArr, str item) {
   // item: [type]::[id]
 
   // Parse item into [type] and [id]
@@ -165,7 +293,6 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
   if (!itemFile) handleError(ERR_IO, FATAL, "Could not open loot item file!\n");
 
   // Loop until we get to the desired item
-  // What type does not matter now as all items will have its ID after END_ITEM
 
   char c = fgetc(itemFile);
   if (c == EOF) handleError(ERR_DATA, FATAL, "Empty item file for %s!\n", filename);
@@ -173,8 +300,8 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
 
   str line = NULL;
   size_t n;
-  getline(&line, &n, itemFile);
-  *(line + n - 1) = '\0';
+  ssize_t read = getline(&line, &n, itemFile);
+  *(line + read - 1) = '\0';
 
   // In case the target is the very first item
   // Skip through the looping-check
@@ -188,8 +315,8 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
 
     while (!feof(itemFile)) {
       if (strncmp(line, "END_ITEM", 8) == 0) {
-        getline(&line, &n, itemFile);
-        *(line + n - 1) = '\0';
+        read = getline(&line, &n, itemFile);
+        *(line + read - 1) = '\0';
         
         // If we reached the last end of item
         if (feof(itemFile)) break;
@@ -200,12 +327,81 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
       getline(&line, &n, itemFile);
     }
 
-    if (!itemFound) handleError(ERR_DATA, FATAL, "Could not find the specified item ID!\n");
+    if (!itemFound) handleError(ERR_DATA, FATAL, "Could not find item %s of %s!\n", id, type);
   }
 
   // file pointer should point to the next line after ID
+  // start processing the individual data (depends greatly on type)
+  // For all items, the data immediately after is the count, so add that before
+  // Type is also known so add it
 
-  
+  cJSON* _loot = cJSON_CreateObject();
+  if (!_loot) { createError(root, "loot"); return; }
+  if (!cJSON_AddItemToArray(lootArr, _loot)) return;
+
+  read = getline(&line, &n, itemFile);
+  *(line + read - 1) = '\0';
+  cJSON* count = cJSON_AddNumberToObject(_loot, "count", atoi(line));
+  // if (!count) {  }
+
+  // Move the following section to its own function
+
+  item_t itemType = strToType(type);
+
+  cJSON* _type = cJSON_AddNumberToObject(_loot, "type", itemType);
+
+  cJSON* lootItem = cJSON_AddObjectToObject(_loot, "item");
+  if (!lootItem) { createError(root, "loot item"); return; }
+
+  switch (itemType) {
+    case SOULWEAPON_T:
+      createSoulWeapon(lootItem, itemFile);
+      break;
+    case HELMET_T:
+    case SHOULDER_GUARD_T:
+    case CHESTPLATE_T:
+    case BOOTS_T:
+      createArmor(lootItem, itemFile, itemType - 2);
+      break;
+    case HP_KITS_T:
+      read = getline(&line, &n, itemFile);
+      *(line + read - 1) = '\0';
+
+      cJSON* hpKitT = cJSON_AddNumberToObject(lootItem, "type", *line - 0x30);
+      // if (!hpKitT)
+
+      read = getline(&line, &n, itemFile);
+      *(line + read - 1) = '\0';
+
+      cJSON* hpKitDesc = cJSON_AddStringToObject(lootItem, "description", line);
+      // if (!hpKitDesc)
+      break;
+    case WEAPON_UPGRADE_MATERIALS_T:
+    case ARMOR_UPGRADE_MATERIALS_T:
+      read = getline(&line, &n, itemFile);
+      *(line + read - 1) = '\0';
+
+      cJSON* upgradeRank = cJSON_AddNumberToObject(lootItem, "rank", *line - 0x30);
+      // if (!upgradeRank)
+
+      cJSON* upgradeType = cJSON_AddNumberToObject(lootItem, "type", itemType - 7);
+      // if (!upgradeType)
+
+      read = getline(&line, &n, itemFile);
+      *(line + read - 1) = '\0';
+
+      cJSON* upgradeDesc = cJSON_AddStringToObject(lootItem, "description", line);
+      // if (!upgradeDesc)
+      break;
+    case SLIME_T:
+      read = getline(&line, &n, itemFile);
+      *(line + read - 1) = '\0';
+
+      cJSON* slimeDesc = cJSON_AddStringToObject(lootItem, "description", line);
+      // if (!slimeDesc)
+    default:
+      break;
+  }
 
   free(filename);
   fclose(itemFile);
@@ -216,7 +412,7 @@ void addLoot(cJSON* root, cJSON* lootArr, str item) {
  * @param root 
  * @param id 
  */
-void createRoom(cJSON* root, int id, FILE* room) {
+static void createRoom(cJSON* root, int id, FILE* room) {
   // Check if file is not empty
   char c = getc(room);
   if (c == EOF) {
@@ -310,20 +506,31 @@ void createRoom(cJSON* root, int id, FILE* room) {
   read = getline(&line, &n, room);
   *(line + read - 1) = '\0';
 
-  cJSON* loot = cJSON_AddArrayToObject(roomObj, "loot");
-  if (!loot) createError(root, "loot");
+  cJSON* lootArr = cJSON_AddArrayToObject(roomObj, "loot");
+  if (!lootArr) createError(root, "loot");
 
   // If the line has "-1", it means no loot, so keep array empty
   // Otherwise, line is an array of [type]::[id]
   // Parse and iterate through them
+
+  // Future me to do:
+  // Currently, the appropriate file is opened and closed for each pair
+  // In the case that there are multiple items of the same type (but diff id)
+  // The files will re-open many times
+  // They can also be spread out (not consecutive)
+  // So maybe just parse every item, figure out what files to open,
+  // and keep them open until all items are processed
   if (strncmp(line, "-1", 2) != 0) {
     // Example line is soulweapon::0,hp::3,boots::5
 
-    str item = strtok(line, ",");
+    str saveptr = NULL;
+    str item = strtok_r(line, ",", &saveptr);
     while (item != NULL) {
-      addLoot(root, loot, item);
-      item = strtok(NULL, ",");
+      addLoot(root, lootArr, item);
+      printf("Added loot...");
+      item = strtok_r(NULL, ",", &saveptr);
     }
+    printf("\n");
   } else printf("Added empty loot tag\n");
 
   // Get enemies
@@ -361,6 +568,7 @@ int main(int argc, char const* argv[]) {
   for (int i = 0; i < roomCount; i++) {
     createRoom(root, i, rooms[i]);
   }
+  printf("%sRooms have been created!%s\n", GREEN, RESET);
 
   str maze = cJSON_Print(root);
   if (!maze) handleError(ERR_MEM, FATAL, "Could not create json string!\n");
@@ -372,15 +580,18 @@ int main(int argc, char const* argv[]) {
 
   FILE* file = fopen(filename, "w");
   if (!file) handleError(ERR_IO, FATAL, "Could not create file!\n");
-  free(filename);
 
   int written = fprintf(file, "%s", maze);
   if (written <= 0) handleError(ERR_IO, FATAL, "Could not save maze!\n");
+  
+  printf("%sSaved to %s!%s\n", GREEN, filename, RESET);
 
   fclose(file);
 
   // Have a copy be saved to history
+  // saveCopy(maze, filename);
 
+  free(filename);
   cJSON_free(maze); // ????
 
   for (int i = 0; i < roomCount; i++) {
