@@ -506,7 +506,8 @@ static void createRoom(cJSON* root, int id, FILE* room) {
   read = getline(&line, &n, room);
   *(line + read - 1) = '\0';
 
-  cJSON* hasBoss = cJSON_AddNumberToObject(roomObj, "hasBoss", atoi(line));
+  bool _hasBoss = atoi(line);
+  cJSON* hasBoss = cJSON_AddNumberToObject(roomObj, "hasBoss", _hasBoss);
   if (!hasBoss) createError(root, "hasBoss");
   printf("Added hasBoss tag with value of %s\n", line);
 
@@ -551,6 +552,8 @@ static void createRoom(cJSON* root, int id, FILE* room) {
   // If the line has "-1", it means no enemies, so keep array empty
   // if (strncmp(line, "-1", 2) != 0) {
   //   // Line is not "-1", meaning it has file to enemies
+  //   // Rooms that only have a boss will only have one item
+  //   // Pass in to the function that it has a boss
   //   addEnemies(root, enemies, line);
   // } 
 }

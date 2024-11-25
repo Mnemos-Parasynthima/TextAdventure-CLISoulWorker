@@ -2,5 +2,7 @@
 CreateMaze
 CreateRoom
 CreateItem
+CreateEnemy
 out/rooms/*
 out/items/*
+out/*.enemy

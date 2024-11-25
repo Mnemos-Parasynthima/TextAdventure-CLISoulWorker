@@ -2,11 +2,11 @@
   - Asks how many enemies to create (including boss)
   - For each enemy to create
     - ID is automatically generated (start at 0)
-    - Ask if boss (not saved to file)
+    - Ask if boss (not saved to file, keep track in code)
     - Ask for xp points
     - Ask for HP
-      - Since it's varied, input is `[min] [max]` (ie `> 5 6` for `HP: [5, 6]`)
-      - Boss has no variation, so input level twice (ie `> 5 5` for `HP: [5]`)
+      - Since it's varied, input is `[min],[max]` (ie `> 5,6` for `HP: [5, 6]`)
+      - Boss has no variation, so input level twice (ie `> 5,5` for `HP: [5]`)
     - Ask for level
     - Ask for stats
       - Since it's varied, input is same as HP's system

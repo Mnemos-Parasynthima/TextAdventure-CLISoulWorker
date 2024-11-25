@@ -25,6 +25,9 @@ room: $(PARENT_OBJ) $(HEADERS)
 item: $(PARENT_OBJ) $(HEADERS)
 	$(CC) $(CFLAGS) -I../headers/ CreateItem.c $(PARENT_OBJ) -o CreateItem
 
+enemy: $(PARENT_OBJ) $(HEADERS)
+	$(CC) $(CFLAGS) -I../headers/ CreateEnemy.c $(PARENT_OBJ) -o CreateEnemy
+
 itoa.o: ../itoa.s
 	$(CC) $< -c -o $@
 
