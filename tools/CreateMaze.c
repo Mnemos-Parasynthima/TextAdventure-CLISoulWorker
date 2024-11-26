@@ -137,6 +137,7 @@ static FILE** getRoomFiles(int* roomCount) {
   }
   // printf("%sFinished placing%s\n", YELLOW, RESET);
   free(filename);
+  free(names);
   closedir(roomsDir);
 
   return rooms;
@@ -957,6 +958,8 @@ void saveCopy(str maze, str filename) {
     free(newFilename);
   }
   printf("%sCopy saved to %s!%s\n", GREEN, newFilename, RESET);
+
+  free(newFilename);
 }
 
 int main(int argc, char const* argv[]) {
@@ -1015,6 +1018,8 @@ int main(int argc, char const* argv[]) {
   for (int i = 0; i < roomCount; i++) {
     fclose(rooms[i]);
   }
+
+  free(rooms);
 
   return 0;
 }
