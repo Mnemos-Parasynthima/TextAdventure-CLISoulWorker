@@ -90,6 +90,8 @@ void showMap(Maze* maze, Room* playerRoom) {
   
   placeRoomOnGrid(maze->entry, grid, gridSize/2, gridSize/2, visited, gridSize, playerRoom);
   
+  printf("%sMaze %s%s: ", PURPLE, maze->name, RESET);
+
   for (int i = 0; i < gridSize; i++) {
     for (int j = 0; j < gridSize; j++) {
       char room = grid[i][j];
