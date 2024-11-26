@@ -598,33 +598,33 @@ static bool saveMap() {
  */
 static str createPlayerState() {
   cJSON* playerObj = cJSON_CreateObject();
-  if (playerObj == NULL) return createError(playerObj, "player");
+  if (!playerObj) return createError(playerObj, "player");
 
   cJSON* playerName = cJSON_AddStringToObject(playerObj, NAME, player->name);
-  if (playerName == NULL) return createError(playerObj, NAME);
+  if (!playerName) return createError(playerObj, NAME);
 
   cJSON* playerXP = cJSON_AddNumberToObject(playerObj, XP, player->xp);
-  if (playerXP == NULL) return createError(playerObj, XP);
+  if (!playerXP) return createError(playerObj, XP);
 
   cJSON* playerLvl = cJSON_AddNumberToObject(playerObj, LVL, player->lvl);
-  if (playerLvl == NULL) return createError(playerObj, LVL);
+  if (!playerLvl) return createError(playerObj, LVL);
 
   cJSON* playerHP = cJSON_AddNumberToObject(playerObj, HP, player->hp);
-  if (playerHP == NULL) return createError(playerObj, HP);
+  if (!playerHP) return createError(playerObj, HP);
 
   cJSON* playerMaxHP = cJSON_AddNumberToObject(playerObj, MAX_HP, player->maxHP);
-  if (playerMaxHP == NULL) return createError(playerObj, MAX_HP);
+  if (!playerMaxHP) return createError(playerObj, MAX_HP);
 
   cJSON* playerDZ = cJSON_AddNumberToObject(playerObj, DZ, player->dzenai);
-  if (playerDZ == NULL) return createError(playerObj, DZ);
+  if (!playerDZ) return createError(playerObj, DZ);
 
   cJSON* playerInvCount = cJSON_AddNumberToObject(playerObj, INV_COUNT, player->invCount);
-  if (playerInvCount == NULL) return createError(playerObj, INV_COUNT);
+  if (!playerInvCount) return createError(playerObj, INV_COUNT);
 
   cJSON* playerRoom = cJSON_AddObjectToObject(playerObj, ROOM);
-  if (playerRoom == NULL) return createError(playerObj, ROOM);
+  if (!playerRoom) return createError(playerObj, ROOM);
   cJSON* roomId = cJSON_AddNumberToObject(playerRoom, ID, player->room->id);
-  if (roomId == NULL) return createError(playerObj, ID);
+  if (!roomId) return createError(playerObj, ID);
   // Look at comment of loading map stuff when loading player
   // // Create the map filename
   // str base = "../maps/";
@@ -639,33 +639,54 @@ static str createPlayerState() {
   // if (roomMap == NULL) return createError(playerObj, MAP);
 
   cJSON* playerInv = cJSON_AddArrayToObject(playerObj, INV);
-  if (playerInv == NULL) createError(playerObj, INV);
+  if (!playerInv) createError(playerObj, INV);
   for (int i = 0; i < INV_CAP; i++) {
     if (player->inv[i]._item != NO_ITEM) {
       cJSON* item = cJSON_CreateObject();
-      if (item == NULL) return createError(playerObj, ITEM);
+      if (!item) return createError(playerObj, ITEM);
 
       cJSON* itemItem = saveLootItem(item, player->inv[i]._item, player->inv[i].type);
-      if (itemItem == NULL) return createError(playerObj, "item item");
+      if (!itemItem) return createError(playerObj, "item item");
 
       cJSON* itemType = cJSON_AddNumberToObject(item, TYPE, player->inv[i].type);
-      if (itemType == NULL) return createError(playerObj, TYPE);
+      if (!itemType) return createError(playerObj, TYPE);
 
       cJSON* itemCount = cJSON_AddNumberToObject(item, COUNT, player->inv[i].count);
-      if (itemCount == NULL) return createError(playerObj, COUNT);
+      if (!itemCount) return createError(playerObj, COUNT);
 
       if (!cJSON_AddItemToArray(playerInv, item)) return createError(playerObj, "item in inventory");
     }
   }
 
+  // HP Kit at hp slot is saved as a pointer, pointing to the same object as the one in the inv
+  // Save it as the index to the kit it refers to
+  // That is, search through inv, comparing addresses until they match, saving that index
+  // This only works provided that the indices of the inventory items match between the saved json and when loading it up
+  int hpSlotVal;
+
+  if (player->hpSlot != NO_ITEM) {
+    for (int i = 0; i < INV_CAP; i++) {
+      printf("Searching address %p\n", &player->inv[i]);
+      if (&player->inv[i] == player->hpSlot) {
+        printf("Found hp kit!\n");
+        hpSlotVal = i;
+        break;
+      }
+    }
+  } else hpSlotVal = -1;
+
+  cJSON* hpSlot = cJSON_AddNumberToObject(playerObj, "hpSlot", hpSlotVal);
+  if (!hpSlot) return createError(playerObj, "hp slot");
+
+
   bool gear = saveGear(playerObj, &player->gear);
   if (!gear) return createError(playerObj, GEAR);
 
   bool stats = saveStats(playerObj, player->stats);
-  if (!stats) { createError(playerObj, "player stats"); return NULL; }
+  if (!stats) return createError(playerObj, "player stats");
 
   bool skillTree = saveSkillTree(playerObj, player->skills);
-  if (!skillTree) { createError(playerObj, "player skill tree"); return NULL; }
+  if (!skillTree) return createError(playerObj, "player skill tree");
 
   str playerState = cJSON_Print(playerObj);
 
@@ -718,34 +739,34 @@ static SoulWorker* loadPlayer() {
 
 
   cJSON* root = readData(filename);
-  if (root == NULL) handleError(ERR_DATA, FATAL, "Could not parse JSON!\n");
+  if (!root) handleError(ERR_DATA, FATAL, "Could not parse JSON!\n");
 
 
   cJSON* name = cJSON_GetObjectItemCaseSensitive(root, NAME);
-  if (name == NULL) handleError(ERR_DATA, FATAL, "No name data found!\n");
+  if (!name) handleError(ERR_DATA, FATAL, "No name data found!\n");
 
   cJSON* hp = cJSON_GetObjectItemCaseSensitive(root, HP);
-  if (hp == NULL) handleError(ERR_DATA, FATAL, "No hp data found!\n");
+  if (!hp) handleError(ERR_DATA, FATAL, "No hp data found!\n");
 
   cJSON* maxHP = cJSON_GetObjectItemCaseSensitive(root, MAX_HP);
-  if (maxHP == NULL) handleError(ERR_DATA, FATAL, "No maxHP data found!\n");
+  if (!maxHP) handleError(ERR_DATA, FATAL, "No maxHP data found!\n");
 
   cJSON* invCount = cJSON_GetObjectItemCaseSensitive(root, INV_COUNT);
-  if (invCount == NULL) handleError(ERR_DATA, FATAL, "No invCount data found!\n");
+  if (!invCount) handleError(ERR_DATA, FATAL, "No invCount data found!\n");
 
   cJSON* xp = cJSON_GetObjectItemCaseSensitive(root, XP);
-  if (xp == NULL) handleError(ERR_DATA, FATAL, "No xp data found!\n");
+  if (!xp) handleError(ERR_DATA, FATAL, "No xp data found!\n");
 
   cJSON* dzenai = cJSON_GetObjectItemCaseSensitive(root, DZ);
-  if (dzenai == NULL) handleError(ERR_DATA, FATAL, "No dzenai data found!\n");
+  if (!dzenai) handleError(ERR_DATA, FATAL, "No dzenai data found!\n");
 
   cJSON* lvl = cJSON_GetObjectItemCaseSensitive(root, LVL);
-  if (lvl == NULL) handleError(ERR_DATA, FATAL, "No lvl data found!\n");
+  if (!lvl) handleError(ERR_DATA, FATAL, "No lvl data found!\n");
 
   cJSON* room = cJSON_GetObjectItemCaseSensitive(root, ROOM);
-  if (room == NULL) handleError(ERR_DATA, FATAL, "No room data found!\n");
+  if (!room) handleError(ERR_DATA, FATAL, "No room data found!\n");
   cJSON* roomId = cJSON_GetObjectItemCaseSensitive(room, ID);
-  if (roomId == NULL) handleError(ERR_DATA, FATAL, "No roomID data found!\n");
+  if (!roomId) handleError(ERR_DATA, FATAL, "No roomID data found!\n");
   // Just realized this is not used and it is not needed
   // The map is obviously saved on its own but alongside player
   // So by logic, the saved map (which gets loaded before the player)
@@ -754,12 +775,12 @@ static SoulWorker* loadPlayer() {
   // if (roomMap == NULL) handleError(ERR_DATA, FATAL, "No roomMap data found!\n");
 
   cJSON* inv = cJSON_GetObjectItemCaseSensitive(root, INV);
-  if (inv == NULL) handleError(ERR_DATA, FATAL, "No inventory data found!\n");
+  if (!inv) handleError(ERR_DATA, FATAL, "No inventory data found!\n");
 
 
   int nameLen = strlen(name->valuestring);
   str playerName = (str) malloc(nameLen + 1);
-  if (playerName == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player name!\n");
+  if (!playerName) handleError(ERR_MEM, FATAL, "Could not allocate space for the player name!\n");
   strncpy(playerName, name->valuestring, nameLen+1);
 
   SoulWorker* player = initSoulWorker(playerName);
@@ -794,6 +815,23 @@ static SoulWorker* loadPlayer() {
     free(item);
     item = NULL;
   }
+
+  // Saved hp slot is the index in the inventory
+
+  cJSON* hpSlot = cJSON_GetObjectItemCaseSensitive(root, "hpSlot");
+  if (!hpSlot) handleError(ERR_DATA, FATAL, "No HP slot data found!\n");
+
+  int hpSlotIdx = hpSlot->valueint;
+  printf("Saved HP slot index is %d\n", hpSlotIdx);
+
+  if (hpSlotIdx != -1) {
+    for (int i = 0; i < INV_CAP; i++) {
+      if (i == hpSlotIdx) {
+        player->hpSlot = &player->inv[i];
+        break;
+      }
+    }
+  } else player->hpSlot = NO_ITEM;
 
   // TODO: Make loadGear and loadStats, use with loading enemies???
 
@@ -849,15 +887,15 @@ static SoulWorker* loadPlayer() {
   if (!skillTree) handleError(ERR_DATA, FATAL, "No skill tree data found!\n");
 
   cJSON* skillStatus = cJSON_GetObjectItemCaseSensitive(skillTree, "skillStatus");
-  //
+  if (!skillStatus) handleError(ERR_DATA, FATAL, "No skill status data found!\n");
   player->skills->skillStatus = skillStatus->valueint;
 
   cJSON* totalSkillPoints = cJSON_GetObjectItemCaseSensitive(skillTree, "totalSkillPoints");
-  //
+  if (!totalSkillPoints) handleError(ERR_DATA, FATAL, "No total skill points data found!\n");
   player->skills->totalSkillPoints = totalSkillPoints->valueint;
 
   cJSON* skills = cJSON_GetObjectItemCaseSensitive(skillTree, "skills");
-  //
+  if (!skills) handleError(ERR_DATA, FATAL, "No skills data found!\n");
 
   for (int i = 0; i < cJSON_GetArraySize(skills); i++) { // size should be TOTAL_SKILLS
     cJSON* _skill = cJSON_GetArrayItem(skills, i);
@@ -880,7 +918,7 @@ static SoulWorker* loadPlayer() {
   }
 
   cJSON* equippedSkills = cJSON_GetObjectItemCaseSensitive(skillTree, "equippedSkills");
-  //
+  if (!equippedSkills) handleError(ERR_DATA, FATAL, "No equipped skills data found!\n");
 
   for (int i = 0; i < cJSON_GetArraySize(equippedSkills); i++) { // size should be EQUIPPED_SKILL_COUNT
     cJSON* id = cJSON_GetArrayItem(equippedSkills, i);

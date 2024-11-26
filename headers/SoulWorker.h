@@ -12,7 +12,7 @@
 #define TOTAL_SKILLS 10
 
 // The player model.
-typedef struct SoulWorker {             // 494B+2B(PAD) = 496B
+typedef struct SoulWorker {            // 502B+10B(PAD) = 512B
   str name; // The name of the player                       8B
   Room* room; // The current room that the player is in     8B
   uint xp; // The current XP                                4B
@@ -23,6 +23,7 @@ typedef struct SoulWorker {             // 494B+2B(PAD) = 496B
   Gear gear; //                                            40B
   Stats* stats; //                                          8B
   struct SkillTree* skills; //                              8B
+  Item* hpSlot; // The slot to keep quick HP kits           8B
   ushort invCount; // Current items in the inventory        2B
   Item inv[INV_CAP]; // The player's inventory  25B*16B = 400B
 } SoulWorker;
@@ -56,9 +57,8 @@ bool addToInv(SoulWorker* sw, Item* loot);
  * @param sw The target player
  * @param loot The loot item
  * @param count How many to remove
- * @return True if it was removed, false otherwise
  */
-bool removeFromInv(SoulWorker* sw, Item* loot, ushort count);
+void removeFromInv(SoulWorker* sw, Item* loot, ushort count);
 
 /**
  * Displays the current inventory of the player.

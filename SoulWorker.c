@@ -33,6 +33,8 @@ SoulWorker* initSoulWorker(str name) {
   sw->gear.chestplate = NO_ITEM;
   sw->gear.boots = NO_ITEM;
   
+  sw->hpSlot = NO_ITEM;
+
   // Set inv
   for(int i = 0; i < INV_CAP; i++) {
     sw->inv[i]._item = NO_ITEM;
@@ -144,69 +146,45 @@ bool addToInv(SoulWorker* sw, Item* loot) {
   return false;
 }
 
-bool removeFromInv(SoulWorker* sw, Item* loot, ushort count) {
-  // Note, Item* loot is temporary until a way to get player input is decided
+void removeFromInv(SoulWorker* sw, Item* item, ushort count) {
+  // Item* item is pointing to the slot in the inventory already
 
-  Item* item = NULL;
+  item->count -= count;
 
-  // Look for item
-  for (int i = 0; i < INV_CAP; i++) {
-    if (equalItems(&(sw->inv[i]), loot)) {
-      item = &(sw->inv[i]);
-      break;
+  if (item->count == 0) {
+    // Not using deleteItem() because Item struct is built-in the inv
+    // not as a pointer
+    // And deleteItem() frees and nulls the Item struct
+    // Need to free and null the actual item itself (void*)
+
+    void* _item = item->_item;
+
+    switch (item->type) {
+      case SOULWEAPON_T:
+        deleteSoulWeapon((SoulWeapon*) _item);
+        break;
+      case HELMET_T:
+      case SHOULDER_GUARD_T:
+      case CHESTPLATE_T:
+      case BOOTS_T:
+        deleteArmor((Armor*) _item);
+        break;
+      case HP_KITS_T:
+      case WEAPON_UPGRADE_MATERIALS_T:
+      case ARMOR_UPGRADE_MATERIALS_T:
+      case SLIME_T:
+        deleteOther((HPKit*) _item);
+        break;
+      default:
+        break;
     }
+
+    item->_item = NO_ITEM;
+    item->count = 0;
+    item->type = NONE;
+
+    sw->invCount--;
   }
-
-  if (item == NULL) {
-    printf("You do not have that item in your inventory!\n");
-
-    return false;
-  }
-
-  for (int i = 0; i < INV_CAP; i++) {
-    if (equalItems(&(sw->inv[i]), loot)) {
-      sw->inv[i].count -= count;
-
-      if (sw->inv[i].count == 0) {
-        // Not using deleteItem() because Item struct is built-in the inv
-        // not as a pointer
-        // And deleteItem() frees and nulls the Item struct
-        // Need to free and null the actual item itself (void*)
-
-        void* _item = sw->inv[i]._item;
-
-        switch (sw->inv[i].type) {
-          case SOULWEAPON_T:
-            deleteSoulWeapon((SoulWeapon*) _item);
-            break;
-          case HELMET_T:
-          case SHOULDER_GUARD_T:
-          case CHESTPLATE_T:
-          case BOOTS_T:
-            deleteArmor((Armor*) _item);
-            break;
-          case HP_KITS_T:
-          case WEAPON_UPGRADE_MATERIALS_T:
-          case ARMOR_UPGRADE_MATERIALS_T:
-          case SLIME_T:
-            deleteOther((HPKit*) _item);
-            break;
-          default:
-            break;
-        }
-
-        sw->inv[i]._item = NO_ITEM;
-        sw->inv[i].count = 0;
-        sw->inv[i].type = NONE;
-
-        sw->invCount--;
-      }
-
-      return true;
-    }
-  }
-
-  return false;
 }
 
 void viewInventory(SoulWorker* sw) {
@@ -684,8 +662,9 @@ void heal(SoulWorker* sw, Item* item) {
   }
 
   sw->hp = (sw->hp + hpIncr < sw->maxHP) ? sw->hp + hpIncr : sw->maxHP;
-  item->count--;
   printf("+%d!\n", hpIncr);
+
+  removeFromInv(sw, item, 1);
 }
 
 /**

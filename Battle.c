@@ -72,8 +72,6 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
   // If no skill used (aka basic skill was used), then do normal calculations
   // otherwise, take into account the skill bonus
   if (!skill) {
-    printf("Basic attack used!\n");
-
     float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
     // printf("hitroll: %3.2f\n", hitRoll);
     if (hitRoll > attacker->ACC) return 0;
@@ -207,9 +205,11 @@ void battleEnemy(Enemy* enemy) {
 
 /**
  * Displays the possible options for the player to use.
- * It includes at the very least the basic attack and up to 5 skills (equipped).
+ * It includes at the very least the basic attack and up to 5 skills (equipped),
+ * as well as quick healing.
  */
-static void displayAttackOptions() {
+static void displayOptions() {
+  printf("[h] Heal\n");
   printf("[0] Basic attack\n");
 
   Skill** equipped = player->skills->equippedSkills;
@@ -224,13 +224,19 @@ static void displayAttackOptions() {
 /**
  * Checks whether the given attack is an equipped skill,
  * storing the attack in skillActivated if it is and setting whether
- * the basic attack was used.
+ * the basic attack was used. Includes if the 'attack' is simply using the set HP kit.
  * @param attack The attack to check
  * @param skillActivated Where to store the activated skill, if valid
  * @param basicUsed.
  * @return True if valid skill, false otherwise
  */
-static bool validAttack(char attack, Skill** skillActivated, bool* basicUsed) {
+static bool validOptions(char attack, Skill** skillActivated, bool* basicUsed) {
+  if (attack == 'h') {
+    heal(player, player->hpSlot);
+
+    return false;
+  }
+
   if (attack == '0') {
     *basicUsed = true;
     return true;
@@ -296,18 +302,18 @@ bool bossBattle(Boss* boss) {
 
   while (true) {
     printf("What are you going to do?\n");
-    displayAttackOptions();
+    displayOptions();
     printf(": ");
     uchar attack = getchar();
     FLUSH()
-    while (!validAttack(attack, &skillActivated, &basicUsed)) {
+    while (!validOptions(attack, &skillActivated, &basicUsed)) {
       printf(": ");
       attack = getchar();
       FLUSH()
     }
 
     if (basicUsed) skillActivated = NULL;
-    printf("Skill activated is %s\n", (!skillActivated) ? NULL : skillActivated->name);
+    printf("Skill activated is %s\n", (!skillActivated) ? "none" : skillActivated->name);
 
     playerAtk = getTotalDmg(player->stats, boss->base.stats, skillActivated);
     printf("You dealt %d DMG!\n", playerAtk);

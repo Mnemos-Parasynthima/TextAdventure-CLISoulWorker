@@ -28,6 +28,7 @@ typedef enum {
   ITEM_UPGRADE = 'u', // Upgrade the item (valid for gear)
   ITEM_HEAL = 'h', // Heal (valid for HP kits)
   ITEM_QUIT = 'q', // Quit the item use menu
+  ITEM_SET = 't'
   // ITEM_HELP = 'h' // Available options for item menu
 } Item_Use;
 
@@ -335,6 +336,7 @@ static void useItem() {
   } else if (item->type == HP_KITS_T) {
     printf("\t Sell item ('s')\n");
     printf("\t Heal ('h')\n");
+    printf("\t Set to slot ('t')\n");
 
     printf("What do you want to do? ");
     opt = getchar();
@@ -342,7 +344,7 @@ static void useItem() {
     // printf("Chose %c/%d\n", opt, opt);
     FLUSH()
 
-    while (opt != ITEM_SELL && opt != ITEM_HEAL) {
+    while (opt != ITEM_SELL && opt != ITEM_HEAL && opt != ITEM_SET) {
       printf("That's not a valid action. Try again! ");
 
       opt = getchar();
@@ -365,6 +367,10 @@ static void useItem() {
       }        
 
       sellItem(item, count);
+    } else if (opt == ITEM_SET) {
+      player->hpSlot = item;
+      printf("HP Kit set to quick heal slot!\n");
+      printf("Address of set kit: %p\n", item);
     } else { // opt == ITEM_HEAL
       heal(player, item);
     }
