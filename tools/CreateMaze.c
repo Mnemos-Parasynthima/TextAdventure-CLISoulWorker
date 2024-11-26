@@ -115,6 +115,7 @@ static FILE** getRoomFiles(int* roomCount) {
   }
 
   qsort(names, count, sizeof(str), compare);
+  _temp = names;
 
   // Fill rooms array with open files for all room files
   // Reminder to close the files at the end
@@ -137,7 +138,7 @@ static FILE** getRoomFiles(int* roomCount) {
   }
   // printf("%sFinished placing%s\n", YELLOW, RESET);
   free(filename);
-  free(names);
+  free(_temp);
   closedir(roomsDir);
 
   return rooms;
@@ -448,6 +449,9 @@ static bool fillArray(cJSON* arr, str line) {
   str saveptr = NULL;
 
   str stat1 = strtok_r(line, ",", &saveptr);
+
+  // FIXME: Enemy atk_crit is not parsed as float
+
   int _stat1 = atoi(stat1);
 
   cJSON* _stat = cJSON_CreateNumber(_stat1);
@@ -596,9 +600,14 @@ static void createBossData(FILE* file, cJSON* enemy) {
     cJSON* skillDesc = cJSON_AddStringToObject(skill, "description", line);
     //
 
+    // It is necessary to have the data of level
+    // But since level does not matter for boss skills, simply use 0
+    cJSON* skillLvl = cJSON_AddNumberToObject(skill, "lvl", 0);
+    //
+
     read = getline(&line, &n, file);
     *(line + read - 1) = '\0';
-    cJSON* skillCD = cJSON_AddNumberToObject(skill, "lvl", atoi(line));
+    cJSON* skillCD = cJSON_AddNumberToObject(skill, "cooldown", atoi(line));
     //
 
     read = getline(&line, &n, file);

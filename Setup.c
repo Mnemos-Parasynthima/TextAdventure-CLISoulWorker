@@ -326,32 +326,32 @@ Skill *createSkill(cJSON *obj) {
   strcpy(skill->description, desc->valuestring);
 
   cJSON* lvl = cJSON_GetObjectItemCaseSensitive(obj, "lvl");
-  if (!lvl) handleError(ERR_MEM, FATAL, "Could not find data for skill level!\n");
+  if (!lvl) handleError(ERR_DATA, FATAL, "Could not find data for skill level!\n");
   skill->lvl = lvl->valueint;
 
   cJSON* cooldown = cJSON_GetObjectItemCaseSensitive(obj, "cooldown");
-  if (!cooldown) handleError(ERR_MEM, FATAL, "Could not find data for skill cooldown!\n");
+  if (!cooldown) handleError(ERR_DATA, FATAL, "Could not find data for skill cooldown!\n");
   skill->cooldown = cooldown->valueint;
 
   cJSON* id = cJSON_GetObjectItemCaseSensitive(obj, "id");
-  if (!id) handleError(ERR_MEM, FATAL, "Could not find data for skill id!\n");
+  if (!id) handleError(ERR_DATA, FATAL, "Could not find data for skill id!\n");
   skill->id = id->valueint;
 
   cJSON* effect1 = cJSON_GetObjectItemCaseSensitive(obj, "effect1");
-  if (!effect1) handleError(ERR_MEM, FATAL, "Could not find data for skill effect 1!\n");
+  if (!effect1) handleError(ERR_DATA, FATAL, "Could not find data for skill effect 1!\n");
   // Since atk and atk_dmg occupy the same space, it doesn't matter which is assigned to
   skill->effect1.atk = effect1->valueint;
 
   cJSON* activeEffect1 = cJSON_GetObjectItemCaseSensitive(obj, "activeEffect1");
-  if (!activeEffect1) handleError(ERR_MEM, FATAL, "Could not find data for skill active effect 1!\n");
+  if (!activeEffect1) handleError(ERR_DATA, FATAL, "Could not find data for skill active effect 1!\n");
   skill->activeEffect1 = activeEffect1->valueint;
 
   cJSON* activeEffect2 = cJSON_GetObjectItemCaseSensitive(obj, "activeEffect2");
-  if (!activeEffect2) handleError(ERR_MEM, FATAL, "Could not find data for skill active effect 2!\n");
+  if (!activeEffect2) handleError(ERR_DATA, FATAL, "Could not find data for skill active effect 2!\n");
   skill->activeEffect2 = activeEffect2->valueint;
 
   cJSON* effect2 = cJSON_GetObjectItemCaseSensitive(obj, "effect2");
-  if (!effect2) handleError(ERR_MEM, FATAL, "Could not find data for skill effect 2!\n");
+  if (!effect2) handleError(ERR_DATA, FATAL, "Could not find data for skill effect 2!\n");
   if (skill->activeEffect2 == ATK_CRIT) {
     skill->effect2.atk_crit = activeEffect2->valuedouble;
   } else {
