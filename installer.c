@@ -18,8 +18,6 @@
 
 #define GAME_DIR "CLISW_GAME"
 #define SAVES_DIR "data/saves"
-#define SAVES_MAPS_DIR "data/saves/maps"
-
 
 
 enum OPTS {
@@ -219,37 +217,18 @@ int main(int argc, char const* argv[]) {
   // when wanting to update, keep saves intact
   // when wanting to fix files (aka no file(s) found), keep saves intact
   if (opt == INSTALL) {
-#ifdef __linux__
-    mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-#endif
-
     printf("Creating saves directory...\n");
     ssleep(1000);
 #ifdef _WIN64
     ret = _mkdir(SAVES_DIR);
 #else
-    ret = mkdir(SAVES_DIR, flags);
+    ret = mkdir(SAVES_DIR, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 #endif
 
     if (ret == -1) {
       if (errno != EEXIST) {
         perror("ERROR");
         printf("Cannot create saves directory. Exiting...\n");
-        exit(-1);
-      }
-    }
-
-    printf("Creating saved maps directory...\n");
-    ssleep(1000);
-#ifdef _WIN64
-    ret = _mkdir(SAVES_MAPS_DIR);
-#else
-    ret = mkdir(SAVES_MAPS_DIR, flags);
-#endif
-    if (ret == -1) {
-      if (errno != EEXIST) {
-        perror("ERROR");
-        printf("Cannot create save maps directory. Exiting...\n");
         exit(-1);
       }
     }

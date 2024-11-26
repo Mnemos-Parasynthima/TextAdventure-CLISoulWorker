@@ -38,7 +38,6 @@
 #define STORY_DIR "data/story"
 #define MAPS_DIR "data/maps"
 #define SAVES_DIR "data/saves"
-#define SAVES_MAPS_DIR "data/saves/maps"
 
 
 #define UNREACHABLE() do { printf("SHOULD NOT REACH THIS!\n"); exit(-1); } while (0);
@@ -318,18 +317,14 @@ int main(int argc, char const* argv[]) {
 
   int ret;
 
-#ifdef __linux__
-  mode_t flags = S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH;
-#endif
-
   DIR* saves = opendir(SAVES_DIR);
   if (!saves) {
-    printf("Could not find save data! Creating saves...\n");
+    printf("Could not find save data directory! Creating saves directory...\n");
 
 #ifdef _WIN64
     ret = _mkdir(SAVES_DIR);
 #else
-    ret = mkdir(SAVES_DIR, flags);
+    ret = mkdir(SAVES_DIR, S_IRWXU | S_IRGRP | S_IXGRP | S_IROTH | S_IXOTH);
 #endif
 
     if (ret == -1) {
@@ -339,40 +334,8 @@ int main(int argc, char const* argv[]) {
         exit(-1);
       }
     }
-
-#ifdef _WIN64
-    ret = _mkdir(SAVES_MAPS_DIR);
-#else
-    ret = mkdir(SAVES_MAPS_DIR, flags);
-#endif
-    if (ret == -1) {
-      if (errno != EEXIST) {
-        perror("ERROR");
-        printf("Cannot create save maps directory. Exiting...\n");
-        exit(-1);
-      }
-    }
   }
   closedir(saves);
-
-  DIR* savesMaps = opendir(SAVES_MAPS_DIR);
-  if (!savesMaps) {
-    printf("Could not find save map data! Creating save maps...\n");
-
-#ifdef _WIN64
-    ret = _mkdir(SAVES_MAPS_DIR);
-#else
-    ret = mkdir(SAVES_MAPS_DIR, flags);
-#endif
-    if (ret == -1) {
-      if (errno != EEXIST) {
-        perror("ERROR");
-        printf("Cannot create save maps directory. Exiting...\n");
-        exit(-1);
-      }
-    }
-  }
-  closedir(savesMaps);
 
   printf("Verification done. Game starting...\n");
   ssleep(1000);

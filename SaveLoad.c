@@ -572,8 +572,8 @@ static bool saveMap() {
   if (mapState == NULL) handleError(ERR_DATA, WARNING, "Could not create map state!\n");
 
   if (mapState != NULL) {
-    char filename[35];
-    sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
+    char filename[30];
+    sprintf(filename, "%s/map_save.json", SAVE_DIR);
 
     FILE* file = fopen(filename, "w");
     if (file == NULL) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; }
@@ -907,8 +907,8 @@ static SoulWorker* loadPlayer() {
  * @return The maze
  */
 static Maze* loadMap() {
-  char filename[35];
-  sprintf(filename, "%s/maps/map_save.json", SAVE_DIR);
+  char filename[30];
+  sprintf(filename, "%s/map_save.json", SAVE_DIR);
 
   return initMaze(filename);
 }

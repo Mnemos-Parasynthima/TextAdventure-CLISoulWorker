@@ -139,7 +139,7 @@ static void tutorial() {
  * @return True if a saved game exists, false otherwise
  */
 static bool detectSave() {
-  FILE* mapSave = fopen("./data/saves/maps/map_save.json", "r");
+  FILE* mapSave = fopen("./data/saves/map_save.json", "r");
   FILE* playerSave = fopen("./data/saves/player_save.json", "r");
 
   if (mapSave != NULL && playerSave != NULL) {
