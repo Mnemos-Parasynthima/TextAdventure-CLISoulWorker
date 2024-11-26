@@ -533,7 +533,7 @@ Boss* initBoss(cJSON* obj) {
   cJSON* gear = cJSON_GetObjectItemCaseSensitive(obj, "gear");
   if (gear == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear");
 
-  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "sw");
+  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "soulweapon");
   if (sw == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear soulweapon");
   boss->gearDrop.sw = createSoulWeapon(sw);
 
@@ -541,7 +541,7 @@ Boss* initBoss(cJSON* obj) {
   if (helmet == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear helmet");
   boss->gearDrop.helmet = createArmor(helmet);
 
-  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "guard");
+  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "shoulder_guard");
   if (guard == NULL) handleError(ERR_DATA, FATAL, errMsg, "gear shoulder guard");
   boss->gearDrop.guard = createArmor(guard);
 
