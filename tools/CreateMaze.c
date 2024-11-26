@@ -164,7 +164,6 @@ static str getInfo(str infoFile) {
   size_t n;
   // Assuming entire info is in a single line
   size_t read = getline(&info, &n, file);
-  *(info + read - 1) = '\0';
 
   return info;
 }
@@ -192,6 +191,7 @@ static item_t strToType(str _str) {
 
 /**
  * Fills the JSON object with the soulweapon data from the file.
+ * File position should be at the line where the data starts (after its id).
  * @param item The JSON object to fill out
  * @param file The file
  */
@@ -239,6 +239,7 @@ static void createSoulWeapon(cJSON* item, FILE* file) {
 
 /**
  * Fills the JSON object with the armor data from the file, depending on the type.
+ * File position should be at the line where the data starts (after its id).
  * @param item The JSON object to fill out
  * @param file The file
  * @param type The type of armor
@@ -274,17 +275,19 @@ static void createArmor(cJSON* item, FILE* file, armor_t type) {
 }
 
 /**
- * Adds a loot object to the loot array for the provided item file.
- * @param root The root JSON file
- * @param lootArr The JSON loot array object
- * @param item The loot item to add, indicating the file to use
+ * Parses the given item and locates the data of the item.
+ * @param item The item to parse
+ * @param _type The type parsed from the item
+ * @return The file of the item type
  */
-static void addLoot(cJSON* root, cJSON* lootArr, str item) {
+static FILE* parseAndFind(str item, str* _type) {
   // item: [type]::[id]
 
   // Parse item into [type] and [id]
   str type = strtok(item, "::");
   str id = strtok(NULL, "::");
+
+  *_type = type;
 
   // Open file ./out/items/[type].item
   int typeLen = strlen(type);
@@ -335,6 +338,22 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
     if (!itemFound) handleError(ERR_DATA, FATAL, "Could not find item %s of %s!\n", id, type);
   }
 
+  free(filename);
+
+  return itemFile;
+}
+
+/**
+ * Adds a loot object to the loot array for the provided item file.
+ * @param root The root JSON file
+ * @param lootArr The JSON loot array object
+ * @param item The loot item to add, indicating the file to use
+ */
+static void addLoot(cJSON* root, cJSON* lootArr, str item) {
+  str type = NULL;
+
+  FILE* itemFile = parseAndFind(item, &type);
+
   // file pointer should point to the next line after ID
   // start processing the individual data (depends greatly on type)
   // For all items, the data immediately after is the count, so add that before
@@ -346,12 +365,13 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
 
   // TODO: Check for null
 
-  read = getline(&line, &n, itemFile);
+  str line = NULL;
+  size_t n;
+
+  ssize_t read = getline(&line, &n, itemFile);
   *(line + read - 1) = '\0';
   cJSON* count = cJSON_AddNumberToObject(_loot, "count", atoi(line));
   // if (!count) {  }
-
-  // Move the following section to its own function?????
 
   item_t itemType = strToType(type);
 
@@ -410,8 +430,328 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
       break;
   }
 
-  free(filename);
   fclose(itemFile);
+}
+
+/**
+ * 
+ * @param arr 
+ * @param line 
+ * @return 
+ */
+static bool fillArray(cJSON* arr, str line) {
+  // line: #,#
+  // to: [#, #] or [#]
+
+  str saveptr = NULL;
+
+  str stat1 = strtok_r(line, ",", &saveptr);
+  int _stat1 = atoi(stat1);
+
+  cJSON* _stat = cJSON_CreateNumber(_stat1);
+  if (!_stat) return false;
+
+  if (!cJSON_AddItemToArray(arr, _stat)) return false;
+
+  str stat2 = strtok_r(NULL, ",", &saveptr);
+  int _stat2 = atoi(stat2);
+
+  // In the cases that both numbers are same (mainly for boss), don't add the next number
+  // Just return successfully
+  if (_stat1 == _stat2) return true;
+
+  _stat = cJSON_CreateNumber(_stat2);
+  if (!_stat) return false;
+
+  if (!cJSON_AddItemToArray(arr, _stat)) return false;
+
+  return true;
+}
+
+/**
+ * 
+ * @param line 
+ * @param gear 
+ */
+static void createDrop(str item, cJSON* gear) {
+  str type = NULL;
+
+  FILE* itemFile = parseAndFind(item, &type);
+
+  // file pointer should point to the next line after ID
+  // start processing the individual data (depends greatly on type)
+  // For all items, the data immediately after is the count, so add that before
+  // Type is also known so add it
+
+  cJSON* gearPiece = cJSON_AddObjectToObject(gear, type);
+  //
+
+  str line = NULL;
+  size_t n;
+
+  // All items have the count before their respective data
+  // In this case, it is not important to skip it
+  getline(&line, &n, itemFile);
+
+  item_t itemType = strToType(type);
+
+  switch (itemType) {
+    case SOULWEAPON_T:
+      createSoulWeapon(gearPiece, itemFile);
+      break;
+    case HELMET_T:
+    case SHOULDER_GUARD_T:
+    case CHESTPLATE_T:
+    case BOOTS_T:
+      createArmor(gearPiece, itemFile, itemType - 2);
+      break;
+    default:
+      break;
+  }
+
+  fclose(itemFile);
+}
+
+/**
+ * Fills the JSON object with the boss data from file.
+ * @param file The .enemy file
+ * @param enemy The JSON object to fill out
+ */
+static void createBossData(FILE* file, cJSON* enemy) {
+  // file should be at the line for gear to drop
+  // check that it is not at END_ENEMY, meaning it has been writing the wrong enemy
+  // or something went wrong
+
+  str line = NULL;
+  size_t n;
+
+  ssize_t read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+
+  if (strcmp(line, "END_ENEMY") == 0) {
+    handleError(ERR_DATA, WARNING, "Something went wrong. Data is not boss!\n");
+
+    cJSON_Delete(enemy); // ???
+
+    return;
+  }
+
+  cJSON* gear = cJSON_AddObjectToObject(enemy, "gear");
+  //
+
+  // Soulweapon
+  createDrop(line, gear);
+
+  // Helmet
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  createDrop(line, gear);
+
+  // Shoulder guard
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  createDrop(line, gear);
+
+  // Chestplate
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  createDrop(line, gear);
+
+  // Boots
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  createDrop(line, gear);
+
+  // Checkpoint
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  
+  if (strncmp(line, "START_SKILLS", 12) != 0) {
+    handleError(ERR_DATA, WARNING, "Something went wrong. Data is not skills!\n");
+    cJSON_Delete(enemy);
+    return;
+  }
+
+  cJSON* skillsArr = cJSON_AddArrayToObject(enemy, "skills");
+  //
+
+  // createSkills()
+  for (int i = 0; i < 5; i++) {
+    cJSON* skill = cJSON_CreateObject();
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* skillName = cJSON_AddStringToObject(skill, "name", line);
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* skillDesc = cJSON_AddStringToObject(skill, "description", line);
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* skillCD = cJSON_AddNumberToObject(skill, "lvl", atoi(line));
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* skillID = cJSON_AddNumberToObject(skill, "id", atoi(line));
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* activeEffect1 = cJSON_AddNumberToObject(skill, "activeEffect1", *line - 0x30);
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* activeEffect2 = cJSON_AddNumberToObject(skill, "activeEffect2", *line - 0x30);
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* effect1 = cJSON_AddNumberToObject(skill, "effect1", atoi(line));
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    cJSON* effect2 = cJSON_AddNumberToObject(skill, "effect2", atof(line));
+    //
+
+    read = getline(&line, &n, file);
+    *(line + read - 1) = '\0';
+    if (strncmp(line, "END_SKILL", 9) != 0) {
+      handleError(ERR_DATA, WARNING, "Something went wrong. Did not end at end of skill! Continuing!\n");
+    }
+
+    if (!cJSON_AddItemToArray(skillsArr, skill)) return;
+  }
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+
+  if (strncmp(line, "END_ENEMY", 9) != 0) {
+    handleError(ERR_DATA, WARNING, "Something went wrong. Did not end at end enemy tag!\n");
+  }
+}
+
+/**
+ * 
+ * @param root 
+ * @param enemyArr 
+ * @param line 
+ * @param hasBoss
+ * @param file
+ */
+static void addEnemy(cJSON* root, cJSON* enemyArr, str enemyID, bool hasBoss, FILE* file) {
+  // Check for empty
+  char c = fgetc(file);
+  if (c == EOF) handleError(ERR_DATA, FATAL, "Empty enemy file!\n");
+  else ungetc(c, file);
+
+  // Search for the provided ID
+
+  str line = NULL;
+  size_t n;
+  ssize_t read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+
+  // In case the target is the very first enemy
+  // Skip through the looping-check
+  if (strcmp(line, enemyID) != 0) {
+    // Skip through all the lines until END_ENEMY
+    // Check if the line after time has the target ID
+    // If no, keep skipping until target
+    // If yes, exit and start processing data from that point
+
+    bool itemFound = false;
+
+    while (!feof(file)) {
+      if (strncmp(line, "END_ENEMY", 8) == 0) {
+        read = getline(&line, &n, file);
+        *(line + read - 1) = '\0';
+        
+        // If we reached the last end of item
+        if (feof(file)) break;
+
+        // line now should have the id, check for target
+        if (strcmp(line, enemyID) == 0) { itemFound = true; break; }
+      }
+      getline(&line, &n, file);
+    }
+
+    if (!itemFound) handleError(ERR_DATA, FATAL, "Could not find enemy %s!\n", enemyID);
+  }
+
+  // file pointer should point to the next line after ID
+  // start processing the data
+
+  cJSON* enemy = cJSON_CreateObject();
+  if (!enemy) { createError(root, "enemy"); return; }
+  if (!cJSON_AddItemToArray(enemyArr, enemy)) return;
+
+  // TODO: Check for null and error handling
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* name = cJSON_AddStringToObject(enemy, "name", line);
+  //
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* xpPoints = cJSON_AddNumberToObject(enemy, "xpPoints", atoi(line));
+  //
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* hpArr = cJSON_AddArrayToObject(enemy, "hp");
+  //
+  if (!fillArray(hpArr, line)) return;
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* lvl = cJSON_AddNumberToObject(enemy, "lvl", atoi(line));
+
+  cJSON* stats = cJSON_AddObjectToObject(enemy, "stats");
+  //
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* atkArr = cJSON_AddArrayToObject(stats, "ATK");
+  //
+  if (!fillArray(atkArr, line)) return;
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* accArr = cJSON_AddArrayToObject(stats, "ACC");
+  //
+  if (!fillArray(accArr, line)) return;
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* atkCritArr = cJSON_AddArrayToObject(stats, "ATK_CRIT");
+  //
+  if (!fillArray(atkCritArr, line)) return;
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* atkCritDmgArr = cJSON_AddArrayToObject(stats, "ATK_CRIT_DMG");
+  //
+  if (!fillArray(atkCritDmgArr, line)) return;
+
+  read = getline(&line, &n, file);
+  *(line + read - 1) = '\0';
+  cJSON* defArr = cJSON_AddArrayToObject(stats, "DEF");
+  //
+  if (!fillArray(defArr, line)) return;
+
+  if (hasBoss) createBossData(file, enemy);
+
+  // Will need to work with the file from the beginning for the following enemy
+  rewind(file);
+
+  if (line != NULL) free(line);
 }
 
 /**
@@ -546,16 +886,29 @@ static void createRoom(cJSON* root, int id, FILE* room) {
   read = getline(&line, &n, room);
   *(line + read - 1) = '\0';
 
-  cJSON* enemies = cJSON_AddArrayToObject(roomObj, "enemy");
-  if (!enemies) createError(root, "enemy");
+  cJSON* enemyArr = cJSON_AddArrayToObject(roomObj, "enemy");
+  if (!enemyArr) createError(root, "enemy");
 
   // If the line has "-1", it means no enemies, so keep array empty
-  // if (strncmp(line, "-1", 2) != 0) {
-  //   // Line is not "-1", meaning it has file to enemies
-  //   // Rooms that only have a boss will only have one item
-  //   // Pass in to the function that it has a boss
-  //   addEnemies(root, enemies, line);
-  // } 
+  if (strncmp(line, "-1", 2) != 0) {
+    // Line is not "-1", meaning it has file to enemies
+    // Rooms that only have a boss will only have one item
+    // Pass in to the function that it has a boss
+    str saveptr = NULL;
+    str enemy = strtok_r(line, ",", &saveptr);
+
+    FILE* file = fopen("./out/enemies.enemy", "r");
+    if (!file) handleError(ERR_IO, FATAL, "Could not open .enemy file!\n");
+
+    while (enemy != NULL) {
+      addEnemy(root, enemyArr, enemy, _hasBoss, file);
+      printf("Added enemy...");
+      enemy = strtok_r(NULL, ",", &saveptr);
+    }
+    printf("\n");
+  } else printf("Added empty enemy tag\n");
+
+  if (line != NULL) free(line);
 }
 
 void saveCopy(str maze, str filename) {
