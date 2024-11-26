@@ -434,10 +434,11 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
 }
 
 /**
- * 
- * @param arr 
- * @param line 
- * @return 
+ * Fills the two-element array of the minimum and maximum number from line.
+ * This is used for the enemies in creating their stats and HP.
+ * @param arr The two-element array to fill
+ * @param line The line of information
+ * @return Whether it could be filled or not
  */
 static bool fillArray(cJSON* arr, str line) {
   // line: #,#
@@ -454,6 +455,11 @@ static bool fillArray(cJSON* arr, str line) {
   if (!cJSON_AddItemToArray(arr, _stat)) return false;
 
   str stat2 = strtok_r(NULL, ",", &saveptr);
+
+  // In case that line is only "#" and not "#,#", stat2 would be null
+  // Do not treat it as an error, just assume it is to be only one number
+  if (!stat2) return true;
+
   int _stat2 = atoi(stat2);
 
   // In the cases that both numbers are same (mainly for boss), don't add the next number
