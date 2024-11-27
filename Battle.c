@@ -232,7 +232,8 @@ static void displayOptions() {
  */
 static bool validOptions(char attack, Skill** skillActivated, bool* basicUsed) {
   if (attack == 'h') {
-    heal(player, player->hpSlot);
+    if (!player->hpSlot) printf("HP kit quick slot not set!\n");
+    else heal(player, player->hpSlot);
 
     return false;
   }

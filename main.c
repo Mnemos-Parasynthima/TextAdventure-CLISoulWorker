@@ -289,6 +289,7 @@ void loop() {
           printf("%s", line);
           line = NULL;
         }
+        ssleep(1000);
         printf("\n\n");
 
         
