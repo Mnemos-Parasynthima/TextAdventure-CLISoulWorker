@@ -19,6 +19,8 @@
 #define GAME_DIR "CLISW_GAME"
 #define SAVES_DIR "data/saves"
 
+#define VERSION "v1.0.0-alpha"
+
 
 enum OPTS {
   FIX,
@@ -128,6 +130,16 @@ int main(int argc, char const* argv[]) {
     printf("Cannot change into directory. Exiting...\n");
     exit(-1);
   }
+
+  // download (uncomment when it is in release now)
+  // printf("Downloading zip file...\n");
+  // ssleep(1000);
+
+  // char cmd[128];
+
+  // sprintf(cmd, "wget https://github.com/Mnemos-Parasynthima/TextAdventure-CLISoulWorker/archive/%s.zip -o %s", VERSION, PACKAGE);
+
+  // sysret = system(cmd);
 
   // download (cp for now)
   printf("Copying zip file...\n");

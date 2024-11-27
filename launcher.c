@@ -72,9 +72,9 @@ static bool checkLatest() {
 #ifdef _WIN64
   scriptLen = 11;
   char* scriptContents[] = {
-    // "for /f "tokens=*" %%i in ('curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt') do set LATEST_VERSION=%%i",
     "@echo off\n",
-    "set LATEST_VERSION=alpha-3.1.0\n",
+    // "set LATEST_VERSION=alpha-3.1.0\n",
+    "for /f "tokens=*" %%i in ('curl -L -H \"Accept: application/vnd.github.raw+json\" https://api.github.com/repos/Mnemos-Parasynthima/TextAdventure-CLISoulWorker/contents/version') do set LATEST_VERSION=%%i",
     "set /p CURRENT_VERSION=<version\n",
     "echo Checking version...\n",
     "echo Current version is %CURRENT_VERSION%\n",
@@ -91,8 +91,8 @@ static bool checkLatest() {
   scriptLen = 9;
   char* scriptContents[] = {
     "#!/bin/bash\n",
-    "LATEST_VERSION='alpha-3.1.0'\n",
-    // "LATEST_VERSION=$(curl -s https://raw.githubusercontent.com/yourusername/yourgame/main/version.txt)\n",
+    // "LATEST_VERSION='alpha-3.1.0'\n",
+    "LATEST_VERSION=$(curl -L -H \"Accept: application/vnd.github.raw+json\" https://api.github.com/repos/Mnemos-Parasynthima/TextAdventure-CLISoulWorker/contents/version)\n",
     "CURRENT_VERSION=$(cat version)\n",
     "echo 'Checking version...'\n",
     "if [ $LATEST_VERSION != $CURRENT_VERSION ]; then\n",
