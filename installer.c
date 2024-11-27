@@ -197,11 +197,12 @@ int main(int argc, char const* argv[]) {
   endCmd = "rsync -a CLISW/ ./ && rm -rf CLISW && rm -f %s";
 #endif
 
-  cmd = realloc(cmd, endCmdLen + PACKAGE_SIZE); // possible mem leak???
-  if (!cmd) {
+  char* temp = realloc(cmd, endCmdLen + PACKAGE_SIZE);
+  if (!temp) {
     printf("COULD NOT ALLOCATE MEMORY!\n");
     exit(-1);
   }
+  cmd = temp;
 
   snprintf(cmd, endCmdLen + PACKAGE_SIZE, endCmd, PACKAGE);
 

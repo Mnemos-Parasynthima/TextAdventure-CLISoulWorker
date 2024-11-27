@@ -10,10 +10,10 @@
 Table* initTable() {
   Table* table = (Table*) malloc(sizeof(Table));
 
-  if (table == NULL) return NULL;
+  if (!table) return NULL;
 
   table->rooms = (Room**) calloc(ROOM_MULT, sizeof(Room*));
-  if (table->rooms == NULL) {
+  if (!table->rooms) {
     free(table);
     return NULL;
   }
@@ -31,7 +31,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
   // However, it is only 40 bytes extra, plus some space and time overhead, and it will all get freed anyway
   if (table->len == table->cap) {
     table->rooms = (Room**) realloc(table->rooms, (table->cap+ROOM_MULT)*sizeof(Room*));
-    if (table->rooms == NULL) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
+    if (!table->rooms) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
     void* startingPoint = (table->rooms) + (table->len);
     memset(startingPoint, 0x0, ROOM_MULT*sizeof(Room*));
 
@@ -41,7 +41,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
   byte id = room->id;
   Room* _room = table->rooms[(int)id];
 
-  if (_room == NULL) { // Room does not exist, add it
+  if (!_room) { // Room does not exist, add it
     table->rooms[(int) id] = room;
     table->len++;
 
@@ -60,7 +60,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
 }
 
 void deleteTable(Table* table) {
-  if (table == NULL) return;
+  if (!table) return;
 
   free(table->rooms);
   free(table);

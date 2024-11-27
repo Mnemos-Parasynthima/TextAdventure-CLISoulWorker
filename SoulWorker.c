@@ -13,7 +13,7 @@ static SkillTree* initSkillTree();
 
 SoulWorker* initSoulWorker(str name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
-  if (sw == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the player!\n");  
+  if (!sw) handleError(ERR_MEM, FATAL, "Could not allocate space for the player!\n");  
 
   // Set basic stats
   sw->name = name;
@@ -36,7 +36,7 @@ SoulWorker* initSoulWorker(str name) {
   sw->hpSlot = NO_ITEM;
 
   // Set inv
-  for(int i = 0; i < INV_CAP; i++) {
+  for (int i = 0; i < INV_CAP; i++) {
     sw->inv[i]._item = NO_ITEM;
     sw->inv[i].count = 0;
     sw->inv[i].type = NONE;
@@ -44,7 +44,7 @@ SoulWorker* initSoulWorker(str name) {
 
   // Set adv stats
   Stats* stats = (Stats*) malloc(sizeof(Stats));
-  if (stats == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
+  if (!stats) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
   stats->ATK = 8;
   stats->DEF = 8;
@@ -81,7 +81,7 @@ bool addToInv(SoulWorker* sw, Item* loot) {
     }
   }
 
-  if (item == NULL) { // Item not in inventory
+  if (!item) { // Item not in inventory
     // Make sure enough space
     if (sw->invCount == INV_CAP) {
       printf("Your inventory is full! You must remove some items!\n");
@@ -240,12 +240,12 @@ static void viewGear(SoulWorker* sw) {
   // If no gear piece equipped, only get space for "Unequipped\0"
   // Otherwise, space for name and its stats
   //                                                            [name] + rest + [lvl] + [acc] + [def] + \0
-  helmetStats = (str)malloc((helmet == NO_ITEM) ? 11 : (helmetNameLen + 21 + 3 + 5 + 3 + 1));
-  shoulderGuardStats = (str)malloc((guard == NO_ITEM) ? 11 : (shoulderGuardNameLen + 21 + 3 + 5 + 3 + 1));
-  chestplateStats = (str)malloc((chestplate == NO_ITEM) ? 11 : (chestplateNameLen + 21 + 3 + 5 + 3 + 1));
-  bootsStats = (str)malloc((boots == NO_ITEM) ? 11 : (bootsNameLen + 21 + 3 + 5 + 3 + 1));
+  helmetStats = (str) malloc((helmet == NO_ITEM) ? 11 : (helmetNameLen + 21 + 3 + 5 + 3 + 1));
+  shoulderGuardStats = (str) malloc((guard == NO_ITEM) ? 11 : (shoulderGuardNameLen + 21 + 3 + 5 + 3 + 1));
+  chestplateStats = (str) malloc((chestplate == NO_ITEM) ? 11 : (chestplateNameLen + 21 + 3 + 5 + 3 + 1));
+  bootsStats = (str) malloc((boots == NO_ITEM) ? 11 : (bootsNameLen + 21 + 3 + 5 + 3 + 1));
 
-  weaponStats = (str)malloc((swp == NO_ITEM) ? 11 : (weaponNameLen + 75 + 5 + 5 + 6 + 5 + 3 + 3 + 3 + 1));
+  weaponStats = (str) malloc((swp == NO_ITEM) ? 11 : (weaponNameLen + 75 + 5 + 5 + 6 + 5 + 3 + 3 + 3 + 1));
   // atk_crit: ###.##
 
   if (swp == NO_ITEM) sprintf(weaponStats, "Unequipped");
@@ -539,8 +539,15 @@ void upgradeSkill(SkillTree* skillTree, uint skillNum) {
   printf("Skill upgraded to level %d!\n", skill->lvl);
 }
 
-void unequipGear(SoulWorker *sw) {
+void unequipGear(SoulWorker* sw) {
   Item* gear = (Item*) malloc(sizeof(Item));
+  if (!gear) {
+    // Unsure whether this should be a fatal error or just a warning, allowing gameplay
+    // to continue but not allow unequipping
+    handleError(ERR_MEM, WARNING, "Could not allocate space for gear when unequipping!\n");
+    return;
+  }
+
   gear->count = 1;
 
   // Do not try unequipping when gear already unequipped
@@ -630,7 +637,7 @@ void equipGear(SoulWorker* sw, Item* item) {
       break;
   }
 
-  if (temp == NULL) { // NULL only when not swapping, meaning inv slot is to be empty
+  if (!temp) { // NULL only when not swapping, meaning inv slot is to be empty
     item->_item = NO_ITEM;
     item->type = NONE;
     item->count = 0;
@@ -730,9 +737,7 @@ void updateXP(SoulWorker* sw, uint xp) {
       // printf("XP leftover from level up: %d\n", xpLeftover);
       sw->xp = 0;
       // sw->xp = xpLeftover;
-    } else {
-      break;
-    }
+    } else break;
   }
 
   if (leveledUp) printf("Leveled up to LVL %d!\n", sw->lvl);
@@ -744,8 +749,10 @@ void updateXP(SoulWorker* sw, uint xp) {
  * @return The skill tree
  */
 static SkillTree* initSkillTree() {
+  const int SIZE = 4096;
+
   SkillTree* skillTree = (SkillTree*) malloc(sizeof(SkillTree));
-  if (skillTree == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for skill tree!\n");
+  if (!skillTree) handleError(ERR_MEM, FATAL, "Could not allocate space for skill tree!\n");
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
     skillTree->equippedSkills[i] = NO_SKILL;
@@ -755,7 +762,8 @@ static SkillTree* initSkillTree() {
   FILE* skillsFile = fopen(SKILL_DATA, "r");
   if (!skillsFile) handleError(ERR_IO, FATAL, "Could not open skills data!\n");
 
-  str buffer = (str) malloc(4096);
+  str buffer = (str) malloc(SIZE);
+  if (!buffer) handleError(ERR_MEM, FATAL, "Could not allocate space for skills buffer!\n");
 
   str name = NULL, *description = NULL;
   byte lvl, cooldown, id;
@@ -768,7 +776,7 @@ static SkillTree* initSkillTree() {
   for (int i = 0; i < TOTAL_SKILLS; i++) {
     // printf("Iteration %d\n", i);
 
-    fgets(buffer, 4096, skillsFile);
+    fgets(buffer, SIZE, skillsFile);
     if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
 #ifdef _WIN64
     name = _strdup(buffer);
@@ -777,7 +785,7 @@ static SkillTree* initSkillTree() {
 #endif
     // printf("name: %s\n", name);
 
-    fgets(buffer, 4096, skillsFile);
+    fgets(buffer, SIZE, skillsFile);
     if ((pos = strchr(buffer, '\n')) != NULL) *pos = '\0';
     // printf("Buffer for desc: %s\n", buffer);
 #ifdef _WIN64
@@ -803,7 +811,7 @@ static SkillTree* initSkillTree() {
     effect1 = (ushort) atoi(buffer);
     // printf("effect 1: %d\n", effect1);
 
-    fgets(buffer, 4096, skillsFile);
+    fgets(buffer, SIZE, skillsFile);
     if (strchr(buffer, '.')) effect2 = (float) atof(buffer);
     else effect2 = (float) ((ushort) atoi(buffer));
     // printf("effect 2: \n");
@@ -842,7 +850,7 @@ static void deleteSkillTree(SkillTree* skillTree) {
 }
 
 void deleteSoulWorker(SoulWorker* sw) {
-  if (sw == NULL) return;
+  if (!sw) return;
 
   free(sw->name);
   free(sw->stats);

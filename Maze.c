@@ -21,7 +21,7 @@ void removeItemFromMap(Room* room) {
 }
 
 bool deleteEnemyFromMap(Room* room, bool deleteGear) {
-  if (room == NULL ||  room->enemy.enemy == NULL || room->enemy.boss == NULL) return false;
+  if (!room || !room->enemy.enemy || !room->enemy.boss) return false;
 
   bool del;
 
@@ -128,7 +128,7 @@ void deleteRoom(Room* room) {
 
 void deleteMaze(Maze* maze) {
   Table* table = initTable();
-  if (table == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the table!\n");
+  if (!table) handleError(ERR_MEM, FATAL, "Could not allocate space for the table!\n");
 
   Room* room = maze->entry;
   addAndRecurse(room, table);

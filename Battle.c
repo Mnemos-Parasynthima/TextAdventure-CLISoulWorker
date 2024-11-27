@@ -372,7 +372,7 @@ bool bossBattle(Boss* boss) {
 
     // Need to create Item* in order to use addToInv
     Item* gearItem = (Item*) malloc(sizeof(Item));
-    if (gearItem == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for gear item!\n");
+    if (!gearItem) handleError(ERR_MEM, FATAL, "Could not allocate space for gear item!\n");
 
     gearItem->count = 1;
     

@@ -177,8 +177,8 @@ static void story(bool room) {
   }
 
   FILE* story = fopen(filename, "r");
-  free(filename);
   if (!story) handleError(ERR_IO, FATAL, "Could not open story!\n");
+  free(filename);
 
   if (room) player->room->file = story;
 
@@ -196,6 +196,7 @@ static void story(bool room) {
     printf("%s", line);
     line = NULL;
   }
+  ssleep(1000);
   printf("\n\n");
 
   if (!room) fclose(story);
@@ -269,8 +270,7 @@ void loop() {
     if (currRoom->hasBoss && currRoom->enemy.boss != NULL) {
       story(true);
 
-      bool win;
-      win = bossBattle(currRoom->enemy.boss);
+      bool win = bossBattle(currRoom->enemy.boss);
 
       // If the battle was a win, then print story and move on to next maze
       // Otherwise, player is respawned to current maze entry

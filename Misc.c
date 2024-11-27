@@ -69,7 +69,7 @@ static bool equalUpgrade(Upgrade* up1, Upgrade* up2) {
 }
 
 bool equalItems(Item* item1, Item* item2) {
-  if (item1 == NULL || item2 == NULL) return false;
+  if (!item1 || !item2) return false;
 
   if (item1->type != item2->type) return false;
 
@@ -110,7 +110,7 @@ bool equalItems(Item* item1, Item* item2) {
 static str getHPKitName(HPKit* hpKit) {
   // "**** HP Kit"
   str name = (str) malloc(12);
-  if (name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for HP Kit name!\n");
+  if (!name) handleError(ERR_MEM, FATAL, "Could not allocate space for HP Kit name!\n");
 
   str type;
   switch (hpKit->type) {
@@ -141,7 +141,7 @@ static str getHPKitName(HPKit* hpKit) {
 static str getUpgradeName(Upgrade* upgrade) {
   // "* Weapon|Armor Upgrade Material"  
   str name = (str) malloc(26);
-  if (name == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade material name!\n");
+  if (!name) handleError(ERR_MEM, FATAL, "Could not allocate space for upgrade material name!\n");
 
   str type;
   switch (upgrade->type) {
@@ -239,7 +239,7 @@ void displaySlime(Slime* slime) {
 }
 
 void deleteSoulWeapon(SoulWeapon* sw) {
-  if (sw == NULL) return;
+  if (!sw) return;
 
   free(sw->name);
   free(sw);
@@ -247,7 +247,7 @@ void deleteSoulWeapon(SoulWeapon* sw) {
 }
 
 void deleteArmor(Armor* armor) {
-  if (armor == NULL) return;
+  if (!armor) return;
 
   free(armor->name);
   free(armor);
@@ -255,7 +255,7 @@ void deleteArmor(Armor* armor) {
 }
 
 void deleteOther(HPKit* item) {
-  if (item == NULL) return;
+  if (!item) return;
 
   free(item->desc);
   free(item);
@@ -263,7 +263,7 @@ void deleteOther(HPKit* item) {
 }
 
 bool deleteItem(Item* item) {
-  if (item == NULL) return false;
+  if (!item) return false;
 
   // Maybe turn to if statements
   switch (item->type) {
@@ -347,7 +347,7 @@ void deleteSkills(Skill skills[], int len) {
 
 bool deleteEnemy(Enemy *enemy)
 {
-  if (enemy == NULL) return false;
+  if (!enemy) return false;
 
   free(enemy->name);
   free(enemy->stats);
@@ -357,7 +357,7 @@ bool deleteEnemy(Enemy *enemy)
 }
 
 bool deleteBoss(Boss* boss, bool deleteGear) {
-  if (boss == NULL) return false;
+  if (!boss) return false;
 
   free(boss->base.name);
   free(boss->base.stats);

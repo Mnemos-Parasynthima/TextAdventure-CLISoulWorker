@@ -6,10 +6,10 @@
 
 DArray* initDArray(byte size) {
   DArray* arr = (DArray*) malloc(sizeof(DArray));
-  if (arr == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the dynamic array structure!\n");
+  if (!arr) handleError(ERR_MEM, FATAL, "Could not allocate space for the dynamic array structure!\n");
 
   arr->ids = (char*) malloc(size);
-  if (arr->ids == NULL) handleError(ERR_MEM, FATAL, "Could not allocate space for the dyanmic array contents!\n");
+  if (!arr->ids) handleError(ERR_MEM, FATAL, "Could not allocate space for the dyanmic array contents!\n");
 
   arr->size = size;
 
@@ -19,7 +19,7 @@ DArray* initDArray(byte size) {
 }
 
 void dArrayAdd(DArray* arr, byte id) {
-  if (arr == NULL) return;
+  if (!arr) return;
 
   for (int i = 0; i < arr->size; i++) {
     if (arr->ids[i] == -1) {
@@ -30,7 +30,7 @@ void dArrayAdd(DArray* arr, byte id) {
 }
 
 bool dArrayExists(DArray* arr, byte id) {
-  if (arr == NULL) return false;
+  if (!arr) return false;
 
   for (int i = 0; i < arr->size; i++) {
     if (arr->ids[i] == id) return true;

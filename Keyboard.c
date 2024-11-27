@@ -229,7 +229,7 @@ static Item* getItemFromPos() {
   uchar itemI = _item - '0';
 
   Item* item = validItem(itemI);
-  while (item == NULL) {
+  while (!item) {
     printf("That is not a valid inventory entry!\n Try again! ");
     _item = getchar();
     FLUSH()
@@ -309,8 +309,8 @@ static void useItem() {
       printf("That is not a valid action. Try again! ");
 
       opt = getchar();
-      FLUSH()
       opt = tolower(opt);
+      FLUSH()
     }
 
     if (opt == ITEM_SELL) {
@@ -419,15 +419,15 @@ bool performAction(Commands action) {
   if (action == WALK) {
     printf("What direction do you want to move? ");
     Movement dir = getchar();
-    FLUSH()
     dir = tolower(dir);
+    FLUSH()
 
     while(!validMove(&dir, player->room)) {
       printf("That is not a direction. Try again! For a list of acceptable direction, type 'h'. ");
 
       dir = getchar();
-      FLUSH()
       dir = tolower(dir);
+      FLUSH()
 
       if (dir == 'h') displayHelp(MOVEMENT_H);
     }
@@ -509,22 +509,23 @@ bool performAction(Commands action) {
 
       printf("%sInventory%s: What do you want to do? ", CYAN, RESET);
       inv = getchar();
-      FLUSH()
       inv = tolower(inv);
+      FLUSH()
     } 
   } else if (action == OPEN_SKILLS) {
     viewSkills(player->skills);
 
     printf("%sSkill Menu%s: What do you want to do? ", CYAN, RESET);
     Skills action = getchar();
-    FLUSH()
     action = tolower(action);
+    FLUSH()
 
     while (action != SKILL_QUIT) {
       while (!validSkillAction(action)) {
         printf("That is not a valid action. Try again! For a list of acceptable actions, type 'h'. ");
 
         action = getchar();
+        action = tolower(action);
         FLUSH()
       }
 
@@ -591,8 +592,8 @@ bool performAction(Commands action) {
 
       printf("%sSkill Menu%s: What do you want to do? ", CYAN, RESET);
       action = getchar();
-      FLUSH()
       action = tolower(action);
+      FLUSH()
     }
   } else if (action == HELP) displayHelp(ACTIONS_H);
     else if (action == SAVE) saveGame();
