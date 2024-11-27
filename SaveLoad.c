@@ -157,13 +157,13 @@ static bool saveGear(cJSON* parentObj, Gear* data) {
   cJSON* gear = cJSON_AddObjectToObject(parentObj, "gear");
   if (!gear) { createError(parentObj, GEAR); return false; }
 
-  if (!data->sw) _null = cJSON_AddNullToObject(gear, "sw");
+  if (!data->sw) _null = cJSON_AddNullToObject(gear, "soulweapon");
   else {
-    cJSON* sw = cJSON_AddObjectToObject(gear, "sw");
-    if (!sw) { createError(parentObj, "SoulWeapon"); return false; }
+    cJSON* sw = cJSON_AddObjectToObject(gear, "soulweapon");
+    if (!sw) { createError(parentObj, "soulweapon"); return false; }
 
     bool _sw = saveSoulWeapon(sw, data->sw);
-    if (!_sw) { createError(parentObj, "SoulWeapon"); return false; }
+    if (!_sw) { createError(parentObj, "soulweapon"); return false; }
   }
 
   if (!data->helmet) _null = cJSON_AddNullToObject(gear, "helmet");
@@ -175,13 +175,13 @@ static bool saveGear(cJSON* parentObj, Gear* data) {
     if (!_helmet) { createError(parentObj, "helmet"); return false; }
   }
 
-  if (!data->guard) _null = cJSON_AddNullToObject(gear, "guard");
+  if (!data->guard) _null = cJSON_AddNullToObject(gear, "shoulder_guard");
   else {
-    cJSON* guard = cJSON_AddObjectToObject(gear, "guard");
-    if (!guard) { createError(parentObj, "guard"); return false; }
+    cJSON* guard = cJSON_AddObjectToObject(gear, "shoulder_guard");
+    if (!guard) { createError(parentObj, "shoulder_guard"); return false; }
 
     bool _guard = saveArmor(guard, data->guard);
-    if (!_guard) { createError(parentObj, "guard"); return false; }
+    if (!_guard) { createError(parentObj, "shoulder_guard"); return false; }
   }
 
   if (!data->chestplate) _null = cJSON_AddNullToObject(gear, "chestplate");
@@ -820,7 +820,7 @@ static SoulWorker* loadPlayer() {
   if (!hpSlot) handleError(ERR_DATA, FATAL, "No HP slot data found!\n");
 
   int hpSlotIdx = hpSlot->valueint;
-  printf("Saved HP slot index is %d\n", hpSlotIdx);
+  // printf("Saved HP slot index is %d\n", hpSlotIdx);
 
   if (hpSlotIdx != -1) {
     for (int i = 0; i < INV_CAP; i++) {
@@ -860,7 +860,7 @@ static SoulWorker* loadPlayer() {
   cJSON* gear = cJSON_GetObjectItemCaseSensitive(root, "gear");
   if (!gear) handleError(ERR_DATA, FATAL, "No gear data found!\n");
 
-  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "sw");
+  cJSON* sw = cJSON_GetObjectItemCaseSensitive(gear, "soulweapon");
   if (!sw) handleError(ERR_DATA, FATAL, "No SoulWeapon data found!\n");
   if (!cJSON_IsNull(sw)) player->gear.sw = createSoulWeapon(sw);
 
@@ -868,7 +868,7 @@ static SoulWorker* loadPlayer() {
   if (!helmet) handleError(ERR_DATA, FATAL, "No helmet data found!\n");
   if (!cJSON_IsNull(helmet)) player->gear.helmet = createArmor(helmet);
 
-  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "guard");
+  cJSON* guard = cJSON_GetObjectItemCaseSensitive(gear, "shoulder_guard");
   if (!guard) handleError(ERR_DATA, FATAL, "No  data found!\n");
   if (!cJSON_IsNull(guard)) player->gear.guard = createArmor(guard);
 
