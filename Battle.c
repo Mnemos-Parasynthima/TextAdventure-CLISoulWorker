@@ -68,31 +68,84 @@ static void returnRoom() {
  * @return How much damage taken
  */
 static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
-  // TODO
-  // If no skill used (aka basic skill was used), then do normal calculations
-  // otherwise, take into account the skill bonus
-  if (!skill) {
-    float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
-    // printf("hitroll: %3.2f\n", hitRoll);
-    if (hitRoll > attacker->ACC) return 0;
+  ushort totalAtk = attacker->ATK;
+  ushort totalAcc = attacker->ACC;
+  float totalCrit = attacker->ATK_CRIT;
+  ushort totalCritDmg = attacker->ATK_CRIT_DMG;
+  ushort totalDef = target->DEF; // Total defense of the target
 
-    short baseDamage = 1 + (attacker->ATK - target->DEF);
-    // printf("baseDamage: %d\n", baseDamage);
-    if (baseDamage < 1) baseDamage = 1;
-
-    float critRoll = (float) rand() / RAND_MAX;
-    // printf("critroll: %3.2f\n", critRoll);
-    if (critRoll <= attacker->ATK_CRIT) {
-      baseDamage += ((ushort) baseDamage * attacker->ATK_CRIT_DMG) / 100;
+  if (attacker == player->stats) {
+    if (player->gear.sw != NULL) {
+      totalAtk += player->gear.sw->atk;
+      totalAcc += player->gear.sw->acc;
+      totalCrit += player->gear.sw->atk_crit;
+      totalCritDmg += player->gear.sw->atk_crit_dmg;
     }
 
-    return (ushort) baseDamage;
+    if (player->gear.helmet != NULL) {
+      totalAcc += player->gear.helmet->acc;
+    }
+
+    if (player->gear.guard != NULL) {
+      totalAcc += player->gear.guard->acc;
+    }
+
+    if (player->gear.chestplate != NULL) {
+      totalAcc += player->gear.chestplate->acc;
+    }
+
+    if (player->gear.boots != NULL) {
+      totalAcc += player->gear.boots->acc;
+    }
   }
 
-  printf("Skill used! [NOT YET IMPLEMENTED]\n");
-  skill->cdTimer = skill->cooldown + 1;
+  // Take into account the player's defense from armor
+  // It is the case when the target stats is the player's stats
+  // so the enemy can take that defense into account
+  if (target == player->stats) {
+    if (player->gear.helmet != NULL) {
+      totalDef += player->gear.helmet->def;
+    }
 
-  return skill->effect1.atk;
+    if (player->gear.guard != NULL) {
+      totalDef += player->gear.guard->def;
+    }
+
+    if (player->gear.chestplate != NULL) {
+      totalDef += player->gear.chestplate->def;
+    }
+
+    if (player->gear.boots != NULL) {
+      totalDef += player->gear.boots->def;
+    }
+  }
+
+  if (skill != NULL) {
+    totalAtk += (skill->activeEffect1 == ATK) ? skill->effect1.atk : 0;
+    totalAcc += (skill->activeEffect2 == ACC) ? skill->effect2.acc : 0;
+    totalCrit += (skill->activeEffect2 == ATK_CRIT) ? skill->effect2.atk_crit : 0.0;
+    totalCritDmg += (skill->activeEffect1 == ATK_CRIT_DMG) ? skill->effect1.atk_crit_dmg : 0;
+    totalDef += (skill->activeEffect2 == DEF) ? skill->effect2.def : 0;
+  }
+
+
+  float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
+  // printf("hitroll: %3.2f\n", hitRoll);
+  if (hitRoll > totalAcc) return 0;
+
+  short baseDamage = 1 + (totalAtk - totalDef);
+  // printf("baseDamage: %d\n", baseDamage);
+  if (baseDamage < 1) baseDamage = 1;
+
+  float critRoll = (float) rand() / RAND_MAX;
+  // printf("critroll: %3.2f\n", critRoll);
+  if (critRoll <= totalCrit) {
+    baseDamage += ((ushort) baseDamage * totalCritDmg) / 100;
+  }
+
+  if (skill != NULL) skill->cdTimer = skill->cooldown + 1;
+
+  return (ushort) baseDamage;
 }
 
 /**
