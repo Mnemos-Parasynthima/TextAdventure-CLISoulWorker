@@ -11,7 +11,6 @@
 
 str readJSON(const str filename) {
   FILE* file = fopen(filename, "r");
-  free((void*) filename);
 
   if (!file) handleError(ERR_IO, FATAL, "Could not open file!\n");
 
