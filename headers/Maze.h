@@ -33,7 +33,7 @@ typedef struct Maze {                     // 17B+7B(PAD) = 24B
   byte size; // The number of rooms that the maze has       1B
 } Maze;
 
-// A temporary hashmap to store the rooms for saving, loading, and deleting
+// A temporary hashtable to store the rooms for saving, loading, and deleting
 typedef struct Table {                              // 16B
   Room** rooms; // The array of room pointers           8B
   uint cap; // The current capacity of the table        4B
@@ -70,14 +70,21 @@ void removeItemFromMap(Room* room);
 bool deleteEnemyFromMap(Room* room, bool deleteGear);
 
 /**
- * Inititates the temporary map to store the room
- * @return The Map
+ * Inititates the temporary table to store the room
+ * @return The table
  */
 Table* initTable();
 
 /**
- * Inserts the given room into the given map
- * @param table The map
+ * Initiates the temporary table to store the room with a set size.
+ * @param size The size to set the table.
+ * @return The table.
+ */
+Table* initTableL(int size);
+
+/**
+ * Inserts the given room into the given table
+ * @param table The table
  * @param room The room to store
  * @param overwrite Whether to overwrite the room if one exists
  * @return Whether the room was put
@@ -94,14 +101,14 @@ void addAndRecurse(Room* room, Table* table);
 
 /**
  * Connects the created rooms to form the maze.
- * @param table The map containing the rooms
+ * @param table The table containing the rooms
  * @return The entry room
  */
 Room* connectRooms(Table* table);
 
 /**
- * Deletes the temporary map.
- * @param table The map to delete
+ * Deletes the temporary table.
+ * @param table The table to delete
  */
 void deleteTable(Table* table);
 
