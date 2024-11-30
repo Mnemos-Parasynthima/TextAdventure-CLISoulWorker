@@ -165,7 +165,7 @@ static str getInfo(str infoFile) {
 
   size_t n;
   // Assuming entire info is in a single line
-  size_t read = getline(&info, &n, file);
+  getline(&info, &n, file);
 
   return info;
 }
@@ -798,7 +798,7 @@ static void createRoom(cJSON* root, int id, FILE* room) {
 
   // Get the id
   read = getline(&line, &n, room);
-  int _id = *line - 0x30;
+  int _id = atoi(line);
   // Make sure the IDs match between in file and array
   if (id != _id) {
     printf("IDs do not match! File contained %d while at %dth iteration.\n", _id, id);
@@ -837,23 +837,28 @@ static void createRoom(cJSON* root, int id, FILE* room) {
 
   cJSON* exits = cJSON_AddArrayToObject(roomObj, "exits");
   if (!exits) createError(root, "exits");
+
+  str _exit = strtok(line, ",");
+  
   for (int i = 0; i < 4; i++) {
-    int num = 0;
-    if (*line == '-') {
-      num = ~(*(line + 1) - 0x30) + 1;
-      line += 3;
+    int num;
+
+    if (_exit != NULL) {
+      num = atoi(_exit);
+      // num needs to also be -1
     } else {
-      num = *line - 0x30;
-      line += 2;
-      // For the last number, after this, line will point to a mem addr
-      // that may not be valid, but it should not access it
-      // Actually, it may point to the second null char
+      // for whatever reason that it is null when iterating 4 times
+      // set it to -1 by default
+      num = -1;
     }
+
     cJSON* exit = cJSON_CreateNumber(num);
     if (!exit) createError(root, "exit");
 
     if (!cJSON_AddItemToArray(exits, exit)) createError(root, "exit in exits");
     printf("Added exit %d...", num);
+
+    _exit = strtok(NULL, ",");
   }
   printf("\n");
   line = NULL;
