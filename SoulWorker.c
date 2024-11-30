@@ -10,6 +10,7 @@
 #define SKILL_DATA "./data/misc/skills.dat"
 
 static SkillTree* initSkillTree();
+static uint xpRequired(uint lvl);
 
 SoulWorker* initSoulWorker(str name) {
   SoulWorker* sw = (SoulWorker*) malloc(sizeof(SoulWorker));
@@ -19,6 +20,7 @@ SoulWorker* initSoulWorker(str name) {
   sw->name = name;
   sw->hp = 5;
   sw->xp = 0;
+  sw->xpReq = xpRequired(1);
   sw->lvl = 1;
   sw->invCount = 0;
   sw->dzenai = 0;
@@ -46,9 +48,9 @@ SoulWorker* initSoulWorker(str name) {
   Stats* stats = (Stats*) malloc(sizeof(Stats));
   if (!stats) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
-  stats->ATK = 2;
-  stats->DEF = 1;
-  stats->ACC = 1;
+  stats->ATK = 4;
+  stats->DEF = 4;
+  stats->ACC = 3;
   stats->ATK_CRIT_DMG = 2;
   stats->ATK_CRIT = 0.05;
   sw->stats = stats;
@@ -280,7 +282,7 @@ static void viewGear(SoulWorker* sw) {
 void viewSelf(SoulWorker* sw) {
   /**
    * [name], LVL [lvl]; [hp]/[maxHP]\n
-   * XP: [xp]; [dzenai] DZ\n
+   * XP: [xp]/[xpReq]; [dzenai] DZ\n
    * ATK: [atk]; DEF: [def]; ACC: [acc]; ATK CRIT DMG: [atk_crit_dmg]; ATK CRIT: [atk_crit]\n
    */
 
@@ -300,8 +302,9 @@ void viewSelf(SoulWorker* sw) {
   uint totalCritDmg = sw->stats->ATK_CRIT_DMG + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit_dmg : 0);
   float totalCrit = sw->stats->ATK_CRIT + ((gear->sw != NO_ITEM) ? gear->sw->atk_crit : 0);
 
-  printf("%s, LVL %d; %s%d%s/%d\nXP: %d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
-          sw->name, sw->lvl, (sw->hp <= (sw->maxHP / 2)) ? RED : GREEN, sw->hp, RESET, sw->maxHP, sw->xp, sw->dzenai,
+  printf("%s, LVL %d; %s%d%s/%d\nXP: %d/%d; %d DZ\nATK: %d; DEF: %d; ACC: %d; ATK CRIT DMG: %d; ATK CRIT: %3.2f\n\n", 
+          sw->name, sw->lvl, (sw->hp <= (sw->maxHP / 2)) ? RED : GREEN, sw->hp, RESET, sw->maxHP, 
+          sw->xp, sw->xpReq, sw->dzenai,
           totalAtk, totalDef, totalAcc, totalCritDmg, totalCrit);
           
   viewGear(sw);
@@ -675,14 +678,14 @@ void heal(SoulWorker* sw, Item* item) {
 }
 
 /**
- * Formula for how much xp is required for the given level.
- * @param lvl The level
+ * Formula for how much xp is required based on the given level for the next level.
+ * @param lvl The current level
  * @return XP required for the level
  */
 static uint xpRequired(uint lvl) {
   uint xpReq;
 
-  uint A = 50; // Acceleration of XP req growth
+  uint A = 15; // Acceleration of XP req growth
   uint B = 0; // Base XP req increment
   uint C = 0; // Min XP req'd at level 1
 
@@ -702,8 +705,9 @@ static void levelUp(SoulWorker* sw) {
 
   sw->skills->totalSkillPoints += 5;
 
-  uint baseHPGain = 10;
-  sw->maxHP = sw->hp = sw->hp + baseHPGain + (sw->lvl * 2);
+  int baseHPGain = -2;
+  // sw->maxHP = sw->hp = sw->maxHP + baseHPGain + (sw->lvl * 2);
+  sw->maxHP = sw->hp = sw->maxHP + baseHPGain + (2 * sw->lvl * sw->lvl);
 
   float growthFactor = 1.01 + 0.01 * (1.0 / sw->lvl);
 
@@ -725,8 +729,9 @@ void updateXP(SoulWorker* sw, uint xp) {
   while (true) {
     sw->xp += xpLeftover;
 
-    uint xpReqd = xpRequired((sw->lvl) + 1);
-    // printf("XP required for next level (%d): %d\n", (sw->lvl)+1, xpReqd);
+    uint xpReqd = xpRequired(sw->lvl);
+    // printf("Total XP required for next level (%d): %d\n", (sw->lvl)+1, xpReqd);
+    // printf("Need %d more\n", xpReqd - sw->xp);
 
     // Current XP passes XP req'd for next level, time to increase level
     if (sw->xp >= xpReqd) {
@@ -736,6 +741,8 @@ void updateXP(SoulWorker* sw, uint xp) {
       xpLeftover = sw->xp - xpReqd;
       // printf("XP leftover from level up: %d\n", xpLeftover);
       sw->xp = 0;
+      sw->xpReq = xpRequired(sw->lvl);
+      // printf("New XP required: %d\n", sw->xpReq);
       // sw->xp = xpLeftover;
     } else break;
   }

@@ -12,10 +12,11 @@
 #define TOTAL_SKILLS 10
 
 // The player model.
-typedef struct SoulWorker {            // 502B+10B(PAD) = 512B
+typedef struct SoulWorker {            // 506B+6B(PAD) = 512B
   str name; // The name of the player                       8B
   Room* room; // The current room that the player is in     8B
   uint xp; // The current XP                                4B
+  uint xpReq; // The total required XP for level up         4B
   uint lvl; // The current level                            4B
   uint hp; // The current HP                                4B
   uint maxHP; // The max HP                                 4B

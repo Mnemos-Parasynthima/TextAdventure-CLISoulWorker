@@ -607,6 +607,9 @@ static str createPlayerState() {
   cJSON* playerXP = cJSON_AddNumberToObject(playerObj, XP, player->xp);
   if (!playerXP) return createError(playerObj, XP);
 
+  cJSON* playerXPReq = cJSON_AddNumberToObject(playerObj, "xpReq", player->xpReq);
+  if (!playerXPReq) return createError(playerObj, "xpReq");
+
   cJSON* playerLvl = cJSON_AddNumberToObject(playerObj, LVL, player->lvl);
   if (!playerLvl) return createError(playerObj, LVL);
 
@@ -757,6 +760,9 @@ static SoulWorker* loadPlayer() {
   cJSON* xp = cJSON_GetObjectItemCaseSensitive(root, XP);
   if (!xp) handleError(ERR_DATA, FATAL, "No xp data found!\n");
 
+  cJSON* xpReq = cJSON_GetObjectItemCaseSensitive(root, "xpReq");
+  if (!xpReq) handleError(ERR_DATA, FATAL, "No xp req data found!\n");
+
   cJSON* dzenai = cJSON_GetObjectItemCaseSensitive(root, DZ);
   if (!dzenai) handleError(ERR_DATA, FATAL, "No dzenai data found!\n");
 
@@ -786,6 +792,7 @@ static SoulWorker* loadPlayer() {
   SoulWorker* player = initSoulWorker(playerName);
   player->hp = hp->valueint;
   player->xp = xp->valueint;
+  player->xpReq = xpReq->valueint;
   player->invCount = invCount->valueint;
   player->maxHP = maxHP->valueint;
   player->dzenai = dzenai->valueint;
