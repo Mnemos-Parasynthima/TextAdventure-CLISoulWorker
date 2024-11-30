@@ -7,6 +7,7 @@
 #include "Colors.h"
 
 
+#define UNUSED __attribute__ ((unused))
 #define FLUSH() do { int c; while ((c = getchar()) != '\n' && c != EOF); } while (0);
 
 /**
@@ -18,8 +19,8 @@
 extern str itoa(int n, char* buffer, int radix);
 
 /**
- * 
- * @param file 
+ * Gathers the data for the boss and writes them to the given file.
+ * @param file The enemies file
  */
 static void getBossData(FILE* file) {
 	str line = NULL;
@@ -77,11 +78,17 @@ static void getBossData(FILE* file) {
 		getline(&line, &n, stdin);
 		fputs(line, file);
 		printf("\t%sSet skill active effect 1 to %s%s", GREEN, line, RESET);
+		
+		int effect = atoi(line);
+		if (effect < 0 || effect > 1) handleError(ERR_DATA, FATAL, "Input is not for active effect 1!\n");
 
 		printf("\tEnter active effect 2 (def: 2, acc: 3, atk crit: 4): ");
 		getline(&line, &n, stdin);
 		fputs(line, file);
 		printf("\t%sSet skill active effect 2 to %s%s", GREEN, line, RESET);
+		
+		effect = atoi(line);
+		if (effect < 2 || effect > 4) handleError(ERR_DATA, FATAL, "Input it not for active effect 2!\n");
 
 		int stat;
 		float statf;
@@ -99,9 +106,12 @@ static void getBossData(FILE* file) {
 		fputs("END_SKILL\n", file);
 		FLUSH()
 	}
+
+	if (line != NULL) free(line);
 }
 
-int main(int argc, char const *argv[]) {
+
+int main(int argc UNUSED, char const *argv[] UNUSED) {
 	str filename = "./out/enemies.enemy";
 	FILE* file = fopen(filename, "w");
 	if (!file) handleError(ERR_IO, FATAL, "Could not create file!\n");

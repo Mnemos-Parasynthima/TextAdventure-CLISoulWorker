@@ -159,13 +159,14 @@ static str getInfo(str infoFile) {
   FILE* file = fopen(filename, "r");
   if (!file) handleError(ERR_IO, FATAL, "Could not open info file %s!\n", infoFile);
 
-  free(filename);
-
   str info = NULL;
 
   size_t n;
   // Assuming entire info is in a single line
   getline(&info, &n, file);
+
+  free(filename);
+  fclose(file);
 
   return info;
 }
@@ -207,7 +208,7 @@ static void createSoulWeapon(cJSON* item, FILE* file) {
   *(line + read - 1) = '\0';
 
   cJSON* name = cJSON_AddStringToObject(item, "name", line);
-  // 
+  // if (!name) createError(item)
 
   int stat;
   float statf;
@@ -340,6 +341,7 @@ static FILE* parseAndFind(str item, str* _type) {
     if (!itemFound) handleError(ERR_DATA, FATAL, "Could not find item %s of %s!\n", id, type);
   }
 
+  if (line != NULL) free(line);
   free(filename);
 
   return itemFile;
@@ -432,6 +434,8 @@ static void addLoot(cJSON* root, cJSON* lootArr, str item) {
       break;
   }
 
+  if (line != NULL) free(line);
+
   fclose(itemFile);
 }
 
@@ -480,9 +484,9 @@ static bool fillArray(cJSON* arr, str line) {
 }
 
 /**
- * 
- * @param line 
- * @param gear 
+ * Adds the provided item drop's data to the gear JSON
+ * @param item The item describing the type and id 
+ * @param gear The JSON object holding the boss's drop gear
  */
 static void createDrop(str item, cJSON* gear) {
   str type = NULL;
@@ -491,7 +495,7 @@ static void createDrop(str item, cJSON* gear) {
 
   // file pointer should point to the next line after ID
   // start processing the individual data (depends greatly on type)
-  // For all items, the data immediately after is the count, so add that before
+  // For all items, the data immediately after (ID) is the count, so add that before
   // Type is also known so add it
 
   cJSON* gearPiece = cJSON_AddObjectToObject(gear, type);
@@ -650,15 +654,17 @@ static void createBossData(FILE* file, cJSON* enemy) {
   if (strncmp(line, "END_ENEMY", 9) != 0) {
     handleError(ERR_DATA, WARNING, "Something went wrong. Did not end at end enemy tag!\n");
   }
+
+  if (line != NULL) free(line);
 }
 
 /**
- * 
- * @param root 
- * @param enemyArr 
- * @param line 
- * @param hasBoss
- * @param file
+ * Adds the enemy of enemyID to the enemy array, using the enemies.enemy file.
+ * @param root The root object of the JSON
+ * @param enemyArr The array to contain the enemy objects
+ * @param enemyID The id of the enemy to add 
+ * @param hasBoss Whether the enemy is a boss or not
+ * @param file The enemies.enemy file
  */
 static void addEnemy(cJSON* root, cJSON* enemyArr, str enemyID, bool hasBoss, FILE* file) {
   // Check for empty
@@ -810,7 +816,6 @@ static void createRoom(cJSON* root, int id, FILE* room) {
   printf("Added isEntry tag with value of %d...\n", (id == 0) ? 1 : 0);
 
   // Get storyfile
-  // if (feof(room)) 
   // Handle when no line to get
   // Maybe it should leave the data json as is and continue
   // or stop and exit
@@ -926,12 +931,20 @@ static void createRoom(cJSON* root, int id, FILE* room) {
       printf("Added enemy...");
       enemy = strtok_r(NULL, ",", &saveptr);
     }
+
+    fclose(file);
+
     printf("\n");
   } else printf("Added empty enemy tag\n");
 
   if (line != NULL) free(line);
 }
 
+/**
+ * Saves a copy of the output JSON (string) to archive, added with a timestamp
+ * @param maze The JSON string for the maze
+ * @param filename The pure filename
+ */
 void saveCopy(str maze, str filename) {
   // [name].json to ./history/[name]-[time-date].json
 
@@ -963,18 +976,18 @@ void saveCopy(str maze, str filename) {
   FILE* file = fopen(newFilename, "w");
   if (!file) {
     handleError(ERR_IO, WARNING, "Could not create file!\n");
-    free(newFilename);
+    goto END;
   }
 
   int written = fprintf(file, "%s", maze);
-  if (written <= 0) {
-    handleError(ERR_IO, WARNING, "Could not save maze!\n");
-    free(newFilename);
-  }
-  printf("%sCopy saved to %s!%s\n", GREEN, newFilename, RESET);
+  if (written <= 0) handleError(ERR_IO, WARNING, "Could not save maze!\n");
+  else printf("%sCopy saved to %s!%s\n", GREEN, newFilename, RESET);
 
+  fclose(file);
+  END:
   free(newFilename);
 }
+
 
 int main(int argc, char const* argv[]) {
   if (argc < 2 || argc > 3) {
@@ -1027,7 +1040,7 @@ int main(int argc, char const* argv[]) {
   if (archive) saveCopy(maze, filename);
 
   free(filename);
-  cJSON_free(maze); // ????
+  cJSON_free(maze);
 
   for (int i = 0; i < roomCount; i++) {
     fclose(rooms[i]);

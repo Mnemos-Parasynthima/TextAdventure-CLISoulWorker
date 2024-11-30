@@ -22,9 +22,9 @@ typedef enum {
 } item_t;
 
 /**
- * 
- * @param item 
- * @return 
+ * Converts the given item number to its string representation.
+ * @param item The item type
+ * @return The representing string
  */
 static str itemToString(item_t item) {
   str ret = NULL;
@@ -66,9 +66,9 @@ static str itemToString(item_t item) {
 }
 
 /**
- * 
- * @param file 
- * @param num 
+ * Creates soulweapons of num items, writing them to the appropriate file.
+ * @param file The soulweapon.item file
+ * @param num How many weapons to create
  */
 static void createSoulWeapon(FILE* file, int num) {
   int id = 0;
@@ -131,10 +131,10 @@ static void createSoulWeapon(FILE* file, int num) {
 }
 
 /**
- * 
- * @param file 
- * @param num 
- * @param type 
+ * Creates armor of num items, depending on type, writing them to the appropriate file.
+ * @param file The armor piece file
+ * @param num How many of the pieces to create
+ * @param type The type of armor
  */
 static void createArmor(FILE* file, int num, item_t type) {
   int id = 0;
@@ -184,9 +184,9 @@ static void createArmor(FILE* file, int num, item_t type) {
 }
 
 /**
- * 
- * @param file 
- * @param num 
+ * Creates hp kits of num items, writing them to the appropriate file.
+ * @param file The hp_kit.item file
+ * @param num How many hp kits to create
  */
 static void createHPKit(FILE* file, int num) {
   int id = 0;
@@ -241,10 +241,10 @@ static void createHPKit(FILE* file, int num) {
 }
 
 /**
- * 
- * @param file 
- * @param num 
- * @param type 
+ * Creates armor of num items, depending on type, writing them to the appropriate file.
+ * @param file The upgrade file
+ * @param num How many of upgrades to create
+ * @param type The type of upgrade
  */
 static void createUpgrade(FILE* file, int num, item_t type) {
   int id = 0;
@@ -280,6 +280,7 @@ static void createUpgrade(FILE* file, int num, item_t type) {
         descType = "Armor";
         break;
       default:
+        descType = "Unrecognized-Type";
         break;
     }
     switch (rank) {
@@ -293,7 +294,7 @@ static void createUpgrade(FILE* file, int num, item_t type) {
         descRank = "high-leveled";
         break;
       default:
-        descRank = "unrecognized";
+        descRank = "unrecognized-rank";
         break;
     }
 
@@ -309,9 +310,9 @@ static void createUpgrade(FILE* file, int num, item_t type) {
 }
 
 /**
- * 
- * @param file 
- * @param num 
+ * Creates slimes of num items, writing them to the appropriate file.
+ * @param file The slime.item file
+ * @param num How many slimes to create
  */
 static void createSlime(FILE* file, int num) {
   int id = 0;
