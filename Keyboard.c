@@ -314,17 +314,17 @@ static void useItem() {
     }
 
     if (opt == ITEM_SELL) {
-      // FIXME: Currently takes in a single character, does not work when player enters two-digit+ nums
+      char buffer[4]; // number up to 3 digits, should be sufficient
+      size_t n;
+
       printf("How many do you want to sell? ");
-      uchar _count = getchar();
-      FLUSH()
-      uchar count = _count - '0';
+      getline(&buffer, &n, stdin);
+      uchar count = atoi(buffer);
 
       while (count < 0 || count > item->count) {
         printf("Invalid count! Try again! ");
-        _count = getchar();
-        FLUSH()
-        count = _count - '0';
+        getline(&buffer, &n, stdin);
+        count = atoi(buffer);
       }        
 
       sellItem(item, count);
