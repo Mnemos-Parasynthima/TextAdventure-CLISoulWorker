@@ -17,12 +17,12 @@ SoulWorker* initSoulWorker(str name) {
 
   // Set basic stats
   sw->name = name;
-  sw->hp = 20;
+  sw->hp = 5;
   sw->xp = 0;
   sw->lvl = 1;
   sw->invCount = 0;
   sw->dzenai = 0;
-  sw->maxHP = 20;
+  sw->maxHP = 5;
 
   sw->room = NULL;
 
@@ -46,11 +46,11 @@ SoulWorker* initSoulWorker(str name) {
   Stats* stats = (Stats*) malloc(sizeof(Stats));
   if (!stats) handleError(ERR_MEM, FATAL, "Could not allocate space for player stats!\n");
 
-  stats->ATK = 8;
-  stats->DEF = 8;
-  stats->ACC = 2;
-  stats->ATK_CRIT_DMG = 3;
-  stats->ATK_CRIT = 2.0;
+  stats->ATK = 2;
+  stats->DEF = 1;
+  stats->ACC = 1;
+  stats->ATK_CRIT_DMG = 2;
+  stats->ATK_CRIT = 0.05;
   sw->stats = stats;
 
   // Set skill tree
@@ -832,6 +832,7 @@ static SkillTree* initSkillTree() {
   }
 
   free(buffer);
+  fclose(skillsFile);
 
   skillTree->skillStatus = 0x0000;
   skillTree->totalSkillPoints = 20; // OG is 0

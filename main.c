@@ -194,13 +194,15 @@ static void story(bool room) {
 
     ssleep(1000);
     printf("%s", line);
-    line = NULL;
   }
-  ssleep(1000);
-  printf("\n\n");
 
-  if (!room) fclose(story);
-  else { free(player->room->storyFile); player->room->storyFile = NULL; }
+  if (line != NULL) free(line);
+
+  printf("\n\n");
+  ssleep(500);
+
+  if (!room) { fclose(story); player->room->file = NULL; 
+  } else { free(player->room->storyFile); player->room->storyFile = NULL; }
 }
 
 /**
@@ -257,6 +259,7 @@ void loop() {
   if (currRoom->storyFile != NULL) {
     story(true);
     fclose(currRoom->file);
+    currRoom->file = NULL;
   }
 
   while (true) {

@@ -11,6 +11,7 @@
 
 str readJSON(const str filename) {
   FILE* file = fopen(filename, "r");
+  free((void*) filename);
 
   if (!file) handleError(ERR_IO, FATAL, "Could not open file!\n");
 
@@ -747,7 +748,7 @@ Maze* initMaze(const str filename) {
 
   maze->entry = entry;
   maze->size = mazeSize;
-  maze->name = (str) malloc(strlen(mazeName->valuestring + 1));
+  maze->name = (str) malloc(strlen(mazeName->valuestring) + 1);
   if (!maze->name) handleError(ERR_MEM, FATAL, "Could not allocate space for the maze name!\n");
   strcpy(maze->name, mazeName->valuestring);
 

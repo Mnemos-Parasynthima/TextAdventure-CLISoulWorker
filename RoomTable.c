@@ -24,14 +24,34 @@ Table* initTable() {
   return table;
 }
 
+Table* initTableL(int size) {
+  Table* table = (Table*) malloc(sizeof(Table));
+
+  if (!table) return NULL;
+
+  table->rooms = (Room**) calloc(size, sizeof(Room*));
+  if (!table->rooms) {
+    free(table);
+    return NULL;
+  }
+
+  table->cap = size;
+
+  table->len = 0;
+
+  return table;
+}
+
 bool putRoom(Table* table, Room* room, bool overwrite) {
   // Once the length matches the capacity, increase the capacity
   // Note that there might not be a reason to increase the size, if there are only current [cap] rooms in the maze
   //   which it will increase the size no matter what (will add or no longer will add).
   // However, it is only 40 bytes extra, plus some space and time overhead, and it will all get freed anyway
   if (table->len == table->cap) {
-    table->rooms = (Room**) realloc(table->rooms, (table->cap+ROOM_MULT)*sizeof(Room*));
-    if (!table->rooms) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
+    Room** temp = (Room**) realloc(table->rooms, (table->cap+ROOM_MULT)*sizeof(Room*));
+    if (!temp) handleError(ERR_MEM, FATAL, "Could not reallocate space!\n");
+    table->rooms = temp;
+
     void* startingPoint = (table->rooms) + (table->len);
     memset(startingPoint, 0x0, ROOM_MULT*sizeof(Room*));
 
@@ -39,7 +59,7 @@ bool putRoom(Table* table, Room* room, bool overwrite) {
   }
 
   byte id = room->id;
-  Room* _room = table->rooms[(int)id];
+  Room* _room = table->rooms[(int) id];
 
   if (!_room) { // Room does not exist, add it
     table->rooms[(int) id] = room;

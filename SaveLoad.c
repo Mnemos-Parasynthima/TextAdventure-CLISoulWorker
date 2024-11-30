@@ -358,12 +358,14 @@ static cJSON* saveSkill(Skill* skill) {
   cJSON* effect1 = cJSON_AddNumberToObject(_skill, "effect1", skill->effect1.atk);
   if (!effect1) { createError(_skill, "skill effect 1"); return NULL; }
 
-  cJSON* effect2;
+  cJSON* effect2 = NULL;
   if (skill->activeEffect2 == DEF || skill->activeEffect2 == ACC) {
     // Same logic applies from effect1
     effect2 = cJSON_AddNumberToObject(_skill, "effect2", skill->effect2.def);
   } else if (skill->activeEffect2 == ATK_CRIT) {
     effect2 = cJSON_AddNumberToObject(_skill, "effect2", skill->effect2.atk_crit);
+  } else {
+    handleError(ERR_DATA, WARNING, "skill active effect 2 is not a possible option! Option is %d\n", skill->activeEffect2);
   }
   if (!effect2) { createError(_skill, "skill effect 2"); return NULL; }
 
@@ -483,14 +485,14 @@ static cJSON* saveEnemy(EnemyU* _enemy, bool hasBoss) {
  * @return The maze as a JSON string
  */
 static str createMapState() {
-  Table* table = initTable();
+  Table* table = initTableL(maze->size);
   if (!table) handleError(ERR_MEM, FATAL, "Could not allocate space for the table!\n");
 
   Room* room = maze->entry;
   addAndRecurse(room, table);
   room = NULL;
 
-  if (table->len != maze->size) { handleError(ERR_DATA, WARNING, "Table size does not equal maze size!\n"); return NULL; }
+  if (table->len != maze->size) { handleError(ERR_DATA, WARNING, "Table size %d does not equal maze size! %d\n", table->len, maze->size); return NULL; }
 
   // The table SHOULD have all of the rooms
   // Time to create the JSON object
