@@ -249,7 +249,8 @@ static void createHPKit(FILE* file, int num) {
 static void createUpgrade(FILE* file, int num, item_t type) {
   int id = 0;
 
-  int count, rank;
+  int count;
+  char rank;
 
   while (id != num) {
     printf("For %s %d:\n", itemToString(type), id);
@@ -264,7 +265,7 @@ static void createUpgrade(FILE* file, int num, item_t type) {
     FLUSH()
 
     printf("What rank? (B|A|S) ");
-    fscanf(stdin, "%d", &rank);
+    fscanf(stdin, "%c", &rank);
     fprintf(file, "%c\n", rank);
     printf("\t%sSet rank to %c%s\n", GREEN, rank, RESET);
     FLUSH()
@@ -292,6 +293,7 @@ static void createUpgrade(FILE* file, int num, item_t type) {
         descRank = "high-leveled";
         break;
       default:
+        descRank = "unrecognized";
         break;
     }
 
