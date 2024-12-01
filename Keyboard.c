@@ -551,7 +551,7 @@ bool performAction(Commands action) {
 
         setSkill(player->skills, &player->skills->skills[skillNum - 1], (uint) slotNum);
       } else if (action == SKILL_INFO) {
-        printf("Viewing skill!\n");
+        // printf("Viewing skill!\n");
 
         // Get the skill number to view
         printf("What skill do you want to see? Use the skill number. ");

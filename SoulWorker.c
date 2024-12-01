@@ -310,43 +310,32 @@ void viewSelf(SoulWorker* sw) {
   viewGear(sw);
 }
 
-void viewSkills(SkillTree* skillTree) {
-  const int COL_WIDTH = 20;
+/**
+ * Prints the skills for a single row.
+ * @param skillTree The skill tree
+ * @param start Starting index of the skills array
+ * @param end Ending index (exclusive) of the skills array
+ * @param COL_WIDTH Width of a column
+ */
+void skillRow(SkillTree* skillTree, int start, int end, int COL_WIDTH) {
   const str UNLOCKED = GREEN;
   const str LOCKED = RED;
 
-  /**
-   * Skills:
-   * |            1               |             2              |
-   * | [name], LVL [lvl]          | [name], LVL [lvl]          | ...
-   * | CD: [cooldown]             | CD: [cooldown]             |
-   * | [activeEffect1]: [effect1] | [activeEffect1]: [effect1] |
-   * | [activeEffect2]: [effect2] | [activeEffect2]: [effect2] |
-   * -------------------------------------------------------------------
-   * [repeat]
-   * ...
-   * Active skills:
-   * | [skill 1] | [skill2] | [skill3] | [skill4] | [skill5] |
-   * Current Skill Points: []
-   */
-
-  printf("%sSkills:%s\n", CYAN, RESET);
-
-  // Print slot/id
-  for (int i = 0; i < 5; i++) {
+// Print slot/id
+  for (int i = start; i < end; i++) {
     printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? UNLOCKED : LOCKED, 
         COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", RESET);
   }
   printf("|\n");
 
   // Print name and level
-  for (int i = 0; i < 5; i++) {
-    printf("| %-*s LVL %d", COL_WIDTH - 5, skillTree->skills[i].name, skillTree->skills[i].lvl);
+  for (int i = start; i < end; i++) {
+    printf("| %-*s LVL %d", COL_WIDTH - 7, skillTree->skills[i].name, skillTree->skills[i].lvl);
   }
   printf("|\n");
 
   // Print cooldown
-  for (int i = 0; i < 5; i++) {
+  for (int i = start; i < end; i++) {
     printf("| CD: %-*d", COL_WIDTH - 5, skillTree->skills[i].cooldown);
   }
   printf("|\n");
@@ -358,7 +347,7 @@ void viewSkills(SkillTree* skillTree) {
   float effectF;
 
   // Print effect 1
-  for (int i = 0; i < 5; i++) {
+  for (int i = start; i < end; i++) {
     _activeEffect = skillTree->skills[i].activeEffect1;
 
     switch (_activeEffect) {
@@ -375,12 +364,12 @@ void viewSkills(SkillTree* skillTree) {
         break;
     }
 
-    printf("| %-*s: %-*d", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 2, effect);
+    printf("| %s: %-*d", activeEffect, COL_WIDTH - 6, effect);
   }
   printf("|\n");
 
   // Print effect 2
-  for (int i = 0; i < 5; i++) {
+  for (int i = start; i < end; i++) {
     _activeEffect = skillTree->skills[i].activeEffect2;
 
     switch (_activeEffect) {
@@ -401,20 +390,45 @@ void viewSkills(SkillTree* skillTree) {
     }
 
     if (_activeEffect == ATK_CRIT) {
-      printf("| %-*s: %-*.2f", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 1, effectF);
+      printf("| %s: %-*.2f", activeEffect, (COL_WIDTH / 2) - 1, effectF);
     } else {
-      printf("| %-*s: %-*d", COL_WIDTH / 2, activeEffect, COL_WIDTH / 2 - 1, effect);
+      printf("| %s: %-*d", activeEffect, COL_WIDTH - 6, effect);
     }
   }
   printf("|\n");
 
   // Print seperator
-  for (int i = 0; i < 5; i++) {
+  printf("|");
+  for (int i = start; i < end; i++) {
     for (int j = 0; j < COL_WIDTH + 1; j++) {
       printf("-");
     }
   }
-  printf("\n");
+  printf("|\n");
+}
+
+void viewSkills(SkillTree* skillTree) {
+  const int COL_WIDTH = 20;
+
+  /**
+   * Skills:
+   * |            1               |             2              |
+   * | [name], LVL [lvl]          | [name], LVL [lvl]          | ...
+   * | CD: [cooldown]             | CD: [cooldown]             |
+   * | [activeEffect1]: [effect1] | [activeEffect1]: [effect1] |
+   * | [activeEffect2]: [effect2] | [activeEffect2]: [effect2] |
+   * -------------------------------------------------------------------
+   * [repeat]
+   * ...
+   * Active skills:
+   * | [skill 1] | [skill2] | [skill3] | [skill4] | [skill5] |
+   * Current Skill Points: []
+   */
+
+  printf("%sSkills:%s\n", CYAN, RESET);
+
+  skillRow(skillTree, 0, TOTAL_SKILLS / 2, COL_WIDTH);
+  skillRow(skillTree, TOTAL_SKILLS / 2, TOTAL_SKILLS, COL_WIDTH);
 
   printf("Active skills:\n");
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
@@ -443,11 +457,61 @@ void viewSkill(Skill* skill) {
    */
 
   
-  // printf("|%*d%-*s", COL_WIDTH / 2, skillNum, COL_WIDTH / 2 - 1, " ");
-  // printf("|\n");
+  printf("|%*d%-*s|\n", COL_WIDTH / 2, skill->id, COL_WIDTH / 2 - 1, " ");
 
-  printf("| %-*s, LVL %d", COL_WIDTH - 8, skill->name, skill->lvl);
-  printf("|\n");
+  printf("| %s, LVL %-*d|\n", skill->name, COL_WIDTH / 2, skill->lvl);
+
+  str activeEffect;
+  effect_t _activeEffect;
+  ushort effect;
+  float effectF;
+
+  _activeEffect = skill->activeEffect1;
+
+  switch (_activeEffect) {
+    case ATK: // "ATK"
+      // activeEffect = (str) malloc(4);
+      activeEffect = "ATK";
+      effect = skill->effect1.atk;
+      break;
+    case ATK_CRIT_DMG: // "ATK CRIT DMG"
+      activeEffect = "ATK CRIT DMG";
+      effect = skill->effect1.atk_crit_dmg;
+      break;
+    default:
+      break;
+  }
+
+  printf("| %s: %-*d|\n", activeEffect, COL_WIDTH - 7, effect);
+
+  _activeEffect = skill->activeEffect2;
+
+  switch (_activeEffect) {
+    case DEF: // "DEF"
+      activeEffect = "DEF";
+      effect = skill->effect2.def;
+      break;
+    case ACC: // "ACC"
+      activeEffect = "ACC";
+      effect = skill->effect2.acc;
+      break;
+    case ATK_CRIT: // "ATK CRIT"
+      activeEffect = "ATK CRIT";
+      effectF = skill->effect2.atk_crit;
+      break;
+    default:
+      break;
+  }
+
+  if (_activeEffect == ATK_CRIT) {
+    printf("| %s: %-*.2f|\n", activeEffect, (COL_WIDTH / 2) - 2, effectF);
+  } else {
+    printf("| %s: %-*d|\n", activeEffect, COL_WIDTH - 7, effect);
+  }
+
+  // description goes here
+
+  printf("| CD: %-*d|\n", COL_WIDTH - 6, skill->cooldown);
 }
 
 // Keep player and equipped gear stats seperate (for leveling sake)
