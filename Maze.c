@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "Maze.h"
 #include "Error.h"
@@ -37,6 +38,43 @@ bool deleteEnemyFromMap(Room* room, bool deleteGear) {
   room->enemy.enemy = NULL;
 
   return del;
+}
+
+/**
+ * Prints the cleaned-up version of the maze name
+ * @param name The maze name to print
+ */
+static void printMazeName(str name) {
+  int nameLen = strlen(name);
+
+  str _name = (str) malloc(nameLen + 1);
+  if (!_name) {
+    handleError(ERR_MEM, WARNING, "Could not allocate space for map name display! Defaulting to maze name.\n"); 
+    _name = name;
+  } else {
+    strcpy(_name, name);
+
+    str temp = _name;
+
+    // First non-null character will always get capitalized
+    if (*temp != '\0') *temp = toupper(*temp);
+    temp++;
+
+    while (*temp != '\0') {
+      // Change the current character of _ to space
+      if (*temp == '_') *temp = ' ';
+      // Uppercase characters that followed _ (now space)
+      // Guaranteed that *(temp - 1) will not be out of bounds by the increase prior to looping
+      if (*(temp - 1) == ' ') *temp = toupper(*temp);
+
+      temp++;
+    }
+  }
+    
+  printf("%s%s%s: ", PURPLE, _name, RESET);
+
+  // In the case that _name is not malloc'd, _name is assigned to name, thus they point to the same thing
+  if (_name != name) free(_name);
 }
 
 static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visited, uint gridSize, Room* playerRoom) {
@@ -90,7 +128,7 @@ void showMap(Maze* maze, Room* playerRoom) {
   
   placeRoomOnGrid(maze->entry, grid, gridSize/2, gridSize/2, visited, gridSize, playerRoom);
   
-  printf("%sMaze %s%s: ", PURPLE, maze->name, RESET);
+  printMazeName(maze->name);
 
   for (int i = 0; i < gridSize; i++) {
     for (int j = 0; j < gridSize; j++) {
