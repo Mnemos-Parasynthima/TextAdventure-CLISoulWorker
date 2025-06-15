@@ -129,7 +129,7 @@ void showMap(Maze* maze, Room* playerRoom) {
     if (!grid[i]) handleError(ERR_MEM, FATAL, "Could not allocatr memory for map grid i!\n");
 
     visited[i] = malloc(gridSize * sizeof(bool));
-    if (!visisted[i]) handleError(ERR_MEM, FATAL, "Could not allocate memory for visited i!\n");
+    if (!visited[i]) handleError(ERR_MEM, FATAL, "Could not allocate memory for visited i!\n");
 
     memset(grid[i], ' ', gridSize * sizeof(char));
     memset(visited[i], false, gridSize * sizeof(bool));
