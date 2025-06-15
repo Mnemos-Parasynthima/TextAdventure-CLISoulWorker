@@ -257,9 +257,9 @@ void loop() {
   printf("You find yourself in %s...\n", currRoom->info);
 
   if (currRoom->storyFile != NULL) {
-    story(true);
-    fclose(currRoom->file);
-    currRoom->file = NULL;
+    // story(true);
+    // fclose(currRoom->file);
+    // currRoom->file = NULL;
   }
 
   while (true) {
@@ -309,6 +309,7 @@ void loop() {
         maze = initMaze(mazeFile);
 
         player->room = maze->entry;
+        currRoom = player->room;
 
         goto START;
       }
@@ -330,7 +331,10 @@ void loop() {
           break;
       }
 
-      if (added) removeItemFromMap(currRoom);
+      if (added) {
+        printf("ADDED TO INV! REMOVING %p!\n", currRoom->loot);
+        removeItemFromMap(currRoom);
+      }
     }
 
     printf("What are you going to do?... ");
@@ -362,8 +366,8 @@ int main(int argc, char const *argv[]) {
   SetConsoleOutputCP(CP_UTF8);
 #endif
 
-  printSplashScreen();
-  printWelcome();
+  // printSplashScreen();
+  // printWelcome();
 
   bool saveExists = detectSave();
 
@@ -424,8 +428,8 @@ int main(int argc, char const *argv[]) {
   printf("%sRosca%s cordially welcomes you, %sSoulWorker %s%s, to Cloudream...\n\n", YELLOW, RESET, CYAN, player->name, RESET);
   ssleep(1000);
 
-  tutorial();
-  story(false);
+  // tutorial();
+  // story(false);
   loop();
 
   return 0;

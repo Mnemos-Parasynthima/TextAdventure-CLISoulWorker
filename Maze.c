@@ -9,14 +9,16 @@
 
 
 void removeItemFromMap(Room* room) {
-  if (room != NULL && room->loot != NULL) {
+  if (!room && !room->loot) {
     free(room->loot);
     room->loot = NULL;
 
     return;
   }
 
-  fprintf(stderr, "Could not remove item from map!\n"); // Add to error handling???
+  if (!room && room->loot) {
+    fprintf(stderr, "Could not remove item %p from map!\n", room->loot); // Add to error handling???
+  }
 
   return;
 }
@@ -116,12 +118,19 @@ void showMap(Maze* maze, Room* playerRoom) {
   if (gridSize < 5) gridSize = 5;
 
   char** grid = malloc(gridSize * sizeof(char*));
-  bool** visited = malloc(gridSize * sizeof(bool*));
+  if (!grid) handleError(ERR_MEM, FATAL, "Could not allocate memory for map grid!\n");
 
-  
+  bool** visited = malloc(gridSize * sizeof(bool*));
+  if (!visited) handleError(ERR_MEM, FATAL, "Could not allocate memory for visisted array!\n");
+
+
   for (uint i = 0; i < gridSize; i++) {
     grid[i] = malloc(gridSize * sizeof(char));
+    if (!grid[i]) handleError(ERR_MEM, FATAL, "Could not allocatr memory for map grid i!\n");
+
     visited[i] = malloc(gridSize * sizeof(bool));
+    if (!visisted[i]) handleError(ERR_MEM, FATAL, "Could not allocate memory for visited i!\n");
+
     memset(grid[i], ' ', gridSize * sizeof(char));
     memset(visited[i], false, gridSize * sizeof(bool));
   }
@@ -154,11 +163,11 @@ void showMap(Maze* maze, Room* playerRoom) {
 }
 
 void deleteRoom(Room* room) {
-  if (room->loot != NULL) deleteItem(room->loot);
+  if (!room->loot) deleteItem(room->loot);
   deleteEnemyFromMap(room, true);
   free(room->info);
-  if (room->storyFile != NULL) free(room->storyFile);
-  if (room->file != NULL) fclose(room->file);
+  if (!room->storyFile) free(room->storyFile);
+  if (!room->file) fclose(room->file);
   free(room);
 
   room = NULL;

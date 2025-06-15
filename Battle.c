@@ -52,7 +52,6 @@ static void returnRoom() {
       idx = 1;
       break;
     default:
-      idx = -1;
       break;
   }
 
@@ -154,7 +153,7 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
  * @param skills The array of possible boss skills
  * @return The skill to use
  */
-Skill* chooseBossSkill(Skill* skills) {
+static Skill* chooseBossSkill(Skill* skills) {
   srand(time(NULL));
 
   int r = rand() % 2;
@@ -316,12 +315,18 @@ static bool validOptions(char attack, Skill** skillActivated, bool* basicUsed) {
   return false;
 }
 
+#ifdef _WIN64
+  #define _THREAD_RETURN DWORD WINAPI
+#else
+  #define _THREAD_RETURN void*
+#endif
+
 /**
  * Goes through all the skills and decreases its cooldown timer.
  * @param _skills The skill array
  * @return NULL
  */
-static void* decreaseCD(void* _skills) {
+static _THREAD_RETURN decreaseCD(void* _skills) {
   if (!_skills) {
     // Decrease player's skills' CD
     for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
@@ -338,7 +343,11 @@ static void* decreaseCD(void* _skills) {
     }
   }
 
+#ifdef _WIN64
+  return 0;
+#else
   return NULL;
+#endif
 }
 
 bool bossBattle(Boss* boss) {
@@ -395,7 +404,9 @@ bool bossBattle(Boss* boss) {
     DWORD thread1D, thread2D;
 
     playerCDThread = CreateThread(NULL, 0, decreaseCD, NULL, 0, &thread1D);
+    if (!playerCDThread) handleError(ERR_MEM, FATAL, "Could not create thread!\n");
     bossCDThread = CreateThread(NULL, 0, decreaseCD, (void*) boss->skills, 0, &thread2D);
+    if (!bossCDThread) handleError(ERR_MEM, FATAL, "Could not create thread!\n");
 
     WaitForSingleObject(playerCDThread, INFINITE);
     WaitForSingleObject(bossCDThread, INFINITE);
@@ -405,8 +416,11 @@ bool bossBattle(Boss* boss) {
 #else
     pthread_t playerCDThread, bossCDThread;
 
-    pthread_create(&playerCDThread, NULL, decreaseCD, NULL);
-    pthread_create(&bossCDThread, NULL, decreaseCD, (void*) boss->skills);
+    int threadRet = pthread_create(&playerCDThread, NULL, decreaseCD, NULL);
+    if (threadRet != 0) handleError(ERR_MEM, FATAL, "Could not create thread!\n");
+    
+    threadRet = pthread_create(&bossCDThread, NULL, decreaseCD, (void*) boss->skills);
+    if (threadRet != 0) handleError(ERR_MEM, FATAL, "Could not create thread!\n");
 
     pthread_join(playerCDThread, NULL);
     pthread_join(bossCDThread, NULL);

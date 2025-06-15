@@ -193,7 +193,7 @@ static void runInstaller(enum OPTS opt) {
 
   int execRet;
 #ifdef _WIN64
-  execRet = _spawnv(_P_OVERLAY, INSTALLER, args);
+  execRet = _spawnv(_P_OVERLAY, INSTALLER, (const char* const*) args);
 #else
   execRet = execv(INSTALLER, args);
 #endif
@@ -349,7 +349,7 @@ int main(int argc, char const* argv[]) {
   si.cb = sizeof(si);
   ZeroMemory(&pi, sizeof(pi));
 
-  char* argvIn[13] = {0};
+  char argvIn[13] = {0};
   snprintf(argvIn, 13, "%s %s", GAME, launcherFlag);
   execRet = (int) CreateProcess(GAME, argvIn, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
   if (!execRet) {
