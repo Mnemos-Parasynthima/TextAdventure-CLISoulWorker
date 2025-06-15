@@ -1,0 +1,6 @@
+-Wall
+-lpthread
+-I
+.
+-I
+--exclude=headers/dirent.h
