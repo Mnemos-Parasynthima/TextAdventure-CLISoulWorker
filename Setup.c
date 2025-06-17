@@ -40,13 +40,12 @@ cJSON* readData(const str filename) {
   if (!json) {
     const str err = cJSON_GetErrorPtr();
 
-    if (err != NULL) {
-      fprintf(stderr, "Parsing error: %s\n", err);
-    }
+    if (err) fprintf(stderr, "Parsing error: %s\n", err);
 
     cJSON_Delete(json);
   }
 
+  // Might cause null dereference?
   cJSON_DeleteItemFromObjectCaseSensitive(json, "$schema");
 
   return json;
@@ -426,7 +425,7 @@ static Item* selectLoot(cJSON* table) {
   return createItem(item, type);
 }
 
-Enemy* initEnemy(cJSON* obj) {
+static Enemy* initEnemy(cJSON* obj) {
   const str errMsg = "Could not find data for enemy %s!\n";
 
   Enemy* enemy = (Enemy*) malloc(sizeof(Enemy));
@@ -479,7 +478,7 @@ Enemy* initEnemy(cJSON* obj) {
   return enemy;
 }
 
-Boss* initBoss(cJSON* obj) {
+static Boss* initBoss(cJSON* obj) {
   const str errMsg = "Could not find data for boss %s!\n";
 
   Boss* boss = (Boss*) malloc(sizeof(Boss));
@@ -720,7 +719,7 @@ Maze* initMaze(const str filename) {
   Table* roomTable = initTable();
   if (!roomTable) handleError(ERR_MEM, FATAL, "Could not allocate space for the table!\n");
 
-  while (roomI != NULL) {
+  while (roomI) {
     // Traversing through the rooms
 
     // Maybe validate each section, and if validated, add to the structure??
