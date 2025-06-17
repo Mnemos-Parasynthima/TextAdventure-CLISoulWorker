@@ -347,7 +347,8 @@ static void createSlime(FILE* file, int num) {
 int main(int argc, char const* argv[]) {
   if (argc != 2) {
     fprintf(stderr, "usage: CreateItem [type_of_item]\n");
-    fprintf(stderr, "SoulWeapon: 0; Helmet: 1; \n");
+    fprintf(stderr, "SoulWeapon: 0; Helmet: 1; Shoulder Guard: 2; Chestplate: 3; Boots: 4; ");
+    fprintf(stderr, "HP Kits: 5; Weapon Upgrade Material: 6; Armor Upgrade Material: 7; Slime: 8\n");
     return 1;
   }
 
