@@ -85,8 +85,8 @@ static void placeRoomOnGrid(Room* room, char** grid, int x, int y, bool** visite
   visited[y][x] = true;
 
   if (room->hasBoss) grid[y][x] = '!';
-  else if (room->enemy.enemy != NULL) grid[y][x] = '%';
-  else if (room->loot != NULL) grid[y][x] = '$';
+  else if (room->enemy.enemy) grid[y][x] = '%';
+  else if (room->loot) grid[y][x] = '$';
   else if (room->id == 0) grid[y][x] = '@';
   else grid[y][x] = '#';
 
@@ -166,8 +166,8 @@ void deleteRoom(Room* room) {
   if (!room->loot) deleteItem(room->loot);
   deleteEnemyFromMap(room, true);
   free(room->info);
-  if (!room->storyFile) free(room->storyFile);
-  if (!room->file) fclose(room->file);
+  if (room->storyFile) free(room->storyFile);
+  if (room->file) fclose(room->file);
   free(room);
 
   room = NULL;

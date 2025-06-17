@@ -10,6 +10,7 @@
   #include "./headers/getopt.h"
   #include <direct.h> // replace sys/stat
   #include <process.h> // replace sys/wait
+  #include <Windows.h>
 #else
   #include <dirent.h>
   #include <unistd.h>

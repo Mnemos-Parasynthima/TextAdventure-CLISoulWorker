@@ -7,6 +7,7 @@
 #ifdef _WIN64
   #include "./headers/getopt.h"
   #include <direct.h> // replace sys/stat for use of mkdir flags
+  #include <Windows.h>
 #else
   #include <unistd.h>
   #include <sys/types.h>

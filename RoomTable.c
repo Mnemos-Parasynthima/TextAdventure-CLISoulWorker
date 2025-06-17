@@ -36,7 +36,6 @@ Table* initTableL(int size) {
   }
 
   table->cap = size;
-
   table->len = 0;
 
   return table;

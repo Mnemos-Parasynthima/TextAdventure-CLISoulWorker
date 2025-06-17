@@ -170,7 +170,7 @@ static void sellItem(Item* item, ushort count) {
 
 static Item* validItem(byte itemI) {
   if (itemI < 1 || itemI > INV_CAP) return NULL;
-  if (player->inv[itemI-1]._item == NULL) return NULL;
+  if (!player->inv[itemI-1]._item) return NULL;
 
   return &(player->inv[itemI-1]);
 }

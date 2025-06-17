@@ -323,8 +323,7 @@ void skillRow(SkillTree* skillTree, int start, int end, int COL_WIDTH) {
 
 // Print slot/id
   for (int i = start; i < end; i++) {
-    printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? UNLOCKED : LOCKED, 
-        COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", RESET);
+    printf("|%s%*d%*s%s", isSkillUnlocked(skillTree, i + 1) ? UNLOCKED : LOCKED, COL_WIDTH / 2, i + 1, COL_WIDTH / 2, " ", RESET);
   }
   printf("|\n");
 
@@ -389,11 +388,8 @@ void skillRow(SkillTree* skillTree, int start, int end, int COL_WIDTH) {
         break;
     }
 
-    if (_activeEffect == ATK_CRIT) {
-      printf("| %s: %-*.2f", activeEffect, (COL_WIDTH / 2) - 1, effectF);
-    } else {
-      printf("| %s: %-*d", activeEffect, COL_WIDTH - 6, effect);
-    }
+    if (_activeEffect == ATK_CRIT) printf("| %s: %-*.2f", activeEffect, (COL_WIDTH / 2) - 1, effectF);
+    else printf("| %s: %-*d", activeEffect, COL_WIDTH - 6, effect);
   }
   printf("|\n");
 
@@ -432,11 +428,8 @@ void viewSkills(SkillTree* skillTree) {
 
   printf("Active skills:\n");
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    if (skillTree->equippedSkills[i] == NO_SKILL) {
-      printf("| %-*s", COL_WIDTH - 1, "");
-    } else {
-      printf("| %-*s", COL_WIDTH - 1, skillTree->equippedSkills[i]->name);
-    }
+    if (skillTree->equippedSkills[i] == NO_SKILL) printf("| %-*s", COL_WIDTH - 1, "");
+    else printf("| %-*s", COL_WIDTH - 1, skillTree->equippedSkills[i]->name);
   }
   printf("|\n");
 
@@ -503,11 +496,8 @@ void viewSkill(Skill* skill) {
       break;
   }
 
-  if (_activeEffect == ATK_CRIT) {
-    printf("| %s: %-*.2f|\n", activeEffect, (COL_WIDTH / 2) - 2, effectF);
-  } else {
-    printf("| %s: %-*d|\n", activeEffect, COL_WIDTH - 7, effect);
-  }
+  if (_activeEffect == ATK_CRIT) printf("| %s: %-*.2f|\n", activeEffect, (COL_WIDTH / 2) - 2, effectF);
+  else printf("| %s: %-*d|\n", activeEffect, COL_WIDTH - 7, effect);
 
   // description goes here
 

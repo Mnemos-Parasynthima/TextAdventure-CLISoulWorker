@@ -345,8 +345,7 @@ void deleteSkills(Skill skills[], int len) {
   }
 }
 
-bool deleteEnemy(Enemy *enemy)
-{
+bool deleteEnemy(Enemy *enemy) {
   if (!enemy) return false;
 
   free(enemy->name);

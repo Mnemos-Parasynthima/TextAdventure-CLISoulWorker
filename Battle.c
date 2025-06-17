@@ -1,12 +1,13 @@
+#include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <ctype.h>
 #include <time.h>
 
 #ifdef _WIN64
-#include <Windows.h>
+  #include <Windows.h>
 #else
-#include <pthread.h>
+  #include <pthread.h>
 #endif
 
 #include "Battle.h"
@@ -74,26 +75,26 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
   ushort totalDef = target->DEF; // Total defense of the target
 
   if (attacker == player->stats) {
-    if (player->gear.sw != NULL) {
+    if (player->gear.sw) {
       totalAtk += player->gear.sw->atk;
       totalAcc += player->gear.sw->acc;
       totalCrit += player->gear.sw->atk_crit;
       totalCritDmg += player->gear.sw->atk_crit_dmg;
     }
 
-    if (player->gear.helmet != NULL) {
+    if (player->gear.helmet) {
       totalAcc += player->gear.helmet->acc;
     }
 
-    if (player->gear.guard != NULL) {
+    if (player->gear.guard) {
       totalAcc += player->gear.guard->acc;
     }
 
-    if (player->gear.chestplate != NULL) {
+    if (player->gear.chestplate) {
       totalAcc += player->gear.chestplate->acc;
     }
 
-    if (player->gear.boots != NULL) {
+    if (player->gear.boots) {
       totalAcc += player->gear.boots->acc;
     }
   }
@@ -102,24 +103,24 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
   // It is the case when the target stats is the player's stats
   // so the enemy can take that defense into account
   if (target == player->stats) {
-    if (player->gear.helmet != NULL) {
+    if (player->gear.helmet) {
       totalDef += player->gear.helmet->def;
     }
 
-    if (player->gear.guard != NULL) {
+    if (player->gear.guard) {
       totalDef += player->gear.guard->def;
     }
 
-    if (player->gear.chestplate != NULL) {
+    if (player->gear.chestplate) {
       totalDef += player->gear.chestplate->def;
     }
 
-    if (player->gear.boots != NULL) {
+    if (player->gear.boots) {
       totalDef += player->gear.boots->def;
     }
   }
 
-  if (skill != NULL) {
+  if (skill) {
     totalAtk += (skill->activeEffect1 == ATK) ? skill->effect1.atk : 0;
     totalAcc += (skill->activeEffect2 == ACC) ? skill->effect2.acc : 0;
     totalCrit += (skill->activeEffect2 == ATK_CRIT) ? skill->effect2.atk_crit : 0.0;
@@ -127,7 +128,7 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
     totalDef += (skill->activeEffect2 == DEF) ? skill->effect2.def : 0;
   }
 
-
+  printf("%d\n", RAND_MAX);
   float hitRoll = (float) rand() / RAND_MAX * (player->lvl * 3);
   // printf("hitroll: %3.2f\n", hitRoll);
   if (hitRoll > totalAcc) return 0;
@@ -142,7 +143,7 @@ static ushort getTotalDmg(Stats* attacker, Stats* target, Skill* skill) {
     baseDamage += ((ushort) baseDamage * totalCritDmg) / 100;
   }
 
-  if (skill != NULL) skill->cdTimer = skill->cooldown + 1;
+  if (skill) skill->cdTimer = skill->cooldown + 1;
 
   return (ushort) baseDamage;
 }
@@ -267,7 +268,7 @@ static void displayOptions() {
   Skill** equipped = player->skills->equippedSkills;
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    if (equipped[i] != NULL) {
+    if (equipped[i]) {
       printf("[%d] %s; CD: %d\n", i + 1, equipped[i]->name, equipped[i]->cdTimer);
     }
   }
@@ -296,7 +297,7 @@ static bool validOptions(char attack, Skill** skillActivated, bool* basicUsed) {
   }
 
   for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-    if ((player->skills->equippedSkills[i] != NULL) && ((attack - 0x30) == i + 1)) {
+    if ((player->skills->equippedSkills[i]) && ((attack - 0x30) == i + 1)) {
       // Found the skill that attack matches
       if (player->skills->equippedSkills[i]->cdTimer != 0) {
         // The cooldown is still in effect
@@ -330,7 +331,7 @@ static _THREAD_RETURN decreaseCD(void* _skills) {
   if (!_skills) {
     // Decrease player's skills' CD
     for (int i = 0; i < EQUIPPED_SKILL_COUNT; i++) {
-      if (player->skills->equippedSkills[i] != NULL) {
+      if (player->skills->equippedSkills[i]) {
         if (player->skills->equippedSkills[i]->cdTimer > 0) player->skills->equippedSkills[i]->cdTimer--;
       }
     }

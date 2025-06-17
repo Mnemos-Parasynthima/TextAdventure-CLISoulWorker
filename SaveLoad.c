@@ -512,8 +512,7 @@ static str createMapState() {
     cJSON* roomObj = cJSON_AddObjectToObject(mapObj, idAsChar);
     if (!roomObj) return createError(mapObj, idAsChar);
 
-    cJSON* storyfile = cJSON_AddStringToObject(roomObj, "storyfile", 
-      (room->storyFile != NULL) ? room->storyFile : "");
+    cJSON* storyfile = cJSON_AddStringToObject(roomObj, "storyfile", (room->storyFile != NULL) ? room->storyFile : "");
     if (!storyfile) return createError(mapObj, "storyfile");
 
     cJSON* isEntry = cJSON_AddNumberToObject(roomObj, IS_ENTRY, (room->id == 0) ? 1 : 0);
@@ -572,7 +571,7 @@ static bool saveMap() {
   str mapState = createMapState();
   if (!mapState) handleError(ERR_DATA, WARNING, "Could not create map state!\n");
 
-  if (mapState != NULL) {
+  if (mapState) {
     char filename[30];
     sprintf(filename, "%s/map_save.json", SAVE_DIR);
 
@@ -704,27 +703,23 @@ static str createPlayerState() {
  */
 static bool savePlayer() {
   str playerState = createPlayerState();
-  if (!playerState) handleError(ERR_DATA, WARNING, "Could not create player state!\n");
+  if (!playerState) { handleError(ERR_DATA, WARNING, "Could not create player state!\n"); return false; }
+  
+  char filename[32];
+  sprintf(filename, "%s/player_save.json", SAVE_DIR);
 
-  if (playerState != NULL) {
-    char filename[32];
-    sprintf(filename, "%s/player_save.json", SAVE_DIR);
+  FILE* file = fopen(filename, "w");
+  if (!file) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; } 
+  else {
+    int written = fprintf(file, "%s", playerState);
+    fclose(file);
 
-    FILE* file = fopen(filename, "w");
-    if (!file) { handleError(ERR_IO, WARNING, "Unable to create the save!\n"); return false; } 
-    else {
-      int written = fprintf(file, "%s", playerState);
-      fclose(file);
-
-      if (written <= 0) { handleError(ERR_IO, WARNING, "Unable to save the player data!\n"); return false; }
-    }
-
-    cJSON_free(playerState);
-
-    return true;
+    if (written <= 0) { handleError(ERR_IO, WARNING, "Unable to save the player data!\n"); return false; }
   }
 
-  return false;
+  cJSON_free(playerState);
+
+  return true;
 }
 
 void saveGame() {
@@ -804,7 +799,7 @@ static SoulWorker* loadPlayer() {
 
   dArrayFree(visited);
 
-  if (player->room == NULL|| player->room == (void*)((long long) NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
+  if (!player->room|| player->room == (void*)((long long) NO_EXIT)) handleError(ERR_DATA, FATAL, "Could not find room!\n");
 
   // Make sure room is the same
   if (player->room->id != (byte)(roomId->valueint)) handleError(ERR_DATA, FATAL, "Room ID does not match!\n");
